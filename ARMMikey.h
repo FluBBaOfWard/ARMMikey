@@ -44,22 +44,21 @@ typedef struct
 typedef struct
 {
 	u32 BKUP;
-	u32		ENABLE_RELOAD;
-	u32		ENABLE_COUNT;
-	u32		LINKING;
-	u32		CURRENT;
-	u32		TIMER_DONE;
-	u32		LAST_CLOCK;
-	u32		BORROW_IN;
-	u32		BORROW_OUT;
-	u32		LAST_LINK_CARRY;
-	u32		LAST_COUNT;
-	s8		VOLUME;
-	s8		OUTPUT;
-	u32		INTEGRATE_ENABLE;
-	u32		WAVESHAPER;
+	u32 ENABLE_RELOAD;
+	u32 ENABLE_COUNT;
+	u32 LINKING;
+	u32 CURRENT;
+	u32 TIMER_DONE;
+	u32 LAST_CLOCK;
+	u32 BORROW_IN;
+	u32 BORROW_OUT;
+	u32 LAST_LINK_CARRY;
+	u32 LAST_COUNT;
+	s8  VOLUME;
+	s8  OUTPUT;
+	u32 INTEGRATE_ENABLE;
+	u32 WAVESHAPER;
 } MAUDIO;
-
 
 
 typedef struct {
@@ -69,7 +68,6 @@ typedef struct {
 
 	u32 windowData;
 //mikState:
-//mikRegs:
 	MTIMER timer0;
 	MTIMER timer1;
 	MTIMER timer2;
@@ -79,8 +77,9 @@ typedef struct {
 	MTIMER timer6;
 	MTIMER timer7;
 
-	u8 mikLCDXSize;				// 0x00 LCD X Size
-	u8 mikLCDYSize;				// 0x01 LCD Y Size
+//mikRegs:
+
+	u8 mikLCDVSize;				// 0x01 LCD Y Size
 	u8 mikXScroll;				// 0x02 X Scroll
 	u8 mikYScroll;				// 0x03 Y Scroll
 	u8 mikMirr00;				// 0x04 Mirror of reg 0x00

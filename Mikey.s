@@ -24,8 +24,8 @@
 	.global miVideoLoadState
 	.global miVideoGetStateSize
 	.global miDoScanline
-	.global miRead
-	.global miWrite
+	.global mikeyRead
+	.global mikeyWrite
 	.global miRefW
 
 	.syntax unified
@@ -152,7 +152,7 @@ miVideoGetStateSize:		;@ Out r0=state size.
 
 	.pool
 ;@----------------------------------------------------------------------------
-miRead:						;@ I/O read
+mikeyRead:					;@ I/O read
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
 	cmp r2,#0xD0
@@ -416,7 +416,7 @@ miDMAIRQClear:				;@ 2025
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miWrite:					;@ I/O write
+mikeyWrite:					;@ I/O write
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
 	cmp r2,#0xD0

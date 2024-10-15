@@ -303,31 +303,31 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD84 MAGRDY0
 	.long miRegR				;@ 0xFD85 MAGRDY1
 	.long miRegR				;@ 0xFD86 AUDIN
-	.long miRegR				;@ 0xFD87 SYSCTL1
+	.long miWriteOnlyR			;@ 0xFD87 SYSCTL1
 	.long miRegR				;@ 0xFD88 MIKEYHREV
-	.long miRegR				;@ 0xFD89 MIKEYSREV
-	.long miRegR				;@ 0xFD8A IODIR
+	.long miWriteOnlyR			;@ 0xFD89 MIKEYSREV
+	.long miWriteOnlyR			;@ 0xFD8A IODIR
 	.long miRegR				;@ 0xFD8B IODAT
 	.long miRegR				;@ 0xFD8C SERCTL
 	.long miRegR				;@ 0xFD8D SERDAT
 	.long miUnmappedR			;@ 0xFD8E
 	.long miUnmappedR			;@ 0xFD8F
 
-	.long miRegR				;@ 0xFD90 SDONEACK
-	.long miRegR				;@ 0xFD91 CPUSLEEP
-	.long miRegR				;@ 0xFD92 DISPCTL
-	.long miRegR				;@ 0xFD93 PBKUP
-	.long miRegR				;@ 0xFD94 DISPADR/DISPADRL
-	.long miRegR				;@ 0xFD95 DISPADRH
+	.long miWriteOnlyR			;@ 0xFD90 SDONEACK
+	.long miWriteOnlyR			;@ 0xFD91 CPUSLEEP
+	.long miWriteOnlyR			;@ 0xFD92 DISPCTL
+	.long miWriteOnlyR			;@ 0xFD93 PBKUP
+	.long miWriteOnlyR			;@ 0xFD94 DISPADR/DISPADRL
+	.long miWriteOnlyR			;@ 0xFD95 DISPADRH
 	.long miUnmappedR			;@ 0xFD96
 	.long miUnmappedR			;@ 0xFD97
 	.long miUnmappedR			;@ 0xFD98
 	.long miUnmappedR			;@ 0xFD99
 	.long miUnmappedR			;@ 0xFD9A
 	.long miUnmappedR			;@ 0xFD9B
-	.long miRegR				;@ 0xFD9C Mtest0
-	.long miRegR				;@ 0xFD9D Mtest1
-	.long miRegR				;@ 0xFD9E Mtest2
+	.long miWriteOnlyR			;@ 0xFD9C Mtest0
+	.long miWriteOnlyR			;@ 0xFD9D Mtest1
+	.long miWriteOnlyR			;@ 0xFD9E Mtest2
 	.long miUnmappedR			;@ 0xFD9F
 
 	.long miRegR				;@ 0xFDA0 GREEN0
@@ -544,11 +544,11 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD81 INTSET
 	.long miUnmappedW			;@ 0xFD82
 	.long miUnmappedW			;@ 0xFD83
-	.long miRegW				;@ 0xFD84 MAGRDY0
-	.long miRegW				;@ 0xFD85 MAGRDY1
-	.long miRegW				;@ 0xFD86 AUDIN
+	.long miReadOnlyW			;@ 0xFD84 MAGRDY0
+	.long miReadOnlyW			;@ 0xFD85 MAGRDY1
+	.long miReadOnlyW			;@ 0xFD86 AUDIN
 	.long miRegW				;@ 0xFD87 SYSCTL1
-	.long miRegW				;@ 0xFD88 MIKEYHREV
+	.long miReadOnlyW			;@ 0xFD88 MIKEYHREV
 	.long miRegW				;@ 0xFD89 MIKEYSREV
 	.long miRegW				;@ 0xFD8A IODIR
 	.long miRegW				;@ 0xFD8B IODAT

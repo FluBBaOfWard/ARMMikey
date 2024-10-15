@@ -202,7 +202,7 @@ typedef struct {
 
 } MIKEY;
 
-void svVideoReset(void *irqFunction(), void *ram, int soc);
+void miVideoReset(void *irqFunction(), void *ram, int soc);
 
 /**
  * Saves the state of the chip to the destination.

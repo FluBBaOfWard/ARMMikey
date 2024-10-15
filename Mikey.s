@@ -395,27 +395,6 @@ miRegR:
 	.pool
 
 ;@----------------------------------------------------------------------------
-miTimerIRQClear:			;@ 2024
-;@----------------------------------------------------------------------------
-	stmfd sp!,{lr}
-	ldrb r0,[mikptr,#mikIRQStatus]
-	bic r0,r0,#1
-	bl miSetInterruptStatus
-	mov r0,#0
-	ldmfd sp!,{lr}
-	bx lr
-;@----------------------------------------------------------------------------
-miDMAIRQClear:				;@ 2025
-;@----------------------------------------------------------------------------
-	stmfd sp!,{lr}
-	ldrb r0,[mikptr,#mikIRQStatus]
-	bic r0,r0,#2
-	bl miSetInterruptStatus
-	mov r0,#0
-	ldmfd sp!,{lr}
-	bx lr
-
-;@----------------------------------------------------------------------------
 mikeyWrite:					;@ I/O write
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
@@ -666,7 +645,6 @@ svRefW:						;@ 0x2001, Last scan line.
 	mov r0,r1
 	b setScreenRefresh
 
-
 ;@----------------------------------------------------------------------------
 newFrame:					;@ Called before line 0
 ;@----------------------------------------------------------------------------
@@ -681,7 +659,6 @@ endFrame:
 
 ;@----------------------------------------------------------------------------
 frameEndHook:
-
 	adr r2,lineStateTable
 	ldr r1,[r2],#4
 	mov r0,#-1
@@ -722,68 +699,12 @@ checkScanlineIRQ:
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
 
-	ldr r1,[mikptr,#mikTimerValue]
-	tst r1,#0xFF000000
-	beq noTimerCount
-	ldrb r2,[mikptr,#mikSystemControl]
-	tst r2,#0x10
-	moveq r0,#CYCLE_PSL<<16
-	movne r0,#CYCLE_PSL<<10
-	subs r1,r1,r0
-	biccc r1,r1,#0xFF000000
-	tst r1,#0xFF000000
-	str r1,[mikptr,#mikTimerValue]
-	ldrb r0,[mikptr,#mikIRQStatus]
-	orreq r0,r0,#0x01			;@ #0 = Timer IRQ
-	bl miSetInterruptStatus
-noTimerCount:
-
-	ldr r1,[mikptr,#mikNMITimer]
-	adds r1,r1,CYCLE_PSL<<16
-	str r1,[mikptr,#mikNMITimer]
-	ldrb r0,[mikptr,#mikNMIStatus]
-	orrcs r0,r0,#1
-	bicvs r0,r0,#1
-	bcc noSoundCount
-	ldrb r1,[mikptr,#mikCh1Len]
-	subs r1,r1,#1
-	strbpl r1,[mikptr,#mikCh1Len]
-	ldrb r1,[mikptr,#mikCh2Len]
-	subs r1,r1,#1
-	strbpl r1,[mikptr,#mikCh2Len]
-	ldrb r1,[mikptr,#mikCh4Len]
-	subs r1,r1,#1
-	strbpl r1,[mikptr,#mikCh4Len]
-noSoundCount:
-	bl miSetNMIStatus
 
 	ldr r0,[mikptr,#scanline]
 	subs r0,r0,#159				;@ Return from emulation loop on this scanline
 	movne r0,#1
 	ldmfd sp!,{pc}
 
-;@----------------------------------------------------------------------------
-miSetInterruptStatus:		;@ r0 = interrupt status
-;@----------------------------------------------------------------------------
-	ldrb r2,[mikptr,#mikIRQStatus]
-	cmp r0,r2
-	bxeq lr
-	strb r0,[mikptr,#mikIRQStatus]
-svUpdateIrqEnable:
-	ldrb r1,[mikptr,#mikSystemControl]
-	and r0,r0,r1,lsr#1
-	ldr pc,[mikptr,#mikIrqFunction]
-;@----------------------------------------------------------------------------
-miSetNMIStatus:				;@ r0 = NMI status, 0=off, 1=on
-;@----------------------------------------------------------------------------
-	ldrb r2,[mikptr,#mikNMIStatus]
-	cmp r0,r2
-	bxeq lr
-	strb r0,[mikptr,#mikNMIStatus]
-svUpdateNMIEnable:
-	ldrb r1,[mikptr,#mikSystemControl]
-	and r0,r0,r1
-	ldr pc,[mikptr,#mikNmiFunction]
 ;@----------------------------------------------------------------------------
 #ifdef GBA
 	.section .sbss				;@ For the GBA

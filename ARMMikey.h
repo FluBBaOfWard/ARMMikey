@@ -78,72 +78,122 @@ typedef struct {
 	MTIMER timer7;
 
 //mikRegs:
+	u8 mikTim0Bkup;		// 0x00 Timer 0 Backup
+	u8 mikTim0CtlA;		// 0x01 Timer 0 Control A
+	u8 mikTim0Cnt;		// 0x02 Timer 0 Count
+	u8 mikTim0CtlB;		// 0x03 Timer 0 Control B
+	u8 mikTim1Bkup;		// 0x04 Timer 1 Backup
+	u8 mikTim1CtlA;		// 0x05 Timer 1 Control A
+	u8 mikTim1Cnt;		// 0x06 Timer 1 Count
+	u8 mikTim1CtlB;		// 0x07 Timer 1 Control B
+	u8 mikTim2Bkup;		// 0x08 Timer 2 Backup
+	u8 mikTim2CtlA;		// 0x09 Timer 2 Control A
+	u8 mikTim2Cnt;		// 0x0A Timer 2 Count
+	u8 mikTim2CtlB;		// 0x0B Timer 2 Control B
+	u8 mikTim3Bkup;		// 0x0C Timer 3 Backup
+	u8 mikTim3CtlA;		// 0x0D Timer 3 Control A
+	u8 mikTim3Cnt;		// 0x0E Timer 3 Count
+	u8 mikTim3CtlB;		// 0x0F Timer 3 Control B
+	u8 mikTim4Bkup;		// 0x10 Timer 4 Backup
+	u8 mikTim4CtlA;		// 0x11 Timer 4 Control A
+	u8 mikTim4Cnt;		// 0x12 Timer 4 Count
+	u8 mikTim4CtlB;		// 0x13 Timer 4 Control B
+	u8 mikTim5Bkup;		// 0x14 Timer 5 Backup
+	u8 mikTim5CtlA;		// 0x15 Timer 5 Control A
+	u8 mikTim5Cnt;		// 0x16 Timer 5 Count
+	u8 mikTim5CtlB;		// 0x17 Timer 5 Control B
+	u8 mikTim6Bkup;		// 0x18 Timer 6 Backup
+	u8 mikTim6CtlA;		// 0x19 Timer 6 Control A
+	u8 mikTim6Cnt;		// 0x1A Timer 6 Count
+	u8 mikTim6CtlB;		// 0x1B Timer 6 Control B
+	u8 mikTim7Bkup;		// 0x1C Timer 7 Backup
+	u8 mikTim7CtlA;		// 0x1D Timer 7 Control A
+	u8 mikTim7Cnt;		// 0x1E Timer 7 Count
+	u8 mikTim7CtlB;		// 0x1F Timer 7 Control B
 
-	u8 mikLCDVSize;				// 0x01 LCD Y Size
-	u8 mikXScroll;				// 0x02 X Scroll
-	u8 mikYScroll;				// 0x03 Y Scroll
-	u8 mikMirr00;				// 0x04 Mirror of reg 0x00
-	u8 mikMirr01;				// 0x05 Mirror of reg 0x01
-	u8 mikMirr02;				// 0x06 Mirror of reg 0x02
-	u8 mikMirr03;				// 0x07 Mirror of reg 0x03
+	u8 mikAud0Vol;		// 0x20 Audio 0 2's Complement Volume Control
+	u8 mikAud0ShftFb;	// 0x21 Audio 0 Shift Register Feedback Enable
+	u8 mikAud0OutVal;	// 0x22 Audio 0 Output Value
+	u8 mikAud0L8Shft;	// 0x23 Audio 0 Lower 8 Bits of Shift Register
+	u8 mikAud0TBack;	// 0x24 Audio 0 Audio Timer Backup Value
+	u8 mikAud0Ctl;		// 0x25 Audio 0 Audio Control Bits
+	u8 mikAud0Count;	// 0x26 Audio 0 Counter
+	u8 mikAud0Misc;		// 0x27 Audio 0 Other Bits
 
-	u8 mikDMASrcLow;			// 0x08 DMA Source Low
-	u8 mikDMASrcHigh;			// 0x09 DMA Source High
-	u8 mikDMADstLow;			// 0x0A DMA Destination Low
-	u8 mikDMADstHigh;			// 0x0B DMA Destination High
-	u8 mikDMALen;				// 0x0C DMA Length
-	u8 mikDMACtrl;				// 0x0D DMA Control
+	u8 mikAud1Vol;		// 0x28 Audio 1 2's Complement Volume Control
+	u8 mikAud1ShftFb;	// 0x29 Audio 1 Shift Register Feedback Enable
+	u8 mikAud1OutVal;	// 0x2A Audio 1 Output Value
+	u8 mikAud1L8Shft;	// 0x2B Audio 1 Lower 8 Bits of Shift Register
+	u8 mikAud1TBack;	// 0x2C Audio 1 Audio Timer Backup Value
+	u8 mikAud1Ctl;		// 0x2D Audio 1 Audio Control Bits
+	u8 mikAud1Count;	// 0x2E Audio 1 Counter
+	u8 mikAud1Misc;		// 0x2F Audio 1 Other Bits
 
-	u8 mikPadding0[2];			// 0x0E-0x0F ??
+	u8 mikAud2Vol;		// 0x30 Audio 2 2's Complement Volume Control
+	u8 mikAud2ShftFb;	// 0x31 Audio 2 Shift Register Feedback Enable
+	u8 mikAud2OutVal;	// 0x32 Audio 2 Output Value
+	u8 mikAud2L8Shft;	// 0x33 Audio 2 Lower 8 Bits of Shift Register
+	u8 mikAud2TBack;	// 0x34 Audio 2 Audio Timer Backup Value
+	u8 mikAud2Ctl;		// 0x35 Audio 2 Audio Control Bits
+	u8 mikAud2Count;	// 0x36 Audio 2 Counter
+	u8 mikAud2Misc;		// 0x37 Audio 2 Other Bits
 
-	u8 mikCh1FreqLow;			// 0x10 Channel 1 Frequency Low (Right only)
-	u8 mikCh1FreqHigh;			// 0x11 Channel 1 Frequency High
-	u8 mikCh1Duty;				// 0x12 Channel 1 Duty cycle
-	u8 mikCh1Len;				// 0x13 Channel 1 Length
-	u8 mikCh2FreqLow;			// 0x14 Channel 2 Frequency Low (Left only)
-	u8 mikCh2FreqHigh;			// 0x15 Channel 2 Frequency High
-	u8 mikCh2Duty;				// 0x16 Channel 2 Duty cycle
-	u8 mikCh2Len;				// 0x17 Channel 2 Length
+	u8 mikAud3Vol;		// 0x38 Audio 3 2's Complement Volume Control
+	u8 mikAud3ShftFb;	// 0x39 Audio 3 Shift Register Feedback Enable
+	u8 mikAud3OutVal;	// 0x3A Audio 3 Output Value
+	u8 mikAud3L8Shft;	// 0x3B Audio 3 Lower 8 Bits of Shift Register
+	u8 mikAud3TBack;	// 0x3C Audio 3 Audio Timer Backup Value
+	u8 mikAud3Ctl;		// 0x3D Audio 3 Audio Control Bits
+	u8 mikAud3Count;	// 0x3E Audio 3 Counter
+	u8 mikAud3Misc;		// 0x3F Audio 3 Other Bits
 
-	u8 mikCh3AdrLow;			// 0x18 Channel 3 Address Low
-	u8 mikCh3AdrHigh;			// 0x19 Channel 3 Address High
-	u8 mikCh3Len;				// 0x1A Channel 3 Length
-	u8 mikCh3Ctrl;				// 0x1B Channel 3 Control
-	u8 mikCh3Trigg;				// 0x1C Channel 3 Trigger
-	u8 mikPadding1[3];			// 0x1D - 0x1F ???
+			// Lynx2 Regs
+	u8 mikAttenA;		// 0x40
+	u8 mikAttenB;		// 0x41
+	u8 mikAttenC;		// 0x42
+	u8 mikAttenD;		// 0x43
+	u8 mikMPAN;			// 0x44
+	u8 mikPadding0[0x0B];// 0x45-0x4F
 
-	u8 mikController;			// 0x20 Controller
-	u8 mikLinkPortDDR;			// 0x21 Link Port DDR
-	u8 mikLinkPortData;			// 0x22 Link Port Data
-	u8 mikIRQTimer;				// 0x23 IRQ Timer
-	u8 mikTimerIRQReset;		// 0x24 Timer IRQ Reset
-	u8 mikSndDMAIRQReset;		// 0x25 Sound DMA IRQ Reset
-	u8 mikSystemControl;		// 0x26 System Control
-	u8 mikIRQStatus;			// 0x27 IRQ Status
-	u8 mikCh4FreqVol;			// 0x28 Channel 4 Frquency and volume
-	u8 mikCh4Len;				// 0x29 Channel 4 Length
-	u8 mikCh4Ctrl;				// 0x2A Channel 4 Control
-	u8 mikPadding2;				// 0x2B ???
-	u8 mikMirr028;				// 0x2C Mirror of Reg 0x28
-	u8 mikMirr029;				// 0x2D Mirror of Reg 0x29
-	u8 mikMirr02A;				// 0x2E Mirror of Reg 0x2A
-	u8 mikPadding3;				// 0x2F ???
+	u8 mikMStereo;		// 0x50 MSTEREO
+	u8 mikPadding1[0x2F];// 0x51-0x7F
+
+	u8 mikIntRst;		// 0x80 Interrupt Reset
+	u8 mikIntSet;		// 0x81 Interrupt Set
+	u8 mikPadding2[0x02];// 0x82-0x83
+	u8 mikMagRdy0;		// 0x84 Mag Tape Channel 0 ready bit
+	u8 mikMagRdy1;		// 0x85 Mag Tape Channel 1 ready bit
+	u8 mikAudIn;		// 0x86 Audio In
+	u8 mikSysCtl1;		// 0x87 System Control 1
+	u8 mikMikeyHRev;	// 0x88 Mikey Hardware Revision
+	u8 mikMikeySRev;	// 0x89 Mikey Software Revision
+	u8 mikIODir;		// 0x8A IO Direction
+	u8 mikIODat;		// 0x8B IO Data
+	u8 mikSerCtl;		// 0x8C Serial Control
+	u8 mikSerDat;		// 0x8D Serial Data
+	u8 mikPadding3[0x02];// 0x8E-0x8F
+
+	u8 mikSDoneAck;		// 0x90 Suzy Done Acknowledge
+	u8 mikCpuSleep;		// 0x91 CPU Sleep, Bus Request Disable
+	u8 mikDispCtl;		// 0x92 Display Control,  Video Bus Reguest Enable.
+	u8 mikPBkup;		// 0x93 P Backup, Magic 'P' count
+	//u8 DispAdr;
+	u8 DispAdrL;		// 0x94 Display Adress Low
+	u8 DispAdrH;		// 0x95 Display Adress High
+	u8 mikPadding4[0x06];// 0x96-0x9B
+	u8 mikMtest0;		// 0x9C Mtest0
+	u8 mikMtest1;		// 0x9D Mtest1
+	u8 mikMtest2;		// 0x9E Mtest2
+	u8 mikPadding5;		// 0x9F
+
+	u8 mikGreen[0x10];	// 0xA0-0xAF Green palette
+	u8 mikBlueRed[0x10];// 0xB0-0xBF Blue/Red palette
+
 
 //------------------------------
-	u32 mikNMITimer;
-	u32 mikTimerValue;
-
-	u32 mikCh1Counter;			// Ch1 Counter
-	u32 mikCh2Counter;			// Ch2 Counter
-	u32 mikCh3Counter;			// Ch3 Counter
-	u32 mikCh4Counter;			// Ch4 Counter
-	u32 mikCh4LFSR;				// Ch4 Noise LFSR
-	u32 mikCh3Address;			// Ch3 sample address (physical)
-	u32 mikCh4Feedback;			// Ch4 Noise Feedback
-
-	u8 mikNMIStatus;			// NMI pin out status
+	u8 mikLCDVSize;				// 0x01 LCD Y Size
 	u8 mikSOC;					// HOWARD or HOWARD2
-	u8 mikPadding4[2];
+	u8 sdfsdfsf[2];
 
 	void *mikNmiFunction;			// NMI callback
 	void *mikIrqFunction;			// IRQ callback

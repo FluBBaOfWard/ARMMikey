@@ -52,9 +52,9 @@ miAudioMixer:				;@ r0=len, r1=dest, r12=suzptr
 ;@--------------------------
 	ldr lr,=vol4_L
 
-	ldrb r2,[mikptr,#mikCh1Ctrl]
+//	ldrb r2,[mikptr,#mikCh1Ctrl]
 	ands r9,r2,#0x40				;@ Ch 1 on?
-	ldrbeq r3,[mikptr,#mikCh1Len]
+//	ldrbeq r3,[mikptr,#mikCh1Len]
 	cmpeq r3,#0
 	andne r9,r2,#0xF
 	ands r4,r2,#0x30				;@ Duty cycle
@@ -64,9 +64,9 @@ miAudioMixer:				;@ r0=len, r1=dest, r12=suzptr
 	moveq r10,#0x80000000
 	movhi r10,#0x40000000
 
-	ldrb r2,[mikptr,#mikCh2Ctrl]
+//	ldrb r2,[mikptr,#mikCh2Ctrl]
 	tst r2,#0x40					;@ Ch 2 on?
-	ldrbeq r3,[mikptr,#mikCh2Len]
+//	ldrbeq r3,[mikptr,#mikCh2Len]
 	cmpeq r3,#0
 	and r3,r2,#0xF
 	orrne r9,r9,r3,lsl#16
@@ -77,20 +77,20 @@ miAudioMixer:				;@ r0=len, r1=dest, r12=suzptr
 	orreq r10,r10,#0x4
 	orrhi r10,r10,#0x2
 
-	ldrb r3,[mikptr,#mikCh3Trigg]
+//	ldrb r3,[mikptr,#mikCh3Trigg]
 	ands r2,r3,#0x80
 	movne r2,#0xF
-	ldrb r3,[mikptr,#mikCh3Ctrl]
+//	ldrb r3,[mikptr,#mikCh3Ctrl]
 	ands r11,r3,#4					;@ Ch 3 right?
 	movne r11,r2,lsl#16
 	tst r3,#8						;@ Ch 3 left?
 	orrne r11,r11,r2
 
-	ldrb r3,[mikptr,#mikCh4Ctrl]
+//	ldrb r3,[mikptr,#mikCh4Ctrl]
 	ands r2,r3,#2					;@ Ch 4 on?
-	ldrbeq r2,[mikptr,#mikCh4Len]
+//	ldrbeq r2,[mikptr,#mikCh4Len]
 	cmpeq r2,#0
-	ldrbne r2,[mikptr,#mikCh4FreqVol]
+//	ldrbne r2,[mikptr,#mikCh4FreqVol]
 	and r2,r2,#0xF
 	ands r4,r3,#4					;@ Ch 4 right?
 	movne r4,r2
@@ -99,12 +99,12 @@ miAudioMixer:				;@ r0=len, r1=dest, r12=suzptr
 	strb r2,[lr,#vol4_L-vol4_L]
 	strb r4,[lr,#vol4_R-vol4_L]
 
-	add r2,mikptr,#mikCh1Counter
+//	add r2,mikptr,#mikCh1Counter
 	ldmia r2,{r3-r8}
 
 	b pcmMix
 pcmMixReturn:
-	add r0,mikptr,#mikCh1Counter	;@ Counters
+//	add r0,mikptr,#mikCh1Counter	;@ Counters
 	stmia r0,{r3-r8}
 
 	ldmfd sp!,{r4-r11,pc}
@@ -160,7 +160,7 @@ innerMixLoop:
 	adds r6,r6,#PSG_NOISE_ADD	;@ Ch4
 	addcs r6,r6,r6,lsl#16
 	movscs r7,r7,lsr#1
-	ldrcs lr,[mikptr,#mikCh4Feedback]
+//	ldrcs lr,[mikptr,#mikCh4Feedback]
 	eorcs r7,r7,lr
 	tst r7,#0x00000001
 vol4_L:

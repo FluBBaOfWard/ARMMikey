@@ -228,11 +228,11 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD3F AUD3MISC
 
 		// Lynx2 Regs
-	.long miRegR				;@ 0xFD40 ATTEN_A
-	.long miRegR				;@ 0xFD41 ATTEN_B
-	.long miRegR				;@ 0xFD42 ATTEN_C
-	.long miRegR				;@ 0xFD43 ATTEN_D
-	.long miRegR				;@ 0xFD44 MPAN
+	.long miImportantR			;@ 0xFD40 ATTEN_A
+	.long miImportantR			;@ 0xFD41 ATTEN_B
+	.long miImportantR			;@ 0xFD42 ATTEN_C
+	.long miImportantR			;@ 0xFD43 ATTEN_D
+	.long miImportantR			;@ 0xFD44 MPAN
 	.long miUnmappedR			;@ 0xFD45
 	.long miUnmappedR			;@ 0xFD46
 	.long miUnmappedR			;@ 0xFD47
@@ -300,11 +300,11 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD81 INTSET
 	.long miUnmappedR			;@ 0xFD82
 	.long miUnmappedR			;@ 0xFD83
-	.long miRegR				;@ 0xFD84 MAGRDY0
-	.long miRegR				;@ 0xFD85 MAGRDY1
-	.long miRegR				;@ 0xFD86 AUDIN
+	.long miMagRdy0R			;@ 0xFD84 MAGRDY0
+	.long miMagRdy1R			;@ 0xFD85 MAGRDY1
+	.long miAudInR				;@ 0xFD86 AUDIN
 	.long miWriteOnlyR			;@ 0xFD87 SYSCTL1
-	.long miRegR				;@ 0xFD88 MIKEYHREV
+	.long miMikeyHRevR			;@ 0xFD88 MIKEYHREV
 	.long miWriteOnlyR			;@ 0xFD89 MIKEYSREV
 	.long miWriteOnlyR			;@ 0xFD8A IODIR
 	.long miRegR				;@ 0xFD8B IODAT
@@ -320,7 +320,7 @@ io_read_tbl:
 	.long miWriteOnlyR			;@ 0xFD94 DISPADR/DISPADRL
 	.long miWriteOnlyR			;@ 0xFD95 DISPADRH
 	.long miUnmappedR			;@ 0xFD96
-	.long miUnmappedR			;@ 0xFD97
+	.long miHandyDetectR		;@ 0xFD97 Handy Detect
 	.long miUnmappedR			;@ 0xFD98
 	.long miUnmappedR			;@ 0xFD99
 	.long miUnmappedR			;@ 0xFD9A
@@ -374,7 +374,7 @@ miUnmappedR:
 	stmfd sp!,{mikptr,lr}
 	bl _debugIOUnmappedR
 	ldmfd sp!,{mikptr,lr}
-	mov r0,#0x00
+	mov r0,#0xFF
 	bx lr
 ;@----------------------------------------------------------------------------
 miUnknownR:
@@ -394,6 +394,27 @@ miRegR:
 	bx lr
 	.pool
 
+;@----------------------------------------------------------------------------
+miMagRdy0R:					;@ 0xFD84
+miMagRdy1R:					;@ 0xFD85
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	bx lr
+;@----------------------------------------------------------------------------
+miAudInR:					;@ 0xFD86
+;@----------------------------------------------------------------------------
+	mov r0,#0x80				;@ bit 7 = audio comparator result
+	bx lr
+;@----------------------------------------------------------------------------
+miMikeyHRevR:				;@ 0xFD88
+;@----------------------------------------------------------------------------
+	mov r0,#1
+	bx lr
+;@----------------------------------------------------------------------------
+miHandyDetectR:				;@ 0xFD97
+;@----------------------------------------------------------------------------
+	mov r0,#42
+	bx lr
 ;@----------------------------------------------------------------------------
 mikeyWrite:					;@ I/O write
 ;@----------------------------------------------------------------------------
@@ -472,11 +493,11 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD3F AUD3MISC
 
 	// Lynx2 Regs
-	.long miRegW				;@ 0xFD40 ATTEN_A
-	.long miRegW				;@ 0xFD41 ATTEN_B
-	.long miRegW				;@ 0xFD42 ATTEN_C
-	.long miRegW				;@ 0xFD43 ATTEN_D
-	.long miRegW				;@ 0xFD44 MPAN
+	.long miImportantW			;@ 0xFD40 ATTEN_A
+	.long miImportantW			;@ 0xFD41 ATTEN_B
+	.long miImportantW			;@ 0xFD42 ATTEN_C
+	.long miImportantW			;@ 0xFD43 ATTEN_D
+	.long miImportantW			;@ 0xFD44 MPAN
 	.long miUnmappedW			;@ 0xFD45
 	.long miUnmappedW			;@ 0xFD46
 	.long miUnmappedW			;@ 0xFD47
@@ -560,7 +581,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD90 SDONEACK
 	.long miRegW				;@ 0xFD91 CPUSLEEP
 	.long miRegW				;@ 0xFD92 DISPCTL
-	.long miRegW				;@ 0xFD93 PBKUP
+	.long miImportantW			;@ 0xFD93 PBKUP
 	.long miRegW				;@ 0xFD94 DISPADR/DISPADRL
 	.long miRegW				;@ 0xFD95 DISPADRH
 	.long miUnmappedW			;@ 0xFD96
@@ -569,9 +590,9 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD99
 	.long miUnmappedW			;@ 0xFD9A
 	.long miUnmappedW			;@ 0xFD9B
-	.long miRegW				;@ 0xFD9C Mtest0
-	.long miRegW				;@ 0xFD9D Mtest1
-	.long miRegW				;@ 0xFD9E Mtest2
+	.long miImportantW			;@ 0xFD9C Mtest0
+	.long miImportantW			;@ 0xFD9D Mtest1
+	.long miImportantW			;@ 0xFD9E Mtest2
 	.long miUnmappedW			;@ 0xFD9F
 
 	.long miPaletteGW			;@ 0xFDA0 GREEN0

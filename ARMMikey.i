@@ -142,8 +142,8 @@ mikPadding1:		.space 0x2F	;@ 0x51-0x7F
 mikIntRst:			.byte 0		;@ 0x80 Interrupt Reset
 mikIntSet:			.byte 0		;@ 0x81 Interrupt Set
 mikPadding2:		.space 0x02	;@ 0x82-0x83
-mikMagRdy0:			.byte 0		;@ 0x84 Mag Tape Channel 0 ready bit
-mikMagRdy1:			.byte 0		;@ 0x85 Mag Tape Channel 1 ready bit
+mikMagRdy0:			.byte 0		;@ 0x84 Mag Tape Channel 0 Ready bit
+mikMagRdy1:			.byte 0		;@ 0x85 Mag Tape Channel 1 Ready bit
 mikAudIn:			.byte 0		;@ 0x86 Audio In
 mikSysCtl1:			.byte 0		;@ 0x87 System Control 1
 mikMikeyHRev:		.byte 0		;@ 0x88 Mikey Hardware Revision
@@ -167,10 +167,11 @@ mikMtest1:			.byte 0		;@ 0x9D Mtest1
 mikMtest2:			.byte 0		;@ 0x9E Mtest2
 mikPadding5:		.space 0x01	;@ 0x9F
 
-mikGreen:			.space 0x10	;@ 0xA0-0xAF Green palette
-mikBlueRed:			.space 0x10	;@ 0xB0-0xBF Blue/Red palette
+mikPaletteG:		.space 0x10	;@ 0xA0-0xAF Green palette
+mikPaletteBR:		.space 0x10	;@ 0xB0-0xBF Blue/Red palette
 
 ;@----------------------------------------------------------------------------
+mikPalette:			.space 16*4	;@ Merged palette
 mikLCDVSize:		.byte 0		;@ 0x01 LCD Vertical Size
 mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 					.space 2

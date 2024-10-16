@@ -105,7 +105,7 @@ miRegistersReset:			;@ in r3=SOC
 	bl memCopy
 	ldmfd sp!,{mikptr,lr}
 	ldrb r1,[mikptr,#mikLCDVSize]
-	b svRefW
+	b miRefW
 
 ;@----------------------------------------------------------------------------
 IO_Default:
@@ -155,7 +155,7 @@ miVideoGetStateSize:		;@ Out r0=state size.
 mikeyRead:					;@ I/O read
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
-	cmp r2,#0xD0
+	cmp r2,#0xC0
 	ldrmi pc,[pc,r2,lsl#2]
 	b miUnmappedR
 io_read_tbl:
@@ -398,7 +398,7 @@ miRegR:
 mikeyWrite:					;@ I/O write
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
-	cmp r2,#0xD0
+	cmp r2,#0xC0
 	ldrmi pc,[pc,r2,lsl#2]
 	b miUnmappedW
 io_write_tbl:
@@ -574,39 +574,39 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD9E Mtest2
 	.long miUnmappedW			;@ 0xFD9F
 
-	.long miRegW				;@ 0xFDA0 GREEN0
-	.long miRegW				;@ 0xFDA1 GREEN1
-	.long miRegW				;@ 0xFDA2 GREEN2
-	.long miRegW				;@ 0xFDA3 GREEN3
-	.long miRegW				;@ 0xFDA4 GREEN4
-	.long miRegW				;@ 0xFDA5 GREEN5
-	.long miRegW				;@ 0xFDA6 GREEN6
-	.long miRegW				;@ 0xFDA7 GREEN7
-	.long miRegW				;@ 0xFDA8 GREEN8
-	.long miRegW				;@ 0xFDA9 GREEN9
-	.long miRegW				;@ 0xFDAA GREENA
-	.long miRegW				;@ 0xFDAB GREENB
-	.long miRegW				;@ 0xFDAC GREENC
-	.long miRegW				;@ 0xFDAD GREEND
-	.long miRegW				;@ 0xFDAE GREENE
-	.long miRegW				;@ 0xFDAF GREENF
+	.long miPaletteGW			;@ 0xFDA0 GREEN0
+	.long miPaletteGW			;@ 0xFDA1 GREEN1
+	.long miPaletteGW			;@ 0xFDA2 GREEN2
+	.long miPaletteGW			;@ 0xFDA3 GREEN3
+	.long miPaletteGW			;@ 0xFDA4 GREEN4
+	.long miPaletteGW			;@ 0xFDA5 GREEN5
+	.long miPaletteGW			;@ 0xFDA6 GREEN6
+	.long miPaletteGW			;@ 0xFDA7 GREEN7
+	.long miPaletteGW			;@ 0xFDA8 GREEN8
+	.long miPaletteGW			;@ 0xFDA9 GREEN9
+	.long miPaletteGW			;@ 0xFDAA GREENA
+	.long miPaletteGW			;@ 0xFDAB GREENB
+	.long miPaletteGW			;@ 0xFDAC GREENC
+	.long miPaletteGW			;@ 0xFDAD GREEND
+	.long miPaletteGW			;@ 0xFDAE GREENE
+	.long miPaletteGW			;@ 0xFDAF GREENF
 
-	.long miRegW				;@ 0xFDB0 BLUERED0
-	.long miRegW				;@ 0xFDB1 BLUERED1
-	.long miRegW				;@ 0xFDB2 BLUERED2
-	.long miRegW				;@ 0xFDB3 BLUERED3
-	.long miRegW				;@ 0xFDB4 BLUERED4
-	.long miRegW				;@ 0xFDB5 BLUERED5
-	.long miRegW				;@ 0xFDB6 BLUERED6
-	.long miRegW				;@ 0xFDB7 BLUERED7
-	.long miRegW				;@ 0xFDB8 BLUERED8
-	.long miRegW				;@ 0xFDB9 BLUERED9
-	.long miRegW				;@ 0xFDBA BLUEREDA
-	.long miRegW				;@ 0xFDBB BLUEREDB
-	.long miRegW				;@ 0xFDBC BLUEREDC
-	.long miRegW				;@ 0xFDBD BLUEREDD
-	.long miRegW				;@ 0xFDBE BLUEREDE
-	.long miRegW				;@ 0xFDBF BLUEREDF
+	.long miPaletteBRW			;@ 0xFDB0 BLUERED0
+	.long miPaletteBRW			;@ 0xFDB1 BLUERED1
+	.long miPaletteBRW			;@ 0xFDB2 BLUERED2
+	.long miPaletteBRW			;@ 0xFDB3 BLUERED3
+	.long miPaletteBRW			;@ 0xFDB4 BLUERED4
+	.long miPaletteBRW			;@ 0xFDB5 BLUERED5
+	.long miPaletteBRW			;@ 0xFDB6 BLUERED6
+	.long miPaletteBRW			;@ 0xFDB7 BLUERED7
+	.long miPaletteBRW			;@ 0xFDB8 BLUERED8
+	.long miPaletteBRW			;@ 0xFDB9 BLUERED9
+	.long miPaletteBRW			;@ 0xFDBA BLUEREDA
+	.long miPaletteBRW			;@ 0xFDBB BLUEREDB
+	.long miPaletteBRW			;@ 0xFDBC BLUEREDC
+	.long miPaletteBRW			;@ 0xFDBD BLUEREDD
+	.long miPaletteBRW			;@ 0xFDBE BLUEREDE
+	.long miPaletteBRW			;@ 0xFDBF BLUEREDF
 
 ;@----------------------------------------------------------------------------
 miUnknownW:
@@ -633,7 +633,28 @@ miRegW:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-svRefW:						;@ 0x2001, Last scan line.
+miPaletteGW:				;@ Green palette
+;@----------------------------------------------------------------------------
+	and r0,r0,#0xF
+	and r1,r1,#0xF
+	add r2,mikptr,#mikPaletteG
+	strb r1,[r2,r0]
+	add r2,mikptr,#mikPalette
+	add r2,r2,r0,lsl#2
+	strb r1,[r2,#1]
+	bx lr
+;@----------------------------------------------------------------------------
+miPaletteBRW:				;@ Blue & Red palette
+;@----------------------------------------------------------------------------
+	and r0,r0,#0xF
+	add r2,mikptr,#mikPaletteBR
+	strb r1,[r2,r0]
+	add r2,mikptr,#mikPalette
+	strb r1,[r2,r0,lsl#2]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miRefW:						;@ 0x2001, Last scan line.
 ;@----------------------------------------------------------------------------
 	strb r1,[mikptr,#mikLCDVSize]
 	cmp r1,#0x9E

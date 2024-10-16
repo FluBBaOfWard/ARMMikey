@@ -158,9 +158,9 @@ mikSDoneAck:		.byte 0		;@ 0x90 Suzy Done Acknowledge
 mikCpuSleep:		.byte 0		;@ 0x91 CPU Sleep, Bus Request Disable
 mikDispCtl:			.byte 0		;@ 0x92 Display Control,  Video Bus Reguest Enable.
 mikPBkup:			.byte 0		;@ 0x93 P Backup, Magic 'P' count
-DispAdr:
-DispAdrL:			.byte 0		;@ 0x94 Display Adress Low
-DispAdrH:			.byte 0		;@ 0x95 Display Adress High
+mikDispAdr:
+mikDispAdrL:		.byte 0		;@ 0x94 Display Address Low
+mikDispAdrH:		.byte 0		;@ 0x95 Display Address High
 mikPadding4:		.space 0x06	;@ 0x96-0x9B
 mikMtest0:			.byte 0		;@ 0x9C Mtest0
 mikMtest1:			.byte 0		;@ 0x9D Mtest1

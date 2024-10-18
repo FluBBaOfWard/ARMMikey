@@ -27,7 +27,7 @@ ENABLE_RELOAD:	.long
 ENABLE_COUNT:	.long
 LINKING:		.long
 CURRENT:		.long
-TIMER_DONE:		.long
+unused3:		.long
 unused2:		.long
 unused:			.long
 CTLB:			.long

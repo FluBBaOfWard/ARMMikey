@@ -427,36 +427,36 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD00 TIM0BKUP
 	.long miRegW				;@ 0xFD01 TIM0CTLA
 	.long miRegW				;@ 0xFD02 TIM0CNT
-	.long miRegW				;@ 0xFD03 TIM0CTLB
+	.long miTimCtlBW			;@ 0xFD03 TIM0CTLB
 	.long miRegW				;@ 0xFD04 TIM1BKUP
 	.long miRegW				;@ 0xFD05 TIM1CTLA
 	.long miRegW				;@ 0xFD06 TIM1CNT
-	.long miRegW				;@ 0xFD07 TIM1CTLB
+	.long miTimCtlBW			;@ 0xFD07 TIM1CTLB
 	.long miRegW				;@ 0xFD08 TIM2BKUP
 	.long miRegW				;@ 0xFD09 TIM2CTLA
 	.long miRegW				;@ 0xFD0A TIM2CNT
-	.long miRegW				;@ 0xFD0B TIM2CTLB
+	.long miTimCtlBW			;@ 0xFD0B TIM2CTLB
 	.long miRegW				;@ 0xFD0C TIM3BKUP
 	.long miRegW				;@ 0xFD0D TIM3CTLA
 	.long miRegW				;@ 0xFD0E TIM3CNT
-	.long miRegW				;@ 0xFD0F TIM3CTLB
+	.long miTimCtlBW			;@ 0xFD0F TIM3CTLB
 
 	.long miRegW				;@ 0xFD10 TIM4BKUP
 	.long miRegW				;@ 0xFD11 TIM4CTLA
 	.long miRegW				;@ 0xFD12 TIM4CNT
-	.long miRegW				;@ 0xFD13 TIM4CTLB
+	.long miTimCtlBW			;@ 0xFD13 TIM4CTLB
 	.long miRegW				;@ 0xFD14 TIM5BKUP
 	.long miRegW				;@ 0xFD15 TIM5CTLA
 	.long miRegW				;@ 0xFD16 TIM5CNT
-	.long miRegW				;@ 0xFD17 TIM5CTLB
+	.long miTimCtlBW			;@ 0xFD17 TIM5CTLB
 	.long miRegW				;@ 0xFD18 TIM6BKUP
 	.long miRegW				;@ 0xFD19 TIM6CTLA
 	.long miRegW				;@ 0xFD1A TIM6CNT
-	.long miRegW				;@ 0xFD1B TIM6CTLB
+	.long miTimCtlBW			;@ 0xFD1B TIM6CTLB
 	.long miRegW				;@ 0xFD1C TIM7BKUP
 	.long miRegW				;@ 0xFD1D TIM7CTLA
 	.long miRegW				;@ 0xFD1E TIM7CNT
-	.long miRegW				;@ 0xFD1F TIM7CTLB
+	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
 	.long miRegW				;@ 0xFD20 AUD0VOL
 	.long miRegW				;@ 0xFD21 AUD0SHFTFB
@@ -653,7 +653,16 @@ miRegW:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miPaletteGW:				;@ Green palette
+miTimCtlBW:					;@ Timer X Control B
+;@----------------------------------------------------------------------------
+	and r1,r1,#0x0F
+	and r0,r0,#0xFF
+	add r2,mikptr,#mikRegs
+	strb r1,[r2,r0]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miPaletteGW:				;@ Green Palette
 ;@----------------------------------------------------------------------------
 	and r0,r0,#0xF
 	and r1,r1,#0xF
@@ -664,7 +673,7 @@ miPaletteGW:				;@ Green palette
 	strb r1,[r2,#1]
 	bx lr
 ;@----------------------------------------------------------------------------
-miPaletteBRW:				;@ Blue & Red palette
+miPaletteBRW:				;@ Blue & Red Palette
 ;@----------------------------------------------------------------------------
 	and r0,r0,#0xF
 	add r2,mikptr,#mikPaletteBR

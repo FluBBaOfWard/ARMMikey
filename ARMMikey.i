@@ -28,8 +28,8 @@ ENABLE_COUNT:	.long
 LINKING:		.long
 CURRENT:		.long
 TIMER_DONE:		.long
-LAST_CLOCK:		.long
-BORROW_IN:		.long
+unused2:		.long
+unused:			.long
 CTLB:			.long
 LAST_LINK_CARRY:.long
 LAST_COUNT:		.long

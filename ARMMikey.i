@@ -23,7 +23,6 @@
 
 	.struct 0
 mikTimerStart:
-BKUP:			.long
 ENABLE_RELOAD:	.long
 ENABLE_COUNT:	.long
 LINKING:		.long
@@ -31,11 +30,11 @@ CURRENT:		.long
 TIMER_DONE:		.long
 LAST_CLOCK:		.long
 BORROW_IN:		.long
-BORROW_OUT:		.long
+CTLB:			.long
 LAST_LINK_CARRY:.long
 LAST_COUNT:		.long
 mikTimerEnd:
-mikTimerSize = 4*11
+mikTimerSize = 4*10
 
 
 	mikptr		.req r12

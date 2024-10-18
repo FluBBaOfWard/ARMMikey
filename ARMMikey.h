@@ -26,9 +26,10 @@ extern "C" {
 /** Game screen height in pixels */
 #define GAME_HEIGHT (102)
 
+#define BORROW_OUT (0x01)
+
 typedef struct
 {
-	u32 BKUP;
 	u32 ENABLE_RELOAD;
 	u32 ENABLE_COUNT;
 	u32 LINKING;
@@ -36,7 +37,7 @@ typedef struct
 	u32 TIMER_DONE;
 	u32 LAST_CLOCK;
 	u32 BORROW_IN;
-	u32 BORROW_OUT;
+	u32 CTLB;
 	u32 LAST_LINK_CARRY;
 	u32 LAST_COUNT;
 } MTIMER;
@@ -51,7 +52,7 @@ typedef struct
 	u32 TIMER_DONE;
 	u32 LAST_CLOCK;
 	u32 BORROW_IN;
-	u32 BORROW_OUT;
+	u32 CTLB;
 	u32 LAST_LINK_CARRY;
 	u32 LAST_COUNT;
 	s8  VOLUME;

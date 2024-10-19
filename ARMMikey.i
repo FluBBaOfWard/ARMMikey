@@ -23,11 +23,10 @@
 
 	.struct 0
 mikTimerStart:
-CTLA:			.long
 CURRENT:		.long
 LAST_COUNT:		.long
 mikTimerEnd:
-mikTimerSize = 4*3
+mikTimerSize = 4*2
 
 
 	mikptr		.req r12

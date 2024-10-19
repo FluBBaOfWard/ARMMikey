@@ -38,7 +38,6 @@ extern "C" {
 
 typedef struct
 {
-	u32 CTLA;
 	u32 CURRENT;
 	u32 LAST_COUNT;
 } MTIMER;

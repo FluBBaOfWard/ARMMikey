@@ -169,6 +169,9 @@ mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 
 mikeyStateEnd:
 
+systemCycleCount:	.long 0
+nextTimerEvent:		.long 0
+
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function
 

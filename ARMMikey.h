@@ -179,8 +179,8 @@ typedef struct {
 	u8 mtest2;				// 0x9E Mtest2
 	u8 padding5;			// 0x9F
 
-	u8 paletteG[0x10];	// 0xA0-0xAF Green palette
-	u8 paletteBR[0x10];	// 0xB0-0xBF Blue/Red palette
+	u8 paletteG[0x10];		// 0xA0-0xAF Green palette
+	u8 paletteBR[0x10];		// 0xB0-0xBF Blue/Red palette
 
 
 //------------------------------
@@ -188,6 +188,9 @@ typedef struct {
 	u8 mikLCDVSize;			// 0x01 LCD Y Size
 	u8 mikSOC;				// HOWARD or HOWARD2
 	u8 sdfsdfsf[2];
+
+	u32 systemCycleCount;
+	u32 nextTimerEvent;
 
 	void *mikNmiFunction;	// NMI callback
 	void *mikIrqFunction;	// IRQ callback

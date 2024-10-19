@@ -31,17 +31,15 @@ extern "C" {
 #define LAST_CLOCK (1<<2)
 #define TIMER_DONE (1<<3)
 
+#define CLOCK_SEL (7<<0)
+#define LINKING (7<<0)
+
 typedef struct
 {
 	u32 ENABLE_RELOAD;
 	u32 ENABLE_COUNT;
-	u32 LINKING;
+	u32 CTLA;
 	u32 CURRENT;
-	u32 unused3;
-	u32 unused2;
-	u32 unused;
-	u32 CTLB;
-	u32 LAST_LINK_CARRY;
 	u32 LAST_COUNT;
 } MTIMER;
 
@@ -50,13 +48,9 @@ typedef struct
 	u32 BKUP;
 	u32 ENABLE_RELOAD;
 	u32 ENABLE_COUNT;
-	u32 LINKING;
+	u32 CTLA;
 	u32 CURRENT;
-	u32 unused3;
-	u32 unused2;
-	u32 unused;
 	u32 CTLB;
-	u32 LAST_LINK_CARRY;
 	u32 LAST_COUNT;
 	s8  VOLUME;
 	s8  OUTPUT;

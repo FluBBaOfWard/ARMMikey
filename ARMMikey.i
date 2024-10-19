@@ -25,16 +25,11 @@
 mikTimerStart:
 ENABLE_RELOAD:	.long
 ENABLE_COUNT:	.long
-LINKING:		.long
+CTLA:			.long
 CURRENT:		.long
-unused3:		.long
-unused2:		.long
-unused:			.long
-CTLB:			.long
-LAST_LINK_CARRY:.long
 LAST_COUNT:		.long
 mikTimerEnd:
-mikTimerSize = 4*10
+mikTimerSize = 4*5
 
 
 	mikptr		.req r12

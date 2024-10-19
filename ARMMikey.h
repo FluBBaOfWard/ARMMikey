@@ -33,11 +33,11 @@ extern "C" {
 
 #define CLOCK_SEL (7<<0)
 #define LINKING (7<<0)
+#define ENABLE_COUNT (1<<3)
+#define ENABLE_RELOAD (1<<4)
 
 typedef struct
 {
-	u32 ENABLE_RELOAD;
-	u32 ENABLE_COUNT;
 	u32 CTLA;
 	u32 CURRENT;
 	u32 LAST_COUNT;
@@ -46,8 +46,6 @@ typedef struct
 typedef struct
 {
 	u32 BKUP;
-	u32 ENABLE_RELOAD;
-	u32 ENABLE_COUNT;
 	u32 CTLA;
 	u32 CURRENT;
 	u32 CTLB;

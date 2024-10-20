@@ -23,10 +23,10 @@
 
 	.struct 0
 mikTimerStart:
-CURRENT:		.long
-LAST_COUNT:		.long
+CURRENT:			.long 0
+LAST_COUNT:			.long 0
 mikTimerEnd:
-mikTimerSize = 4*2
+mikTimerSize = mikTimerEnd
 
 
 	mikptr		.req r12

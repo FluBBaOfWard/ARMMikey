@@ -23,6 +23,7 @@
 	.global miVideoSaveState
 	.global miVideoLoadState
 	.global miVideoGetStateSize
+	.global miRunTimer0
 	.global miDoScanline
 	.global mikeyRead
 	.global mikeyWrite
@@ -703,6 +704,71 @@ miRefW:						;@ 0x2001, Last scan line.
 	str r1,lineStateLastLine
 	mov r0,r1
 	b setScreenRefresh
+
+
+;@----------------------------------------------------------------------------
+miRunTimer0:
+	.type	miRunTimer0 STT_FUNC
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r4-r8,mikptr,lr}
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r4,[mikptr,#mikTim0Bkup]
+	movs r8,r4,lsl#21
+	bcc tim0Exit			;@ CtlA Count Enabled?
+	mov r4,r4,ror#24
+	bic r4,r4,#0x03			;@ CtlB clear borrow in/out
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (mikey_0.tim0CtlA & CLOCK_SEL));
+	mov r8,r8,lsr#29		;@ CtlA Clock Select
+	add r8,r8,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer0+CURRENT]
+	ldr r7,[mikptr,#timer0+LAST_COUNT]
+	//decval = (gSystemCycleCount - mTIM_0.LAST_COUNT) >> divide;
+	sub r1,r5,r7
+	movs r1,r1,lsr r8
+	beq tim0NoCount		;@ decval?
+	orr r4,r4,#2		;@ CtlB Borrow in, because we count
+	add r7,r7,r1,lsl r8
+	str r7,[mikptr,#timer0+LAST_COUNT]
+	sub r4,r4,r1,lsl#24
+	subs r6,r6,r1
+	bpl tim0NoIrq
+	orr r4,r4,#1+8		;@ CtlB Borrow out + Timer Done
+	//tst r4,#0x00100000	;@ tim0CtlA & ENABLE_RELOAD
+	and r1,r4,#0xFF00
+	add r1,r1,#0x0100
+	add r4,r4,r1,lsl#16
+	add r6,r6,r1,lsr#8
+//	biceq r4,r4,#0xFF000000	;@ No reload, clear count.
+	// Interupt flag setting code moved into DisplayRenderLine()
+	mov r0,#1
+tim0NoIrq:
+	str r6,[mikptr,#timer0+CURRENT]
+tim0NoCount:
+	mov r4,r4,ror#8
+	str r4,[mikptr,#mikTim0Bkup]
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (mTIM_0.CURRENT & 0x80000000) ? 1 : ((mTIM_0.CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r5,r5,#1
+	addeq r6,r6,#1
+	addeq r5,r5,r6,lsl r8
+	//if (tmp < gNextTimerEvent) {
+	//	gNextTimerEvent = tmp;
+	//}
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r5,r1
+	strcc r5,[mikptr,#nextTimerEvent]
+tim0Exit:
+	ldmfd sp!,{r4-r8,mikptr,lr}
+	bx lr
 
 ;@----------------------------------------------------------------------------
 newFrame:					;@ Called before line 0

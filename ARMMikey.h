@@ -223,6 +223,8 @@ int miVideoLoadState(MIKEY *chip, const void *source);
  */
 int miVideoGetStateSize(void);
 
+bool miRunTimer0(void);
+
 void miDoScanline(void);
 
 #ifdef __cplusplus

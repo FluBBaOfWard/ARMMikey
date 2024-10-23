@@ -225,6 +225,12 @@ int miVideoGetStateSize(void);
 
 bool miRunTimer0(void);
 bool miRunTimer1(void);
+bool miRunTimer2(void);
+bool miRunTimer3(void);
+bool miRunTimer4(void);
+bool miRunTimer5(void);
+bool miRunTimer6(void);
+bool miRunTimer7(void);
 
 void miDoScanline(void);
 

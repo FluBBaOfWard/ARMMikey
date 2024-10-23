@@ -25,6 +25,12 @@
 	.global miVideoGetStateSize
 	.global miRunTimer0
 	.global miRunTimer1
+	.global miRunTimer2
+	.global miRunTimer3
+	.global miRunTimer4
+	.global miRunTimer5
+	.global miRunTimer6
+	.global miRunTimer7
 	.global miDoScanline
 	.global mikeyRead
 	.global mikeyWrite
@@ -720,13 +726,13 @@ miRunTimer0:
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4
-	//divide = (4 + (mikey_0.tim0CtlA & CLOCK_SEL));
+	//divide = (4 + (CtlA & CLOCK_SEL));
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	add r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer0+CURRENT]
 	ldr r7,[mikptr,#timer0+LAST_COUNT]
-	//decval = (gSystemCycleCount - mTIM_0.LAST_COUNT) >> divide;
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
 	sub r4,r5,r7
 	movs r4,r4,lsr r1
 	beq tim0NoCount				;@ decval?
@@ -738,7 +744,7 @@ miRunTimer0:
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim0NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
-	//tst r2,#0x00100000		;@ tim0CtlA & ENABLE_RELOAD
+	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r4,r2,#0xFF00
 	add r4,r4,#0x0100
 	add r2,r2,r4,lsl#16
@@ -757,7 +763,7 @@ tim0NoCount:
 	// then CURRENT may still be negative and we can use it to
 	// calc the next timer value, we just want another update ASAP
 	//tmp = gSystemCycleCount;
-	//tmp += (mTIM_0.CURRENT & 0x80000000) ? 1 : ((mTIM_0.CURRENT + 1) << divide);
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
 	addne r5,r5,#1
 	addeq r6,r6,#1
@@ -772,6 +778,59 @@ tim0NoCount:
 	bx lr
 
 ;@----------------------------------------------------------------------------
+miRunTimer2:
+	.type	miRunTimer2 STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r2,[mikptr,#mikTim2Bkup]
+	movs r1,r2,lsl#21
+	bxcc lr						;@ CtlA Count Enabled?
+	stmfd sp!,{r4-r8,lr}
+	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (CtlA & CLOCK_SEL));
+	cmp r1,#7					;@ Link mode?
+	moveq r1,#0
+	ldrbeq r4,[mikptr,#mikTim0CtlB]
+	and r4,r4,#1
+	addne r1,r1,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer2+CURRENT]
+	ldr r7,[mikptr,#timer2+LAST_COUNT]
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	subne r4,r5,r7
+	movs r4,r4,lsr r1
+	beq tim2NoCount				;@ decval?
+	mov r2,r2,ror#24
+	orr r2,r2,#2				;@ CtlB Borrow in, because we count
+	add r7,r7,r4,lsl r1
+	sub r2,r2,r4,lsl#24
+	subs r6,r6,r4
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl tim2NoIrq
+	orr r2,r2,#1				;@ CtlB Borrow out
+	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
+	and r4,r2,#0xFF00
+	add r4,r4,#0x0100
+	add r2,r2,r4,lsl#16
+	add r6,r6,r4,lsr#8
+//	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	mov r0,#1
+tim2NoIrq:
+	str r6,[mikptr,#timer2+CURRENT]
+	str r7,[mikptr,#timer2+LAST_COUNT]
+	mov r2,r2,ror#8
+tim2NoCount:
+	str r2,[mikptr,#mikTim2Bkup]
+	// Prediction for next timer event cycle number
+	// We dont need to predict next timer event as its the frame timer
+	// and will always be beaten by the line timer on Timer 0
+	ldmfd sp!,{r4-r8,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
 miRunTimer1:
 	.type	miRunTimer1 STT_FUNC
 ;@----------------------------------------------------------------------------
@@ -780,17 +839,19 @@ miRunTimer1:
 	ldr r2,[mikptr,#mikTim1Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	cmp r1,#7					;@ Link mode?
+	bxeq lr
 	stmfd sp!,{r4-r8,lr}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4
-	//divide = (4 + (mikey_0.tim1CtlA & CLOCK_SEL));
-	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	//divide = (4 + (CtlA & CLOCK_SEL));
 	add r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer1+CURRENT]
 	ldr r7,[mikptr,#timer1+LAST_COUNT]
-	//decval = (gSystemCycleCount - mTIM_1.LAST_COUNT) >> divide;
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
 	sub r4,r5,r7
 	movs r4,r4,lsr r1
 	beq tim1NoCount				;@ decval?
@@ -802,13 +863,13 @@ miRunTimer1:
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim1NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
-	//tst r2,#0x00100000		;@ tim1CtlA & ENABLE_RELOAD
-	and r4,r2,#0xFF00
-	add r4,r4,#0x0100
-	add r2,r2,r4,lsl#16
-	add r6,r6,r4,lsr#8
-//	biceq r2,r2,#0xFF000000	;@ No reload, clear count.
-	// Interupt flag setting code moved into DisplayRenderLine()
+	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
+	andne r4,r2,#0xFF00
+	addne r4,r4,#0x0100
+	addne r2,r2,r4,lsl#16
+	addne r6,r6,r4,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
 	mov r0,#1
 tim1NoIrq:
 	str r6,[mikptr,#timer1+CURRENT]
@@ -821,7 +882,286 @@ tim1NoCount:
 	// then CURRENT may still be negative and we can use it to
 	// calc the next timer value, we just want another update ASAP
 	//tmp = gSystemCycleCount;
-	//tmp += (mTIM_1.CURRENT & 0x80000000) ? 1 : ((mTIM_1.CURRENT + 1) << divide);
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r5,r5,#1
+	addeq r6,r6,#1
+	addeq r5,r5,r6,lsl r1
+	//if (tmp < gNextTimerEvent) {
+	//	gNextTimerEvent = tmp;
+	//}
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r5,r1
+	strcc r5,[mikptr,#nextTimerEvent]
+	ldmfd sp!,{r4-r8,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
+miRunTimer3:
+	.type	miRunTimer3 STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r2,[mikptr,#mikTim3Bkup]
+	movs r1,r2,lsl#21
+	bxcc lr						;@ CtlA Count Enabled?
+	stmfd sp!,{r4-r8,lr}
+	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (CtlA & CLOCK_SEL));
+	cmp r1,#7					;@ Link mode?
+	moveq r1,#0
+	ldrbeq r4,[mikptr,#mikTim1CtlB]
+	and r4,r4,#1
+	addne r1,r1,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer3+CURRENT]
+	ldr r7,[mikptr,#timer3+LAST_COUNT]
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	subne r4,r5,r7
+	movs r4,r4,lsr r1
+	beq tim3NoCount				;@ decval?
+	mov r2,r2,ror#24
+	orr r2,r2,#2				;@ CtlB Borrow in, because we count
+	add r7,r7,r4,lsl r1
+	sub r2,r2,r4,lsl#24
+	subs r6,r6,r4
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl tim3NoIrq
+	orr r2,r2,#1				;@ CtlB Borrow out
+	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
+	andne r4,r2,#0xFF00
+	addne r4,r4,#0x0100
+	addne r2,r2,r4,lsl#16
+	addne r6,r6,r4,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
+	mov r0,#1
+tim3NoIrq:
+	str r6,[mikptr,#timer3+CURRENT]
+	str r7,[mikptr,#timer3+LAST_COUNT]
+	mov r2,r2,ror#8
+tim3NoCount:
+	str r2,[mikptr,#mikTim3Bkup]
+	cmp r1,#0
+	beq tim3Exit
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r5,r5,#1
+	addeq r6,r6,#1
+	addeq r5,r5,r6,lsl r1
+	//if (tmp < gNextTimerEvent) {
+	//	gNextTimerEvent = tmp;
+	//}
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r5,r1
+	strcc r5,[mikptr,#nextTimerEvent]
+tim3Exit:
+	ldmfd sp!,{r4-r8,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
+miRunTimer5:
+	.type	miRunTimer5 STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r2,[mikptr,#mikTim5Bkup]
+	movs r1,r2,lsl#21
+	bxcc lr						;@ CtlA Count Enabled?
+	stmfd sp!,{r4-r8,lr}
+	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (CtlA & CLOCK_SEL));
+	cmp r1,#7					;@ Link mode?
+	moveq r1,#0
+	ldrbeq r4,[mikptr,#mikTim3CtlB]
+	and r4,r4,#1
+	addne r1,r1,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer5+CURRENT]
+	ldr r7,[mikptr,#timer5+LAST_COUNT]
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	subne r4,r5,r7
+	movs r4,r4,lsr r1
+	beq tim5NoCount				;@ decval?
+	mov r2,r2,ror#24
+	orr r2,r2,#2				;@ CtlB Borrow in, because we count
+	add r7,r7,r4,lsl r1
+	sub r2,r2,r4,lsl#24
+	subs r6,r6,r4
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl tim5NoIrq
+	orr r2,r2,#1				;@ CtlB Borrow out
+	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
+	andne r4,r2,#0xFF00
+	addne r4,r4,#0x0100
+	addne r2,r2,r4,lsl#16
+	addne r6,r6,r4,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
+	mov r0,#1
+tim5NoIrq:
+	str r6,[mikptr,#timer5+CURRENT]
+	str r7,[mikptr,#timer5+LAST_COUNT]
+	mov r2,r2,ror#8
+tim5NoCount:
+	str r2,[mikptr,#mikTim5Bkup]
+	cmp r1,#0
+	beq tim5Exit
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r5,r5,#1
+	addeq r6,r6,#1
+	addeq r5,r5,r6,lsl r1
+	//if (tmp < gNextTimerEvent) {
+	//	gNextTimerEvent = tmp;
+	//}
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r5,r1
+	strcc r5,[mikptr,#nextTimerEvent]
+tim5Exit:
+	ldmfd sp!,{r4-r8,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
+miRunTimer7:
+	.type	miRunTimer7 STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r2,[mikptr,#mikTim7Bkup]
+	movs r1,r2,lsl#21
+	bxcc lr						;@ CtlA Count Enabled?
+	stmfd sp!,{r4-r8,lr}
+	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (CtlA & CLOCK_SEL));
+	cmp r1,#7					;@ Link mode?
+	moveq r1,#0
+	ldrbeq r4,[mikptr,#mikTim5CtlB]
+	and r4,r4,#1
+	addne r1,r1,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer7+CURRENT]
+	ldr r7,[mikptr,#timer7+LAST_COUNT]
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	subne r4,r5,r7
+	movs r4,r4,lsr r1
+	beq tim7NoCount				;@ decval?
+	mov r2,r2,ror#24
+	orr r2,r2,#2				;@ CtlB Borrow in, because we count
+	add r7,r7,r4,lsl r1
+	sub r2,r2,r4,lsl#24
+	subs r6,r6,r4
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl tim7NoIrq
+	orr r2,r2,#1				;@ CtlB Borrow out
+	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
+	andne r4,r2,#0xFF00
+	addne r4,r4,#0x0100
+	addne r2,r2,r4,lsl#16
+	addne r6,r6,r4,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
+	mov r0,#1
+tim7NoIrq:
+	str r6,[mikptr,#timer7+CURRENT]
+	str r7,[mikptr,#timer7+LAST_COUNT]
+	mov r2,r2,ror#8
+tim7NoCount:
+	str r2,[mikptr,#mikTim7Bkup]
+	cmp r1,#0
+	beq tim7Exit
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r5,r5,#1
+	addeq r6,r6,#1
+	addeq r5,r5,r6,lsl r1
+	//if (tmp < gNextTimerEvent) {
+	//	gNextTimerEvent = tmp;
+	//}
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r5,r1
+	strcc r5,[mikptr,#nextTimerEvent]
+tim7Exit:
+	ldmfd sp!,{r4-r8,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
+miRunTimer6:
+	.type	miRunTimer6 STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldr mikptr,=mikey_0
+	ldr r2,[mikptr,#mikTim6Bkup]
+	movs r1,r2,lsl#21
+	bxcc lr						;@ CtlA Count Enabled?
+	mov r1,r1,lsr#29			;@ CtlA Clock Select
+	cmp r1,#7					;@ Link mode?
+	bxeq lr
+	stmfd sp!,{r4-r8,lr}
+	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = (4 + (CtlA & CLOCK_SEL));
+	add r1,r1,#4
+	ldr r5,[mikptr,#systemCycleCount]
+	ldr r6,[mikptr,#timer6+CURRENT]
+	ldr r7,[mikptr,#timer6+LAST_COUNT]
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	sub r4,r5,r7
+	movs r4,r4,lsr r1
+	beq tim6NoCount				;@ decval?
+	mov r2,r2,ror#24
+	orr r2,r2,#2				;@ CtlB Borrow in, because we count
+	add r7,r7,r4,lsl r1
+	sub r2,r2,r4,lsl#24
+	subs r6,r6,r4
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl tim6NoIrq
+	orr r2,r2,#1				;@ CtlB Borrow out
+	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
+	andne r4,r2,#0xFF00
+	addne r4,r4,#0x0100
+	addne r2,r2,r4,lsl#16
+	addne r6,r6,r4,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
+	mov r0,#1
+tim6NoIrq:
+	str r6,[mikptr,#timer6+CURRENT]
+	str r7,[mikptr,#timer6+LAST_COUNT]
+	mov r2,r2,ror#8
+tim6NoCount:
+	str r2,[mikptr,#mikTim6Bkup]
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
 	addne r5,r5,#1
 	addeq r6,r6,#1

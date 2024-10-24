@@ -76,7 +76,7 @@ miVideoReset:				;@ r12=mikptr
 
 	strb r3,[mikptr,#mikSOC]
 
-	b miRegistersReset
+//	b miRegistersReset
 
 dummyIrqFunc:
 	bx lr
@@ -750,6 +750,7 @@ miRunTimer0:
 	add r2,r2,r4,lsl#16
 	add r6,r6,r4,lsr#8
 //	biceq r2,r2,#0xFF000000	;@ No reload, clear count.
+//	orreq r2,r2,#8				;@ CtlB Timer done
 	// Interupt flag setting code moved into DisplayRenderLine()
 	mov r0,#1
 tim0NoIrq:
@@ -817,6 +818,7 @@ miRunTimer2:
 	add r2,r2,r4,lsl#16
 	add r6,r6,r4,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+//	orreq r2,r2,#8				;@ CtlB Timer done
 	mov r0,#1
 tim2NoIrq:
 	str r6,[mikptr,#timer2+CURRENT]
@@ -839,6 +841,8 @@ miRunTimer1:
 	ldr r2,[mikptr,#mikTim1Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	cmp r1,#7					;@ Link mode?
 	bxeq lr
@@ -869,6 +873,7 @@ miRunTimer1:
 	addne r2,r2,r4,lsl#16
 	addne r6,r6,r4,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
 	mov r0,#1
 tim1NoIrq:
@@ -905,6 +910,8 @@ miRunTimer3:
 	ldr r2,[mikptr,#mikTim3Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
 	stmfd sp!,{r4-r8,lr}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
@@ -937,6 +944,7 @@ miRunTimer3:
 	addne r2,r2,r4,lsl#16
 	addne r6,r6,r4,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
 	mov r0,#1
 tim3NoIrq:
@@ -976,6 +984,8 @@ miRunTimer5:
 	ldr r2,[mikptr,#mikTim5Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
 	stmfd sp!,{r4-r8,lr}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
@@ -1008,6 +1018,7 @@ miRunTimer5:
 	addne r2,r2,r4,lsl#16
 	addne r6,r6,r4,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
 	mov r0,#1
 tim5NoIrq:
@@ -1047,6 +1058,8 @@ miRunTimer7:
 	ldr r2,[mikptr,#mikTim7Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
 	stmfd sp!,{r4-r8,lr}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
@@ -1079,6 +1092,7 @@ miRunTimer7:
 	addne r2,r2,r4,lsl#16
 	addne r6,r6,r4,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
 	mov r0,#1
 tim7NoIrq:
@@ -1118,6 +1132,8 @@ miRunTimer6:
 	ldr r2,[mikptr,#mikTim6Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	cmp r1,#7					;@ Link mode?
 	bxeq lr
@@ -1148,6 +1164,7 @@ miRunTimer6:
 	addne r2,r2,r4,lsl#16
 	addne r6,r6,r4,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
 	mov r0,#1
 tim6NoIrq:

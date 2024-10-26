@@ -433,36 +433,36 @@ mikeyWrite:					;@ I/O write
 io_write_tbl:
 
 	.long miRegW				;@ 0xFD00 TIM0BKUP
-	.long miTimCtlAW			;@ 0xFD01 TIM0CTLA
+	.long miTim0CtlAW			;@ 0xFD01 TIM0CTLA
 	.long miTim0CntW			;@ 0xFD02 TIM0CNT
 	.long miTimCtlBW			;@ 0xFD03 TIM0CTLB
 	.long miRegW				;@ 0xFD04 TIM1BKUP
-	.long miTimCtlAW			;@ 0xFD05 TIM1CTLA
+	.long miTim1CtlAW			;@ 0xFD05 TIM1CTLA
 	.long miTim1CntW			;@ 0xFD06 TIM1CNT
 	.long miTimCtlBW			;@ 0xFD07 TIM1CTLB
 	.long miRegW				;@ 0xFD08 TIM2BKUP
-	.long miTimCtlAW			;@ 0xFD09 TIM2CTLA
+	.long miTim2CtlAW			;@ 0xFD09 TIM2CTLA
 	.long miTim2CntW			;@ 0xFD0A TIM2CNT
 	.long miTimCtlBW			;@ 0xFD0B TIM2CTLB
 	.long miRegW				;@ 0xFD0C TIM3BKUP
-	.long miTimCtlAW			;@ 0xFD0D TIM3CTLA
+	.long miTim3CtlAW			;@ 0xFD0D TIM3CTLA
 	.long miTim3CntW			;@ 0xFD0E TIM3CNT
 	.long miTimCtlBW			;@ 0xFD0F TIM3CTLB
 
 	.long miRegW				;@ 0xFD10 TIM4BKUP
-	.long miTimCtlAW			;@ 0xFD11 TIM4CTLA
+	.long miTim4CtlAW			;@ 0xFD11 TIM4CTLA
 	.long miTim4CntW			;@ 0xFD12 TIM4CNT
 	.long miTimCtlBW			;@ 0xFD13 TIM4CTLB
 	.long miRegW				;@ 0xFD14 TIM5BKUP
-	.long miTimCtlAW			;@ 0xFD15 TIM5CTLA
+	.long miTim5CtlAW			;@ 0xFD15 TIM5CTLA
 	.long miTim5CntW			;@ 0xFD16 TIM5CNT
 	.long miTimCtlBW			;@ 0xFD17 TIM5CTLB
 	.long miRegW				;@ 0xFD18 TIM6BKUP
-	.long miTimCtlAW			;@ 0xFD19 TIM6CTLA
+	.long miTim6CtlAW			;@ 0xFD19 TIM6CTLA
 	.long miTim6CntW			;@ 0xFD1A TIM6CNT
 	.long miTimCtlBW			;@ 0xFD1B TIM6CTLB
 	.long miRegW				;@ 0xFD1C TIM7BKUP
-	.long miTimCtlAW			;@ 0xFD1D TIM7CTLA
+	.long miTim7CtlAW			;@ 0xFD1D TIM7CTLA
 	.long miTim7CntW			;@ 0xFD1E TIM7CNT
 	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
@@ -668,6 +668,160 @@ miTimCtlAW:					;@ Timer X Control A
 	and r0,r0,#0xFF
 	add r2,mikptr,#mikRegs
 	strb r1,[r2,r0]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim0CtlAW:				;@ Timer 0 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim0CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<0
+	orrne r0,r0,#1<<0
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim0CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim0CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer0+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim1CtlAW:				;@ Timer 1 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim1CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<1
+	orrne r0,r0,#1<<1
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim1CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim1CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer1+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim2CtlAW:				;@ Timer 2 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim2CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<2
+	orrne r0,r0,#1<<2
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim2CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim2CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer2+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim3CtlAW:				;@ Timer 3 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim3CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<3
+	orrne r0,r0,#1<<3
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim3CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim3CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer3+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim4CtlAW:				;@ Timer 4 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim4CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<4
+	orrne r0,r0,#1<<4
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim4CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim4CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer4+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim5CtlAW:				;@ Timer 5 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim5CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<5
+	orrne r0,r0,#1<<5
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim5CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim5CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer5+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim6CtlAW:				;@ Timer 6 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim6CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<6
+	orrne r0,r0,#1<<6
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim6CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim6CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer6+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim7CtlAW:				;@ Timer 7 Control A
+;@----------------------------------------------------------------------------
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikTim7CtlA]
+	ldrb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x80				;@ Enable interrupt?
+	biceq r0,r0,#1<<7
+	orrne r0,r0,#1<<7
+	strb r0,[mikptr,#timerInterruptMask]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikTim7CtlB]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikTim7CtlB]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#timer7+LAST_COUNT]
+	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
 miTimCtlBW:					;@ Timer X Control B

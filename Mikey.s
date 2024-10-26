@@ -304,8 +304,8 @@ io_read_tbl:
 	.long miUnmappedR			;@ 0xFD7E
 	.long miUnmappedR			;@ 0xFD7F
 
-	.long miRegR				;@ 0xFD80 INTRST
-	.long miRegR				;@ 0xFD81 INTSET
+	.long miIntRstR				;@ 0xFD80 INTRST
+	.long miIntSetR				;@ 0xFD81 INTSET
 	.long miUnmappedR			;@ 0xFD82
 	.long miUnmappedR			;@ 0xFD83
 	.long miMagRdy0R			;@ 0xFD84 MAGRDY0
@@ -402,6 +402,14 @@ miRegR:
 	bx lr
 	.pool
 
+;@----------------------------------------------------------------------------
+miIntRstR:					;@ 0xFD80
+;@----------------------------------------------------------------------------
+;@----------------------------------------------------------------------------
+miIntSetR:					;@ 0xFD81
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#timerStatusFlags]
+	bx lr
 ;@----------------------------------------------------------------------------
 miMagRdy0R:					;@ 0xFD84
 miMagRdy1R:					;@ 0xFD85
@@ -569,8 +577,8 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD7E
 	.long miUnmappedW			;@ 0xFD7F
 
-	.long miRegW				;@ 0xFD80 INTRST
-	.long miRegW				;@ 0xFD81 INTSET
+	.long miIntRstW				;@ 0xFD80 INTRST
+	.long miIntSetW				;@ 0xFD81 INTSET
 	.long miUnmappedW			;@ 0xFD82
 	.long miUnmappedW			;@ 0xFD83
 	.long miReadOnlyW			;@ 0xFD84 MAGRDY0
@@ -672,7 +680,7 @@ miTimCtlAW:					;@ Timer X Control A
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim0CtlAW:				;@ Timer 0 Control A
+miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim0CtlA]
@@ -691,7 +699,7 @@ miTim0CtlAW:				;@ Timer 0 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim1CtlAW:				;@ Timer 1 Control A
+miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim1CtlA]
@@ -710,7 +718,7 @@ miTim1CtlAW:				;@ Timer 1 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim2CtlAW:				;@ Timer 2 Control A
+miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim2CtlA]
@@ -729,7 +737,7 @@ miTim2CtlAW:				;@ Timer 2 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim3CtlAW:				;@ Timer 3 Control A
+miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim3CtlA]
@@ -748,7 +756,7 @@ miTim3CtlAW:				;@ Timer 3 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim4CtlAW:				;@ Timer 4 Control A
+miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim4CtlA]
@@ -767,7 +775,7 @@ miTim4CtlAW:				;@ Timer 4 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim5CtlAW:				;@ Timer 5 Control A
+miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim5CtlA]
@@ -786,7 +794,7 @@ miTim5CtlAW:				;@ Timer 5 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim6CtlAW:				;@ Timer 6 Control A
+miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim6CtlA]
@@ -805,7 +813,7 @@ miTim6CtlAW:				;@ Timer 6 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim7CtlAW:				;@ Timer 7 Control A
+miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikTim7CtlA]
@@ -824,7 +832,7 @@ miTim7CtlAW:				;@ Timer 7 Control A
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTimCtlBW:					;@ Timer X Control B
+miTimCtlBW:					;@ Timer X Control B (0xFDX3)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0x0F
 	and r0,r0,#0xFF
@@ -833,7 +841,7 @@ miTimCtlBW:					;@ Timer X Control B
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miTim0CntW:
+miTim0CntW:					;@ Timer 0 Count (0xFD02)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim0Cnt]
@@ -842,7 +850,7 @@ miTim0CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim1CntW:
+miTim1CntW:					;@ Timer 1 Count (0xFD06)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim1Cnt]
@@ -851,7 +859,7 @@ miTim1CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim2CntW:
+miTim2CntW:					;@ Timer 2 Count (0xFD0A)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim2Cnt]
@@ -860,7 +868,7 @@ miTim2CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim3CntW:
+miTim3CntW:					;@ Timer 3 Count (0xFD0E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim3Cnt]
@@ -869,7 +877,7 @@ miTim3CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim4CntW:
+miTim4CntW:					;@ Timer 4 Count (0xFD12)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim4Cnt]
@@ -878,7 +886,7 @@ miTim4CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim5CntW:
+miTim5CntW:					;@ Timer 5 Count (0xFD16)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim5Cnt]
@@ -887,7 +895,7 @@ miTim5CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim6CntW:
+miTim6CntW:					;@ Timer 6 Count (0xFD1A)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim6Cnt]
@@ -896,16 +904,32 @@ miTim6CntW:
 	str r1,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
-miTim7CntW:
+miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim7Cnt]
 	str r1,[mikptr,#timer7+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
-	ldr r1,[mikptr,#nextTimerEvent]
+	str r1,[mikptr,#nextTimerEvent]
 	bx lr
+
 ;@----------------------------------------------------------------------------
-miPaletteGW:				;@ Green Palette
+miIntRstW:					;@ Interrupt Reset (0xFD80)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#timerStatusFlags]
+	bic r0,r0,r1
+	strb r0,[mikptr,#timerStatusFlags]
+	b cpuSetIrqPin
+;@----------------------------------------------------------------------------
+miIntSetW:					;@ Interrupt Set (0xFD81)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#timerStatusFlags]
+	orr r0,r0,r1
+	strb r0,[mikptr,#timerStatusFlags]
+	b cpuSetIrqPin
+
+;@----------------------------------------------------------------------------
+miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------
 	and r0,r0,#0xF
 	and r1,r1,#0xF
@@ -916,7 +940,7 @@ miPaletteGW:				;@ Green Palette
 	strb r1,[r2,#1]
 	bx lr
 ;@----------------------------------------------------------------------------
-miPaletteBRW:				;@ Blue & Red Palette
+miPaletteBRW:				;@ Blue & Red Palette (0xFDBX)
 ;@----------------------------------------------------------------------------
 	and r0,r0,#0xF
 	add r2,mikptr,#mikPaletteBR
@@ -975,9 +999,13 @@ miRunTimer0:
 	add r4,r4,#0x0100
 	add r2,r2,r4,lsl#16
 	add r6,r6,r4,lsr#8
-//	biceq r2,r2,#0xFF000000	;@ No reload, clear count.
+//	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 //	orreq r2,r2,#8				;@ CtlB Timer done
-	// Interupt flag setting code moved into DisplayRenderLine()
+//	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<0
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim0NoIrq:
 	str r6,[mikptr,#timer0+CURRENT]
@@ -1045,6 +1073,11 @@ miRunTimer2:
 	add r6,r6,r4,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 //	orreq r2,r2,#8				;@ CtlB Timer done
+//	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<2
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim2NoIrq:
 	str r6,[mikptr,#timer2+CURRENT]
@@ -1101,6 +1134,10 @@ miRunTimer1:
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<1
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim1NoIrq:
 	str r6,[mikptr,#timer1+CURRENT]
@@ -1172,6 +1209,10 @@ miRunTimer3:
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<3
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim3NoIrq:
 	str r6,[mikptr,#timer3+CURRENT]
@@ -1246,6 +1287,10 @@ miRunTimer5:
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<5
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim5NoIrq:
 	str r6,[mikptr,#timer5+CURRENT]
@@ -1320,6 +1365,10 @@ miRunTimer7:
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<7
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim7NoIrq:
 	str r6,[mikptr,#timer7+CURRENT]
@@ -1392,6 +1441,10 @@ miRunTimer6:
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,#1<<6
+	strbne r0,[mikptr,#timerStatusFlags]
 	mov r0,#1
 tim6NoIrq:
 	str r6,[mikptr,#timer6+CURRENT]

@@ -434,36 +434,36 @@ io_write_tbl:
 
 	.long miRegW				;@ 0xFD00 TIM0BKUP
 	.long miTimCtlAW			;@ 0xFD01 TIM0CTLA
-	.long miRegW				;@ 0xFD02 TIM0CNT
+	.long miTim0CntW			;@ 0xFD02 TIM0CNT
 	.long miTimCtlBW			;@ 0xFD03 TIM0CTLB
 	.long miRegW				;@ 0xFD04 TIM1BKUP
 	.long miTimCtlAW			;@ 0xFD05 TIM1CTLA
-	.long miRegW				;@ 0xFD06 TIM1CNT
+	.long miTim1CntW			;@ 0xFD06 TIM1CNT
 	.long miTimCtlBW			;@ 0xFD07 TIM1CTLB
 	.long miRegW				;@ 0xFD08 TIM2BKUP
 	.long miTimCtlAW			;@ 0xFD09 TIM2CTLA
-	.long miRegW				;@ 0xFD0A TIM2CNT
+	.long miTim2CntW			;@ 0xFD0A TIM2CNT
 	.long miTimCtlBW			;@ 0xFD0B TIM2CTLB
 	.long miRegW				;@ 0xFD0C TIM3BKUP
 	.long miTimCtlAW			;@ 0xFD0D TIM3CTLA
-	.long miRegW				;@ 0xFD0E TIM3CNT
+	.long miTim3CntW			;@ 0xFD0E TIM3CNT
 	.long miTimCtlBW			;@ 0xFD0F TIM3CTLB
 
 	.long miRegW				;@ 0xFD10 TIM4BKUP
 	.long miTimCtlAW			;@ 0xFD11 TIM4CTLA
-	.long miRegW				;@ 0xFD12 TIM4CNT
+	.long miTim4CntW			;@ 0xFD12 TIM4CNT
 	.long miTimCtlBW			;@ 0xFD13 TIM4CTLB
 	.long miRegW				;@ 0xFD14 TIM5BKUP
 	.long miTimCtlAW			;@ 0xFD15 TIM5CTLA
-	.long miRegW				;@ 0xFD16 TIM5CNT
+	.long miTim5CntW			;@ 0xFD16 TIM5CNT
 	.long miTimCtlBW			;@ 0xFD17 TIM5CTLB
 	.long miRegW				;@ 0xFD18 TIM6BKUP
 	.long miTimCtlAW			;@ 0xFD19 TIM6CTLA
-	.long miRegW				;@ 0xFD1A TIM6CNT
+	.long miTim6CntW			;@ 0xFD1A TIM6CNT
 	.long miTimCtlBW			;@ 0xFD1B TIM6CTLB
 	.long miRegW				;@ 0xFD1C TIM7BKUP
 	.long miTimCtlAW			;@ 0xFD1D TIM7CTLA
-	.long miRegW				;@ 0xFD1E TIM7CNT
+	.long miTim7CntW			;@ 0xFD1E TIM7CNT
 	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
 	.long miRegW				;@ 0xFD20 AUD0VOL
@@ -678,6 +678,78 @@ miTimCtlBW:					;@ Timer X Control B
 	strb r1,[r2,r0]
 	bx lr
 
+;@----------------------------------------------------------------------------
+miTim0CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim0Cnt]
+	str r1,[mikptr,#timer0+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim1CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim1Cnt]
+	str r1,[mikptr,#timer1+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim2CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim2Cnt]
+	str r1,[mikptr,#timer2+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim3CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim3Cnt]
+	str r1,[mikptr,#timer3+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim4CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim4Cnt]
+	str r1,[mikptr,#timer4+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim5CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim5Cnt]
+	str r1,[mikptr,#timer5+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim6CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim6Cnt]
+	str r1,[mikptr,#timer6+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miTim7CntW:
+;@----------------------------------------------------------------------------
+	and r1,r1,#0xFF
+	strb r1,[mikptr,#mikTim7Cnt]
+	str r1,[mikptr,#timer7+CURRENT]
+	ldr r1,[mikptr,#systemCycleCount]
+	ldr r1,[mikptr,#nextTimerEvent]
+	bx lr
 ;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette
 ;@----------------------------------------------------------------------------

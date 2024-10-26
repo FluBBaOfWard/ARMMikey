@@ -166,11 +166,13 @@ mikPalette:			.space 16*4	;@ Merged palette
 mikLCDVSize:		.byte 0		;@ 0x01 LCD Vertical Size
 mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 					.space 2
-
-mikeyStateEnd:
+timerStatusFlags:	.long 0		;@ Could be byte instead!
+timerInterruptMask:	.long 0		;@ -||-
 
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
+
+mikeyStateEnd:
 
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function

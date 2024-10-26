@@ -189,6 +189,9 @@ typedef struct {
 	u8 mikSOC;				// HOWARD or HOWARD2
 	u8 sdfsdfsf[2];
 
+	u32 timerStatusFlags;
+	u32 timerInterruptMask;
+
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
 

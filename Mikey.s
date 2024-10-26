@@ -48,7 +48,9 @@
 ;@----------------------------------------------------------------------------
 miVideoInit:				;@ Only need to be called once
 ;@----------------------------------------------------------------------------
-
+	mov r0,mikptr
+	ldr r1,=mikeySize/4
+	b memclr_					;@ Clear Mikey state
 	bx lr
 ;@----------------------------------------------------------------------------
 miVideoReset:				;@ r12=mikptr
@@ -56,8 +58,8 @@ miVideoReset:				;@ r12=mikptr
 	stmfd sp!,{r0-r3,lr}
 
 	mov r0,mikptr
-	ldr r1,=mikeySize/4
-	bl memclr_					;@ Clear Suzy state
+	ldr r1,=mikeyStateEnd/4
+	bl memclr_					;@ Clear Mikey state
 
 	ldr r2,=lineStateTable
 	ldr r1,[r2],#4
@@ -169,71 +171,71 @@ mikeyRead:					;@ I/O read
 io_read_tbl:
 	.long miRegR				;@ 0xFD00 TIM0BKUP
 	.long miRegR				;@ 0xFD01 TIM0CTLA
-	.long miRegR				;@ 0xFD02 TIM0CNT
+	.long mikiePeek				;@ 0xFD02 TIM0CNT
 	.long miRegR				;@ 0xFD03 TIM0CTLB
 	.long miRegR				;@ 0xFD04 TIM1BKUP
 	.long miRegR				;@ 0xFD05 TIM1CTLA
-	.long miRegR				;@ 0xFD06 TIM1CNT
+	.long mikiePeek				;@ 0xFD06 TIM1CNT
 	.long miRegR				;@ 0xFD07 TIM1CTLB
 	.long miRegR				;@ 0xFD08 TIM2BKUP
 	.long miRegR				;@ 0xFD09 TIM2CTLA
-	.long miRegR				;@ 0xFD0A TIM2CNT
+	.long mikiePeek				;@ 0xFD0A TIM2CNT
 	.long miRegR				;@ 0xFD0B TIM2CTLB
 	.long miRegR				;@ 0xFD0C TIM3BKUP
 	.long miRegR				;@ 0xFD0D TIM3CTLA
-	.long miRegR				;@ 0xFD0E TIM3CNT
+	.long mikiePeek				;@ 0xFD0E TIM3CNT
 	.long miRegR				;@ 0xFD0F TIM3CTLB
 
 	.long miRegR				;@ 0xFD10 TIM4BKUP
 	.long miRegR				;@ 0xFD11 TIM4CTLA
-	.long miRegR				;@ 0xFD12 TIM4CNT
+	.long mikiePeek				;@ 0xFD12 TIM4CNT
 	.long miRegR				;@ 0xFD13 TIM4CTLB
 	.long miRegR				;@ 0xFD14 TIM5BKUP
 	.long miRegR				;@ 0xFD15 TIM5CTLA
-	.long miRegR				;@ 0xFD16 TIM5CNT
+	.long mikiePeek				;@ 0xFD16 TIM5CNT
 	.long miRegR				;@ 0xFD17 TIM5CTLB
 	.long miRegR				;@ 0xFD18 TIM6BKUP
 	.long miRegR				;@ 0xFD19 TIM6CTLA
-	.long miRegR				;@ 0xFD1A TIM6CNT
+	.long mikiePeek				;@ 0xFD1A TIM6CNT
 	.long miRegR				;@ 0xFD1B TIM6CTLB
 	.long miRegR				;@ 0xFD1C TIM7BKUP
 	.long miRegR				;@ 0xFD1D TIM7CTLA
-	.long miRegR				;@ 0xFD1E TIM7CNT
+	.long mikiePeek				;@ 0xFD1E TIM7CNT
 	.long miRegR				;@ 0xFD1F TIM7CTLB
 
-	.long miRegR				;@ 0xFD20 AUD0VOL
-	.long miRegR				;@ 0xFD21 AUD0SHFTFB
-	.long miRegR				;@ 0xFD22 AUD0OUTVAL
-	.long miRegR				;@ 0xFD23 AUD0L8SHFT
-	.long miRegR				;@ 0xFD24 AUD0TBACK
-	.long miRegR				;@ 0xFD25 AUD0CTL
-	.long miRegR				;@ 0xFD26 AUD0COUNT
-	.long miRegR				;@ 0xFD27 AUD0MISC
-	.long miRegR				;@ 0xFD28 AUD1VOL
-	.long miRegR				;@ 0xFD29 AUD1SHFTFB
-	.long miRegR				;@ 0xFD2A AUD1OUTVAL
-	.long miRegR				;@ 0xFD2B AUD1L8SHFT
-	.long miRegR				;@ 0xFD2C AUD1TBACK
-	.long miRegR				;@ 0xFD2D AUD1CTL
-	.long miRegR				;@ 0xFD2E AUD1COUNT
-	.long miRegR				;@ 0xFD2F AUD1MISC
+	.long mikiePeek				;@ 0xFD20 AUD0VOL
+	.long mikiePeek				;@ 0xFD21 AUD0SHFTFB
+	.long mikiePeek				;@ 0xFD22 AUD0OUTVAL
+	.long mikiePeek				;@ 0xFD23 AUD0L8SHFT
+	.long mikiePeek				;@ 0xFD24 AUD0TBACK
+	.long mikiePeek				;@ 0xFD25 AUD0CTL
+	.long mikiePeek				;@ 0xFD26 AUD0COUNT
+	.long mikiePeek				;@ 0xFD27 AUD0MISC
+	.long mikiePeek				;@ 0xFD28 AUD1VOL
+	.long mikiePeek				;@ 0xFD29 AUD1SHFTFB
+	.long mikiePeek				;@ 0xFD2A AUD1OUTVAL
+	.long mikiePeek				;@ 0xFD2B AUD1L8SHFT
+	.long mikiePeek				;@ 0xFD2C AUD1TBACK
+	.long mikiePeek				;@ 0xFD2D AUD1CTL
+	.long mikiePeek				;@ 0xFD2E AUD1COUNT
+	.long mikiePeek				;@ 0xFD2F AUD1MISC
 
-	.long miRegR				;@ 0xFD30 AUD2VOL
-	.long miRegR				;@ 0xFD31 AUD2SHFTFB
-	.long miRegR				;@ 0xFD32 AUD2OUTVAL
-	.long miRegR				;@ 0xFD33 AUD2L8SHFT
-	.long miRegR				;@ 0xFD34 AUD2TBACK
-	.long miRegR				;@ 0xFD35 AUD2CTL
-	.long miRegR				;@ 0xFD36 AUD2COUNT
-	.long miRegR				;@ 0xFD37 AUD2MISC
-	.long miRegR				;@ 0xFD38 AUD3VOL
-	.long miRegR				;@ 0xFD39 AUD3SHFTFB
-	.long miRegR				;@ 0xFD3A AUD3OUTVAL
-	.long miRegR				;@ 0xFD3B AUD3L8SHFT
-	.long miRegR				;@ 0xFD3C AUD3TBACK
-	.long miRegR				;@ 0xFD3D AUD3CTL
-	.long miRegR				;@ 0xFD3E AUD3COUNT
-	.long miRegR				;@ 0xFD3F AUD3MISC
+	.long mikiePeek				;@ 0xFD30 AUD2VOL
+	.long mikiePeek				;@ 0xFD31 AUD2SHFTFB
+	.long mikiePeek				;@ 0xFD32 AUD2OUTVAL
+	.long mikiePeek				;@ 0xFD33 AUD2L8SHFT
+	.long mikiePeek				;@ 0xFD34 AUD2TBACK
+	.long mikiePeek				;@ 0xFD35 AUD2CTL
+	.long mikiePeek				;@ 0xFD36 AUD2COUNT
+	.long mikiePeek				;@ 0xFD37 AUD2MISC
+	.long mikiePeek				;@ 0xFD38 AUD3VOL
+	.long mikiePeek				;@ 0xFD39 AUD3SHFTFB
+	.long mikiePeek				;@ 0xFD3A AUD3OUTVAL
+	.long mikiePeek				;@ 0xFD3B AUD3L8SHFT
+	.long mikiePeek				;@ 0xFD3C AUD3TBACK
+	.long mikiePeek				;@ 0xFD3D AUD3CTL
+	.long mikiePeek				;@ 0xFD3E AUD3COUNT
+	.long mikiePeek				;@ 0xFD3F AUD3MISC
 
 		// Lynx2 Regs
 	.long miImportantR			;@ 0xFD40 ATTEN_A
@@ -253,7 +255,7 @@ io_read_tbl:
 	.long miUnmappedR			;@ 0xFD4E
 	.long miUnmappedR			;@ 0xFD4F
 
-	.long miRegR				;@ 0xFD50 MSTEREO
+	.long mikiePeek				;@ 0xFD50 MSTEREO
 	.long miUnmappedR			;@ 0xFD51
 	.long miUnmappedR			;@ 0xFD52
 	.long miUnmappedR			;@ 0xFD53
@@ -315,9 +317,9 @@ io_read_tbl:
 	.long miMikeyHRevR			;@ 0xFD88 MIKEYHREV
 	.long miWriteOnlyR			;@ 0xFD89 MIKEYSREV
 	.long miWriteOnlyR			;@ 0xFD8A IODIR
-	.long miRegR				;@ 0xFD8B IODAT
-	.long miRegR				;@ 0xFD8C SERCTL
-	.long miRegR				;@ 0xFD8D SERDAT
+	.long mikiePeek				;@ 0xFD8B IODAT
+	.long mikiePeek				;@ 0xFD8C SERCTL
+	.long mikiePeek				;@ 0xFD8D SERDAT
 	.long miUnmappedR			;@ 0xFD8E
 	.long miUnmappedR			;@ 0xFD8F
 
@@ -474,39 +476,39 @@ io_write_tbl:
 	.long miTim7CntW			;@ 0xFD1E TIM7CNT
 	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
-	.long miRegW				;@ 0xFD20 AUD0VOL
-	.long miRegW				;@ 0xFD21 AUD0SHFTFB
-	.long miRegW				;@ 0xFD22 AUD0OUTVAL
-	.long miRegW				;@ 0xFD23 AUD0L8SHFT
-	.long miRegW				;@ 0xFD24 AUD0TBACK
-	.long miRegW				;@ 0xFD25 AUD0CTL
-	.long miRegW				;@ 0xFD26 AUD0COUNT
-	.long miRegW				;@ 0xFD27 AUD0MISC
-	.long miRegW				;@ 0xFD28 AUD1VOL
-	.long miRegW				;@ 0xFD29 AUD1SHFTFB
-	.long miRegW				;@ 0xFD2A AUD1OUTVAL
-	.long miRegW				;@ 0xFD2B AUD1L8SHFT
-	.long miRegW				;@ 0xFD2C AUD1TBACK
-	.long miRegW				;@ 0xFD2D AUD1CTL
-	.long miRegW				;@ 0xFD2E AUD1COUNT
-	.long miRegW				;@ 0xFD2F AUD1MISC
+	.long mikiePoke				;@ 0xFD20 AUD0VOL
+	.long mikiePoke				;@ 0xFD21 AUD0SHFTFB
+	.long mikiePoke				;@ 0xFD22 AUD0OUTVAL
+	.long mikiePoke				;@ 0xFD23 AUD0L8SHFT
+	.long mikiePoke				;@ 0xFD24 AUD0TBACK
+	.long mikiePoke				;@ 0xFD25 AUD0CTL
+	.long mikiePoke				;@ 0xFD26 AUD0COUNT
+	.long mikiePoke				;@ 0xFD27 AUD0MISC
+	.long mikiePoke				;@ 0xFD28 AUD1VOL
+	.long mikiePoke				;@ 0xFD29 AUD1SHFTFB
+	.long mikiePoke				;@ 0xFD2A AUD1OUTVAL
+	.long mikiePoke				;@ 0xFD2B AUD1L8SHFT
+	.long mikiePoke				;@ 0xFD2C AUD1TBACK
+	.long mikiePoke				;@ 0xFD2D AUD1CTL
+	.long mikiePoke				;@ 0xFD2E AUD1COUNT
+	.long mikiePoke				;@ 0xFD2F AUD1MISC
 
-	.long miRegW				;@ 0xFD30 AUD2VOL
-	.long miRegW				;@ 0xFD31 AUD2SHFTFB
-	.long miRegW				;@ 0xFD32 AUD2OUTVAL
-	.long miRegW				;@ 0xFD33 AUD2L8SHFT
-	.long miRegW				;@ 0xFD34 AUD2TBACK
-	.long miRegW				;@ 0xFD35 AUD2CTL
-	.long miRegW				;@ 0xFD36 AUD2COUNT
-	.long miRegW				;@ 0xFD37 AUD2MISC
-	.long miRegW				;@ 0xFD38 AUD3VOL
-	.long miRegW				;@ 0xFD39 AUD3SHFTFB
-	.long miRegW				;@ 0xFD3A AUD3OUTVAL
-	.long miRegW				;@ 0xFD3B AUD3L8SHFT
-	.long miRegW				;@ 0xFD3C AUD3TBACK
-	.long miRegW				;@ 0xFD3D AUD3CTL
-	.long miRegW				;@ 0xFD3E AUD3COUNT
-	.long miRegW				;@ 0xFD3F AUD3MISC
+	.long mikiePoke				;@ 0xFD30 AUD2VOL
+	.long mikiePoke				;@ 0xFD31 AUD2SHFTFB
+	.long mikiePoke				;@ 0xFD32 AUD2OUTVAL
+	.long mikiePoke				;@ 0xFD33 AUD2L8SHFT
+	.long mikiePoke				;@ 0xFD34 AUD2TBACK
+	.long mikiePoke				;@ 0xFD35 AUD2CTL
+	.long mikiePoke				;@ 0xFD36 AUD2COUNT
+	.long mikiePoke				;@ 0xFD37 AUD2MISC
+	.long mikiePoke				;@ 0xFD38 AUD3VOL
+	.long mikiePoke				;@ 0xFD39 AUD3SHFTFB
+	.long mikiePoke				;@ 0xFD3A AUD3OUTVAL
+	.long mikiePoke				;@ 0xFD3B AUD3L8SHFT
+	.long mikiePoke				;@ 0xFD3C AUD3TBACK
+	.long mikiePoke				;@ 0xFD3D AUD3CTL
+	.long mikiePoke				;@ 0xFD3E AUD3COUNT
+	.long mikiePoke				;@ 0xFD3F AUD3MISC
 
 	// Lynx2 Regs
 	.long miImportantW			;@ 0xFD40 ATTEN_A
@@ -526,7 +528,7 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD4E
 	.long miUnmappedW			;@ 0xFD4F
 
-	.long miRegW				;@ 0xFD50 MSTEREO
+	.long mikiePoke				;@ 0xFD50 MSTEREO
 	.long miUnmappedW			;@ 0xFD51
 	.long miUnmappedW			;@ 0xFD52
 	.long miUnmappedW			;@ 0xFD53
@@ -584,18 +586,18 @@ io_write_tbl:
 	.long miReadOnlyW			;@ 0xFD84 MAGRDY0
 	.long miReadOnlyW			;@ 0xFD85 MAGRDY1
 	.long miReadOnlyW			;@ 0xFD86 AUDIN
-	.long miRegW				;@ 0xFD87 SYSCTL1
+	.long mikiePoke				;@ 0xFD87 SYSCTL1
 	.long miReadOnlyW			;@ 0xFD88 MIKEYHREV
 	.long miRegW				;@ 0xFD89 MIKEYSREV
 	.long miRegW				;@ 0xFD8A IODIR
-	.long miRegW				;@ 0xFD8B IODAT
-	.long miRegW				;@ 0xFD8C SERCTL
-	.long miRegW				;@ 0xFD8D SERDAT
+	.long mikiePoke				;@ 0xFD8B IODAT
+	.long mikiePoke				;@ 0xFD8C SERCTL
+	.long mikiePoke				;@ 0xFD8D SERDAT
 	.long miUnmappedW			;@ 0xFD8E
 	.long miUnmappedW			;@ 0xFD8F
 
 	.long miRegW				;@ 0xFD90 SDONEACK
-	.long miRegW				;@ 0xFD91 CPUSLEEP
+	.long mikiePoke				;@ 0xFD91 CPUSLEEP
 	.long miRegW				;@ 0xFD92 DISPCTL
 	.long miImportantW			;@ 0xFD93 PBKUP
 	.long miRegW				;@ 0xFD94 DISPADR/DISPADRL

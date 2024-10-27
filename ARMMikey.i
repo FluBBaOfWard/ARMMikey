@@ -169,7 +169,8 @@ mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
 					.space 2
-
+lynxLineDMACounter:	.long 0
+lynxLine:			.long 0
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
 
@@ -179,6 +180,8 @@ mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function
 
 mikGfxRAM:			.long 0		;@ 0x10000
+mikLineCallback:	.long 0
+mikFrameCallback:	.long 0
 
 mikeySize:
 

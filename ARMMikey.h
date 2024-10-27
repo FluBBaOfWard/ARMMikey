@@ -193,11 +193,15 @@ typedef struct {
 	u8 timerInterruptMask;
 	u8 sdffsdfsf[2];
 
+	u32 lynxLineDMACounter;
+	u32 lynxLine;
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
 
-	void *mikNmiFunction;	// NMI callback
-	void *mikIrqFunction;	// IRQ callback
+	void (*mikNmiFunction)(bool pin);	// NMI callback
+	void (*mikIrqFunction)(bool pin);	// IRQ callback
+	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
+	void (*mikFrameCallback)(void);
 
 	void *mikGfxRAM;
 

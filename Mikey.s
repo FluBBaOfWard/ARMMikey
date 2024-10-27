@@ -966,6 +966,21 @@ miRefW:						;@ 0x2001, Last scan line.
 
 
 ;@----------------------------------------------------------------------------
+mikDisplayEndOfFrame:
+;@----------------------------------------------------------------------------
+// Stop any further line rendering
+	mov r0,#0
+	str r0,[mikptr,#lynxLineDMACounter]
+	ldrb r0,[mikptr,#mikTim2Bkup]
+	str r0,[mikptr,#lynxLine]
+// Trigger the callback to the display sub-system to render the
+// display.
+//	ldr r0,[mikptr,#mikFrameCallback]
+//	cmp r0,#0
+//	bxne r0
+	b lodjurFrameCallback
+
+;@----------------------------------------------------------------------------
 miRunTimer0:
 	.type	miRunTimer0 STT_FUNC
 ;@----------------------------------------------------------------------------
@@ -1080,6 +1095,7 @@ miRunTimer2:
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<2
 	strbne r0,[mikptr,#timerStatusFlags]
+	bl mikDisplayEndOfFrame
 	mov r0,#1
 tim2NoIrq:
 	str r6,[mikptr,#timer2+CURRENT]

@@ -35,6 +35,7 @@
 	.global mikeyRead
 	.global mikeyWrite
 	.global miRefW
+	.global mikDisplayLine
 
 	.syntax unified
 	.arm
@@ -421,7 +422,7 @@ miMagRdy1R:					;@ 0xFD85
 ;@----------------------------------------------------------------------------
 miAudInR:					;@ 0xFD86
 ;@----------------------------------------------------------------------------
-	mov r0,#0x80				;@ bit 7 = audio comparator result
+	mov r0,#0x80				;@ bit 7 = audio comparator result. magnetic tape?
 	bx lr
 ;@----------------------------------------------------------------------------
 miMikeyHRevR:				;@ 0xFD88
@@ -966,18 +967,69 @@ miRefW:						;@ 0x2001, Last scan line.
 
 
 ;@----------------------------------------------------------------------------
+mikDisplayLine:
+	.type	mikDisplayLine STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	ldrb r1,[mikptr,#mikDispCtl]
+	tst r1,#1					;@ Display DMA on?
+	bxeq lr
+	stmfd sp!,{r4-r5,lr}
+	ldrb r4,[mikptr,#mikTim2Bkup]
+	sub r4,r4,#GAME_HEIGHT
+	ldr r2,[mikptr,#lynxLine]
+	cmp r2,r4
+	movcc r4,#1
+	movcs r4,#0
+	strb r4,[mikptr,#iodatRestSignal]
+
+	cmp r2,#3
+	bne noLatch
+	ldrh r4,[mikptr,#mikDispAdr]
+	tst r1,#2					;@ Screen flip?
+	biceq r4,r4,#3
+	orrne r4,r4,#3
+	str r4,[mikptr,#lynxAddr]
+	mov r4,#GAME_HEIGHT
+	str r4,[mikptr,#lynxLineDMACounter]
+noLatch:
+	add r2,r2,#1
+	str r2,[mikptr,#lynxLine]
+
+	ldr r0,[mikptr,#lynxLineDMACounter]
+	cmp r0,#0
+	beq dispExit
+	sub r0,r0,#1
+	str r0,[mikptr,#lynxLineDMACounter]
+
+	ldr r0,[mikptr,#mikGfxRAM]
+	ldr r4,[mikptr,#lynxAddr]
+	add r0,r0,r4
+	ands r2,r1,#2				;@ Screen flip?
+	addeq r4,r4,#GAME_WIDTH/2
+	subne r4,r4,#GAME_WIDTH/2
+	str r4,[mikptr,#lynxAddr]
+	add r1,mikptr,#mikPalette
+//	ldr r0,[mikptr,#mikLineCallback]
+//	mov lr,pc
+//	bx r0
+	bl lodjurRenderCallback
+	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
+dispExit:
+	ldmfd sp!,{r4-r5,lr}
+	bx lr
+
+;@----------------------------------------------------------------------------
 mikDisplayEndOfFrame:
 ;@----------------------------------------------------------------------------
 // Stop any further line rendering
 	mov r0,#0
 	str r0,[mikptr,#lynxLineDMACounter]
-	ldrb r0,[mikptr,#mikTim2Bkup]
 	str r0,[mikptr,#lynxLine]
 // Trigger the callback to the display sub-system to render the
 // display.
 //	ldr r0,[mikptr,#mikFrameCallback]
-//	cmp r0,#0
-//	bxne r0
+//	bx r0
 	b lodjurFrameCallback
 
 ;@----------------------------------------------------------------------------
@@ -1023,6 +1075,7 @@ miRunTimer0:
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<0
 	strbne r0,[mikptr,#timerStatusFlags]
+//	bl mikDisplayLine
 	mov r0,#1
 tim0NoIrq:
 	str r6,[mikptr,#timer0+CURRENT]

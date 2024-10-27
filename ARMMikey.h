@@ -195,8 +195,10 @@ typedef struct {
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
+	u32 lynxAddr;
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
+	u32 iodatRestSignal;
 
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback
@@ -241,6 +243,7 @@ bool miRunTimer6(void);
 bool miRunTimer7(void);
 
 void miDoScanline(void);
+u32 mikDisplayLine(void);
 
 #ifdef __cplusplus
 } // extern "C"

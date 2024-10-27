@@ -171,8 +171,10 @@ timerInterruptMask:	.byte 0		;@
 					.space 2
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
+lynxAddr:			.long 0
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
+iodatRestSignal:	.long 0
 
 mikeyStateEnd:
 

@@ -958,6 +958,24 @@ mikUpdate:
 	.type	mikUpdate STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,lr}
+	ldr mikptr,=mikey_0
+
+	//gNextTimerEvent = 0xffffffff;
+	mov r2,#-1
+	// Check if the CPU needs to be woken up from sleep mode
+	ldr r0,[mikptr,#suzieDoneTime]
+	cmp r0,#0
+	beq noSuzy
+	ldr r1,[mikptr,#systemCycleCount]
+	cmp r1,r0
+	movcs r0,#0
+	strcs r0,[mikptr,#suzieDoneTime]
+	strcs r0,[mikptr,#systemCPUSleep]
+	movcc r2,r0
+noSuzy:
+	str r2,[mikptr,#nextTimerEvent]
+
+
 	bl miRunTimer0
 	cmp r0,#0
 	blne mikDisplayLine
@@ -974,7 +992,20 @@ mikUpdate:
 	bl miRunTimer7
 	bl miRunTimer6
 
-	mov r0,r4
+//	if (gAudioEnabled)
+//	bl UpdateSound
+
+	ldrb r0,[mikptr,#timerStatusFlags]
+	ldr r1,[mikptr,#systemCPUSleep]
+	cmp r0,#0
+	cmpne r1,#0
+	movne r1,#0
+	strne r1,[mikptr,#systemCPUSleep]
+	bl cpuSetIrqPin
+
+	ldr r0,[mikptr,#systemCycleCount]
+	add r0,r0,r4
+	str r0,[mikptr,#systemCycleCount]
 	ldmfd sp!,{r4,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1048,7 +1079,6 @@ miRunTimer0:
 	.type	miRunTimer0 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim0Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?

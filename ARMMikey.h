@@ -198,7 +198,9 @@ typedef struct {
 	u32 lynxAddr;
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
+	u32 suzieDoneTime;
 	u32 iodatRestSignal;
+	u32 systemCPUSleep;
 
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback

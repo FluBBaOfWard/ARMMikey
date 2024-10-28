@@ -174,7 +174,9 @@ lynxLine:			.long 0
 lynxAddr:			.long 0
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
+suzieDoneTime:		.long 0
 iodatRestSignal:	.long 0
+systemCPUSleep:		.long 0
 
 mikeyStateEnd:
 

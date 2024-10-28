@@ -16,13 +16,12 @@
 #include "ARMMikey.i"
 #include "ARM6502/M6502.i"
 
-#define CYCLE_PSL (246*2)
-
 	.global miVideoInit
 	.global miVideoReset
 	.global miVideoSaveState
 	.global miVideoLoadState
 	.global miVideoGetStateSize
+	.global mikUpdate
 	.global miRunTimer0
 	.global miRunTimer1
 	.global miRunTimer2
@@ -109,20 +108,8 @@ thumbCallR3:
 ;@----------------------------------------------------------------------------
 miRegistersReset:			;@ in r3=SOC
 ;@----------------------------------------------------------------------------
-	adr r1,IO_Default
-	mov r2,#0x30
-	add r0,mikptr,#mikRegs
-	stmfd sp!,{mikptr,lr}
-	bl memCopy
-	ldmfd sp!,{mikptr,lr}
 	ldrb r1,[mikptr,#mikLCDVSize]
 	b miRefW
-
-;@----------------------------------------------------------------------------
-IO_Default:
-	.byte 0xA0, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	.byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	.byte 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 
 ;@----------------------------------------------------------------------------
 miVideoSaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
@@ -966,6 +953,30 @@ miRefW:						;@ 0x2001, Last scan line.
 	b setScreenRefresh
 
 
+;@----------------------------------------------------------------------------
+mikUpdate:
+	.type	mikUpdate STT_FUNC
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r4,lr}
+	bl miRunTimer0
+	cmp r0,#0
+	blne mikDisplayLine
+	mov r4,r0
+
+	bl miRunTimer2
+
+	//bl miRunTimer4
+	bl runTimer4
+
+	bl miRunTimer1
+	bl miRunTimer3
+	bl miRunTimer5
+	bl miRunTimer7
+	bl miRunTimer6
+
+	mov r0,r4
+	ldmfd sp!,{r4,lr}
+	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayLine:
 	.type	mikDisplayLine STT_FUNC

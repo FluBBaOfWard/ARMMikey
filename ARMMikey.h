@@ -233,6 +233,8 @@ int miVideoLoadState(MIKEY *chip, const void *source);
  */
 int miVideoGetStateSize(void);
 
+u32 mikUpdate(void);
+
 bool miRunTimer0(void);
 bool miRunTimer1(void);
 bool miRunTimer2(void);

@@ -1,6 +1,5 @@
-ARMSuzy To do
+ARMMikey To do
 -------------------------------
 
-	Add check for dirty tiles in tilemap renderer.
-	Handle LCD on/off.
-
+	Implement Timer 4/UART.
+	Implement audio channels.

@@ -13,6 +13,8 @@
 extern "C" {
 #endif
 
+#include "ARM6502/M6502.h"
+
 #define HW_AUTO       (0)
 #define HW_LYNX       (1)
 #define HW_LYNX_II    (2)
@@ -57,6 +59,8 @@ typedef struct
 
 
 typedef struct {
+	M6502Core m6502;
+	// mikeyState:					;@
 	u32 scanline;
 	u32 nextLineChange;
 	u32 lineState;
@@ -150,7 +154,7 @@ typedef struct {
 	u8 mPan;				// 0x44
 	u8 padding0[0x0B];		// 0x45-0x4F
 
-	u8 mStereo;				// 0x50 MSTEREO
+	u8 stereo;				// 0x50 STEREO
 	u8 padding1[0x2F];		// 0x51-0x7F
 
 	u8 intRst;				// 0x80 Interrupt Reset
@@ -242,8 +246,6 @@ int miVideoLoadState(MIKEY *chip, const void *source);
 int miVideoGetStateSize(void);
 
 void mikSysUpdate(void);
-
-u32 mikUpdate(void);
 
 void miDoScanline(void);
 

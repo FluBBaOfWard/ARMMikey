@@ -6,6 +6,8 @@
 //  Copyright © 2024 Fredrik Ahlström. All rights reserved.
 //
 
+#include "ARM6502/M6502.i"
+
 #define HW_AUTO       (0)
 #define HW_LYNX       (1)
 #define HW_LYNX_II    (2)
@@ -29,14 +31,16 @@ mikTimerEnd:
 mikTimerSize = mikTimerEnd
 
 
-	mikptr		.req r12
-						;@ SVVideo.s
+	mikptr		.req m6502ptr
+						;@ ARMMikey.s
 	.struct 0
-scanline:			.long 0		;@ These 3 must be first in state.
-nextLineChange:		.long 0
-lineState:			.long 0
+m6502Chip:			.space m6502Size
 
-windowData:			.long 0
+scanline2:			.long 0		;@ These 3 must be first in state.
+nextLineChange2:	.long 0
+lineState2:			.long 0
+
+windowData2:		.long 0
 mikeyState:					;@
 
 timer0:				.space mikTimerSize
@@ -127,7 +131,7 @@ mikAttenD:			.byte 0		;@ 0x43
 mikMPAN:			.byte 0		;@ 0x44
 mikPadding0:		.space 0x0B	;@ 0x45-0x4F
 
-mikMStereo:			.byte 0		;@ 0x50 MSTEREO
+mikStereo:			.byte 0		;@ 0x50 STEREO
 mikPadding1:		.space 0x2F	;@ 0x51-0x7F
 
 mikIntRst:			.byte 0		;@ 0x80 Interrupt Reset
@@ -194,6 +198,7 @@ audio2:				.space 8*4
 audio3:				.space 8*4
 
 mikeySize:
+mikeyStateSize = mikeyStateEnd-mikeyState
 
 ;@----------------------------------------------------------------------------
 

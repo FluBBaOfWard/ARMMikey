@@ -22,7 +22,6 @@
 	.global miVideoLoadState
 	.global miVideoGetStateSize
 	.global mikSysUpdate
-	.global mikUpdate
 	.global miDoScanline
 	.global mikeyRead
 	.global mikeyWrite
@@ -45,26 +44,26 @@ miVideoInit:				;@ Only need to be called once
 	b memclr_					;@ Clear Mikey state
 	bx lr
 ;@----------------------------------------------------------------------------
-miVideoReset:				;@ r12=mikptr
+miVideoReset:				;@ r10=mikptr
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0-r3,lr}
 
-	mov r0,mikptr
-	ldr r1,=mikeyStateEnd/4
+	add r0,mikptr,#mikeyState
+	ldr r1,=mikeyStateSize/4
 	bl memclr_					;@ Clear Mikey state
 
-	ldr r2,=lineStateTable
-	ldr r1,[r2],#4
-	mov r0,#-1
-	stmia mikptr,{r0-r2}		;@ Reset scanline, nextChange & lineState
+//	ldr r2,=lineStateTable
+//	ldr r1,[r2],#4
+//	mov r0,#-1
+//	stmia mikptr,{r0-r2}		;@ Reset scanline, nextChange & lineState
 
 	ldmfd sp!,{r0-r3,lr}
 	cmp r0,#0
-	adreq r0,dummyIrqFunc
-	str r0,[mikptr,#mikNmiFunction]
+	adreq r0,dummyFunc
+	str r0,[mikptr,#mikLineCallback]
 	cmp r1,#0
-	adreq r1,dummyIrqFunc
-	str r1,[mikptr,#mikIrqFunction]
+	adreq r1,dummyFunc
+	str r1,[mikptr,#mikFrameCallback]
 
 	str r2,[mikptr,#mikGfxRAM]
 
@@ -72,7 +71,7 @@ miVideoReset:				;@ r12=mikptr
 
 //	b miRegistersReset
 
-dummyIrqFunc:
+dummyFunc:
 	bx lr
 ;@----------------------------------------------------------------------------
 _debugIOUnmappedR:
@@ -222,7 +221,7 @@ io_read_tbl:
 	.long miImportantR			;@ 0xFD41 ATTEN_B
 	.long miImportantR			;@ 0xFD42 ATTEN_C
 	.long miImportantR			;@ 0xFD43 ATTEN_D
-	.long miImportantR			;@ 0xFD44 MPAN
+	.long miImportantR			;@ 0xFD44 PAN
 	.long miUnmappedR			;@ 0xFD45
 	.long miUnmappedR			;@ 0xFD46
 	.long miUnmappedR			;@ 0xFD47
@@ -235,7 +234,7 @@ io_read_tbl:
 	.long miUnmappedR			;@ 0xFD4E
 	.long miUnmappedR			;@ 0xFD4F
 
-	.long mikiePeek				;@ 0xFD50 MSTEREO
+	.long miStereoR				;@ 0xFD50 STEREO
 	.long miUnmappedR			;@ 0xFD51
 	.long miUnmappedR			;@ 0xFD52
 	.long miUnmappedR			;@ 0xFD53
@@ -385,13 +384,19 @@ miRegR:
 	.pool
 
 ;@----------------------------------------------------------------------------
-miTimXCntR:
+miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0,lr}
 	bl mikUpdate
 	ldmfd sp!,{r0,lr}
 	b miRegR
 
+;@----------------------------------------------------------------------------
+miStereoR:					;@ 0xFD50
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikStereo]
+	eor r0,r0,#0xFF				;@ Stereo is inverted
+	bx lr
 ;@----------------------------------------------------------------------------
 miIntRstR:					;@ 0xFD80
 ;@----------------------------------------------------------------------------
@@ -516,7 +521,7 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD4E
 	.long miUnmappedW			;@ 0xFD4F
 
-	.long mikiePoke				;@ 0xFD50 MSTEREO
+	.long miStereoW				;@ 0xFD50 STEREO
 	.long miUnmappedW			;@ 0xFD51
 	.long miUnmappedW			;@ 0xFD52
 	.long miUnmappedW			;@ 0xFD53
@@ -904,6 +909,12 @@ miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 	bx lr
 
 ;@----------------------------------------------------------------------------
+miStereoW:					;@ 0xFD50
+;@----------------------------------------------------------------------------
+	eor r0,r0,#0xFF				;@ Stereo is inverted
+	strb r0,[mikptr,#mikStereo]
+	bx lr
+;@----------------------------------------------------------------------------
 miIntRstW:					;@ Interrupt Reset (0xFD80)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#timerStatusFlags]
@@ -969,7 +980,7 @@ miRefW:						;@ 0x2001, Last scan line.
 mikSysUpdate:
 	.type	mikSysUpdate STT_FUNC
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r4,lr}
+	stmfd sp!,{r4,mikptr,lr}
 	ldr mikptr,=mikey_0
 	ldr r4,[mikptr,#systemCycleCount]
 	ldr r0,[mikptr,#nextTimerEvent]
@@ -982,7 +993,6 @@ mikSysUpdate:
 	bne sysUpdExit
 
 	bl stepInstruction
-	ldr mikptr,=mikey_0
 	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
@@ -990,20 +1000,44 @@ mikSysUpdate:
 	add r4,r4,r0
 sysUpdExit:
 	str r4,[mikptr,#systemCycleCount]
-	ldmfd sp!,{r4,lr}
+	ldmfd sp!,{r4,mikptr,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
+
+//	Timer updates, rolled out flat in group order
+//
+//	Group A:
+//	Timer 0 -> Timer 2 -> Timer 4.
+//
+//	Group B:
+//	Timer 1 -> Timer 3 -> Timer 5 -> Timer 7 -> Audio 0 -> Audio 1-> Audio 2 -> Audio 3 -> Timer 1.
+//
+
+//
+// Within each timer code block we will predict the cycle count number of
+// the next timer event
+//
+// We don't need to count linked timers as the timer they are linked
+// from will always generate earlier events.
+//
+// As Timer 4 (UART) will generate many events we will ignore it
+//
+// We set the next event to the end of time at first and let the timers
+// overload it. Any writes to timer controls will force next event to
+// be immediate and hence a new prediction will be done. The prediction
+// causes overflow as opposed to zero i.e. current+1
+// (In reality T0 line counter should always be running.)
+//
+;@----------------------------------------------------------------------------
 mikUpdate:
-	.type	mikUpdate STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,lr}
-	ldr mikptr,=mikey_0
 
 	// To stop problems with cycle count wrap we will check and then correct the
 	// cycle counter.
 	ldr r0,[mikptr,#systemCycleCount]
 	cmp r0,#0xF0000000
-	bcs noOverFlow
+	bcc noOverFlow
 	sub r0,r0,#0x80000000
 	str r0,[mikptr,#systemCycleCount]
 
@@ -1121,7 +1155,9 @@ mikDisplayLine:
 
 	cmp r2,#3
 	bne noLatch
-	ldrh r4,[mikptr,#mikDispAdr]
+	ldrb r4,[mikptr,#mikDispAdrL]
+	ldrb r0,[mikptr,#mikDispAdrH]
+	orr r4,r4,r0,lsl#8
 	tst r1,#2					;@ Screen flip?
 	biceq r4,r4,#3
 	orrne r4,r4,#3
@@ -1146,10 +1182,9 @@ noLatch:
 	subne r4,r4,#GAME_WIDTH/2
 	str r4,[mikptr,#lynxAddr]
 	add r1,mikptr,#mikPalette
-//	ldr r0,[mikptr,#mikLineCallback]
-//	mov lr,pc
-//	bx r0
-	bl lodjurRenderCallback
+	ldr r4,[mikptr,#mikLineCallback]
+	mov lr,pc
+	bx r4
 	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
 dispExit:
 	ldmfd sp!,{r4-r5,lr}
@@ -1164,9 +1199,8 @@ mikDisplayEndOfFrame:
 	str r0,[mikptr,#lynxLine]
 // Trigger the callback to the display sub-system to render the
 // display.
-//	ldr r0,[mikptr,#mikFrameCallback]
-//	bx r0
-	b lodjurFrameCallback
+	ldr r0,[mikptr,#mikFrameCallback]
+	bx r0
 
 ;@----------------------------------------------------------------------------
 miRunTimer0:
@@ -1240,7 +1274,6 @@ tim0NoCount:
 miRunTimer2:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim2Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1299,7 +1332,6 @@ tim2NoCount:
 miRunTimer1:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim1Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1371,7 +1403,6 @@ tim1NoCount:
 miRunTimer3:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim3Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1448,7 +1479,6 @@ tim3Exit:
 miRunTimer5:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim5Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1525,7 +1555,6 @@ tim5Exit:
 miRunTimer7:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim7Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1602,7 +1631,6 @@ tim7Exit:
 miRunTimer6:
 ;@----------------------------------------------------------------------------
 	mov r0,#0
-	ldr mikptr,=mikey_0
 	ldr r2,[mikptr,#mikTim6Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
@@ -1704,7 +1732,7 @@ lineStateLastLine:
 ;@----------------------------------------------------------------------------
 redoScanline:
 ;@----------------------------------------------------------------------------
-	ldr r2,[mikptr,#lineState]
+	ldr r2,[mikptr,#lineState2]
 	ldmia r2!,{r0,r1}
 	stmib mikptr,{r1,r2}		;@ Write nextLineChange & lineState
 	stmfd sp!,{lr}
@@ -1718,14 +1746,14 @@ miDoScanline:
 	add r0,r0,#1
 	cmp r0,r1
 	bpl redoScanline
-	str r0,[mikptr,#scanline]
+	str r0,[mikptr,#scanline2]
 ;@----------------------------------------------------------------------------
 checkScanlineIRQ:
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
 
 
-	ldr r0,[mikptr,#scanline]
+	ldr r0,[mikptr,#scanline2]
 	subs r0,r0,#159				;@ Return from emulation loop on this scanline
 	movne r0,#1
 	ldmfd sp!,{pc}

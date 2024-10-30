@@ -920,14 +920,14 @@ miIntRstW:					;@ Interrupt Reset (0xFD80)
 	ldrb r0,[mikptr,#timerStatusFlags]
 	bic r0,r0,r1
 	strb r0,[mikptr,#timerStatusFlags]
-	b cpuSetIrqPin
+	b m6502SetIRQPin
 ;@----------------------------------------------------------------------------
 miIntSetW:					;@ Interrupt Set (0xFD81)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#timerStatusFlags]
 	orr r0,r0,r1
 	strb r0,[mikptr,#timerStatusFlags]
-	b cpuSetIrqPin
+	b m6502SetIRQPin
 
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
@@ -939,7 +939,7 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 	add r0,r0,r1
 	str r0,[mikptr,#suzieDoneTime]
 	mov r0,#1
-	str r0,[mikptr,#systemCPUSleep]
+	strb r0,[mikptr,#systemCPUSleep]
 	bx lr
 ;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette (0xFDAX)
@@ -980,27 +980,42 @@ miRefW:						;@ 0x2001, Last scan line.
 mikSysUpdate:
 	.type	mikSysUpdate STT_FUNC
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r4,mikptr,lr}
+	stmfd sp!,{r4-r11,lr}
 	ldr mikptr,=mikey_0
 	ldr r4,[mikptr,#systemCycleCount]
+	ldr r5,=159*105*16			;@ Cycle count for 60Hz frame.
+	add r5,r5,r4
+sysLoop:
 	ldr r0,[mikptr,#nextTimerEvent]
 	cmp r4,r0
 	blcs mikUpdate
-	ldr r0,[mikptr,#systemCPUSleep]
+	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	// systemCycleCount = nextTimerEvent;
 	ldrne r4,[mikptr,#nextTimerEvent]
 	bne sysUpdExit
 
-	bl stepInstruction
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r4-r5}
+	mov r0,#8
+	bl m6502RestoreAndRunXCycles
+	mov r0,cycles,asr#CYC_SHIFT
+	rsb r0,r0,#8
+	add r1,m6502ptr,#m6502Regs
+	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
+	ldmfd sp!,{r4-r5}
+;@----------------------------------------------------------------------------
+
 	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	add r0,r0,#1
 	add r4,r4,r0
 sysUpdExit:
-	str r4,[mikptr,#systemCycleCount]
-	ldmfd sp!,{r4,mikptr,lr}
+	str r4,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
+	cmp r4,r5
+	bcc sysLoop
+	ldmfd sp!,{r4-r11,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
 
@@ -1039,7 +1054,7 @@ mikUpdate:
 	cmp r0,#0xF0000000
 	bcc noOverFlow
 	sub r0,r0,#0x80000000
-	str r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
 
 	ldr r0,[mikptr,#audioLastUpdateCycle]
 	sub r0,r0,#0x80000000
@@ -1099,7 +1114,7 @@ noOverFlow:
 	cmp r1,r0
 	movcs r0,#0
 	strcs r0,[mikptr,#suzieDoneTime]
-	strcs r0,[mikptr,#systemCPUSleep]
+	strbcs r0,[mikptr,#systemCPUSleep]
 	movcc r2,r0
 noSuzy:
 	str r2,[mikptr,#nextTimerEvent]
@@ -1125,16 +1140,16 @@ noSuzy:
 //	bl UpdateSound
 
 	ldrb r0,[mikptr,#timerStatusFlags]
-	ldr r1,[mikptr,#systemCPUSleep]
+	ldrb r1,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	cmpne r1,#0
 	movne r1,#0
-	strne r1,[mikptr,#systemCPUSleep]
-	bl cpuSetIrqPin
+	strbne r1,[mikptr,#systemCPUSleep]
+	bl m6502SetIRQPin
 
 	ldr r0,[mikptr,#systemCycleCount]
 	add r0,r0,r4
-	str r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
 	ldmfd sp!,{r4,lr}
 	bx lr
 ;@----------------------------------------------------------------------------

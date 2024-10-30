@@ -195,7 +195,8 @@ typedef struct {
 
 	u8 timerStatusFlags;
 	u8 timerInterruptMask;
-	u8 sdffsdfsf[2];
+	u8 systemCPUSleep;
+	u8 sdffsdfsf[1];
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
@@ -205,7 +206,6 @@ typedef struct {
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
 	u32 iodatRestSignal;
-	u32 systemCPUSleep;
 
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback

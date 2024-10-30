@@ -172,7 +172,8 @@ mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 					.space 2
 timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
-					.space 2
+systemCPUSleep:		.byte 0
+					.space 1
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
 lynxAddr:			.long 0
@@ -181,7 +182,6 @@ nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
 audioLastUpdateCycle:	.long 0
 iodatRestSignal:	.long 0
-systemCPUSleep:		.long 0
 
 mikeyStateEnd:
 

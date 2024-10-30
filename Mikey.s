@@ -21,6 +21,7 @@
 	.global miVideoSaveState
 	.global miVideoLoadState
 	.global miVideoGetStateSize
+	.global mikSysUpdate
 	.global mikUpdate
 	.global miDoScanline
 	.global mikeyRead
@@ -944,6 +945,33 @@ miRefW:						;@ 0x2001, Last scan line.
 	b setScreenRefresh
 
 
+;@----------------------------------------------------------------------------
+mikSysUpdate:
+	.type	mikSysUpdate STT_FUNC
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r4,lr}
+	ldr mikptr,=mikey_0
+	ldr r4,[mikptr,#systemCycleCount]
+	ldr r0,[mikptr,#nextTimerEvent]
+	cmp r4,r0
+	blcs mikUpdate
+	ldr r0,[mikptr,#systemCPUSleep]
+	cmp r0,#0
+	// systemCycleCount = nextTimerEvent;
+	ldrne r4,[mikptr,#nextTimerEvent]
+	bne sysUpdExit
+
+	bl stepInstruction
+	ldr mikptr,=mikey_0
+	ldr r4,[mikptr,#systemCycleCount]
+	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
+	add r0,r0,r0,lsl#2	// x5
+	add r0,r0,#1
+	add r4,r4,r0
+sysUpdExit:
+	str r4,[mikptr,#systemCycleCount]
+	ldmfd sp!,{r4,lr}
+	bx lr
 ;@----------------------------------------------------------------------------
 mikUpdate:
 	.type	mikUpdate STT_FUNC

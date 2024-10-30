@@ -241,6 +241,8 @@ int miVideoLoadState(MIKEY *chip, const void *source);
  */
 int miVideoGetStateSize(void);
 
+void mikSysUpdate(void);
+
 u32 mikUpdate(void);
 
 void miDoScanline(void);

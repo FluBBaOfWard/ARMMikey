@@ -151,36 +151,36 @@ mikeyRead:					;@ I/O read
 io_read_tbl:
 	.long miRegR				;@ 0xFD00 TIM0BKUP
 	.long miRegR				;@ 0xFD01 TIM0CTLA
-	.long mikiePeek				;@ 0xFD02 TIM0CNT
+	.long miTimXCntR			;@ 0xFD02 TIM0CNT
 	.long miRegR				;@ 0xFD03 TIM0CTLB
 	.long miRegR				;@ 0xFD04 TIM1BKUP
 	.long miRegR				;@ 0xFD05 TIM1CTLA
-	.long mikiePeek				;@ 0xFD06 TIM1CNT
+	.long miTimXCntR			;@ 0xFD06 TIM1CNT
 	.long miRegR				;@ 0xFD07 TIM1CTLB
 	.long miRegR				;@ 0xFD08 TIM2BKUP
 	.long miRegR				;@ 0xFD09 TIM2CTLA
-	.long mikiePeek				;@ 0xFD0A TIM2CNT
+	.long miTimXCntR			;@ 0xFD0A TIM2CNT
 	.long miRegR				;@ 0xFD0B TIM2CTLB
 	.long miRegR				;@ 0xFD0C TIM3BKUP
 	.long miRegR				;@ 0xFD0D TIM3CTLA
-	.long mikiePeek				;@ 0xFD0E TIM3CNT
+	.long miTimXCntR			;@ 0xFD0E TIM3CNT
 	.long miRegR				;@ 0xFD0F TIM3CTLB
 
 	.long miRegR				;@ 0xFD10 TIM4BKUP
 	.long miRegR				;@ 0xFD11 TIM4CTLA
-	.long mikiePeek				;@ 0xFD12 TIM4CNT
+	.long miTimXCntR			;@ 0xFD12 TIM4CNT
 	.long miRegR				;@ 0xFD13 TIM4CTLB
 	.long miRegR				;@ 0xFD14 TIM5BKUP
 	.long miRegR				;@ 0xFD15 TIM5CTLA
-	.long mikiePeek				;@ 0xFD16 TIM5CNT
+	.long miTimXCntR			;@ 0xFD16 TIM5CNT
 	.long miRegR				;@ 0xFD17 TIM5CTLB
 	.long miRegR				;@ 0xFD18 TIM6BKUP
 	.long miRegR				;@ 0xFD19 TIM6CTLA
-	.long mikiePeek				;@ 0xFD1A TIM6CNT
+	.long miTimXCntR			;@ 0xFD1A TIM6CNT
 	.long miRegR				;@ 0xFD1B TIM6CTLB
 	.long miRegR				;@ 0xFD1C TIM7BKUP
 	.long miRegR				;@ 0xFD1D TIM7CTLA
-	.long mikiePeek				;@ 0xFD1E TIM7CNT
+	.long miTimXCntR			;@ 0xFD1E TIM7CNT
 	.long miRegR				;@ 0xFD1F TIM7CTLB
 
 	.long mikiePeek				;@ 0xFD20 AUD0VOL
@@ -385,6 +385,14 @@ miRegR:
 	.pool
 
 ;@----------------------------------------------------------------------------
+miTimXCntR:
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r0,lr}
+	bl mikUpdate
+	ldmfd sp!,{r0,lr}
+	b miRegR
+
+;@----------------------------------------------------------------------------
 miIntRstR:					;@ 0xFD80
 ;@----------------------------------------------------------------------------
 ;@----------------------------------------------------------------------------
@@ -577,7 +585,7 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD8F
 
 	.long miRegW				;@ 0xFD90 SDONEACK
-	.long mikiePoke				;@ 0xFD91 CPUSLEEP
+	.long miCpuSleepW			;@ 0xFD91 CPUSLEEP
 	.long miRegW				;@ 0xFD92 DISPCTL
 	.long miImportantW			;@ 0xFD93 PBKUP
 	.long miRegW				;@ 0xFD94 DISPADR/DISPADRL
@@ -910,6 +918,18 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 	strb r0,[mikptr,#timerStatusFlags]
 	b cpuSetIrqPin
 
+;@----------------------------------------------------------------------------
+miCpuSleepW:				;@ CPU Sleep (0xFD91)
+;@----------------------------------------------------------------------------
+	stmfd sp!,{mikptr,lr}
+	bl paintSprites
+	ldmfd sp!,{mikptr,lr}
+	ldr r1,[mikptr,#systemCycleCount]
+	add r0,r0,r1
+	str r0,[mikptr,#suzieDoneTime]
+	mov r0,#1
+	str r0,[mikptr,#systemCPUSleep]
+	bx lr
 ;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------

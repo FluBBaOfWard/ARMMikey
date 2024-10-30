@@ -22,19 +22,10 @@
 	.global miVideoLoadState
 	.global miVideoGetStateSize
 	.global mikUpdate
-	.global miRunTimer0
-	.global miRunTimer1
-	.global miRunTimer2
-	.global miRunTimer3
-	.global miRunTimer4
-	.global miRunTimer5
-	.global miRunTimer6
-	.global miRunTimer7
 	.global miDoScanline
 	.global mikeyRead
 	.global mikeyWrite
 	.global miRefW
-	.global mikDisplayLine
 
 	.syntax unified
 	.arm
@@ -960,6 +951,62 @@ mikUpdate:
 	stmfd sp!,{r4,lr}
 	ldr mikptr,=mikey_0
 
+	// To stop problems with cycle count wrap we will check and then correct the
+	// cycle counter.
+	ldr r0,[mikptr,#systemCycleCount]
+	cmp r0,#0xF0000000
+	bcs noOverFlow
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#systemCycleCount]
+
+	ldr r0,[mikptr,#audioLastUpdateCycle]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#audioLastUpdateCycle]
+
+	ldr r0,[mikptr,#timer0+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer0+LAST_COUNT]
+	ldr r0,[mikptr,#timer1+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer1+LAST_COUNT]
+	ldr r0,[mikptr,#timer2+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer2+LAST_COUNT]
+	ldr r0,[mikptr,#timer3+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer3+LAST_COUNT]
+	ldr r0,[mikptr,#timer4+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer4+LAST_COUNT]
+	ldr r0,[mikptr,#timer5+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer5+LAST_COUNT]
+	ldr r0,[mikptr,#timer6+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer6+LAST_COUNT]
+	ldr r0,[mikptr,#timer7+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#timer7+LAST_COUNT]
+	ldr r0,[mikptr,#audio0+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#audio0+LAST_COUNT]
+	ldr r0,[mikptr,#audio1+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#audio1+LAST_COUNT]
+	ldr r0,[mikptr,#audio2+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#audio2+LAST_COUNT]
+	ldr r0,[mikptr,#audio3+LAST_COUNT]
+	sub r0,r0,#0x80000000
+	str r0,[mikptr,#audio3+LAST_COUNT]
+
+	// Only correct if sleep is active
+	ldr r0,[mikptr,#suzieDoneTime]
+	cmp r0,#0
+	subne r0,r0,#0x80000000
+	strne r0,[mikptr,#suzieDoneTime]
+noOverFlow:
+
 	//gNextTimerEvent = 0xffffffff;
 	mov r2,#-1
 	// Check if the CPU needs to be woken up from sleep mode
@@ -1010,7 +1057,6 @@ noSuzy:
 	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayLine:
-	.type	mikDisplayLine STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldrb r1,[mikptr,#mikDispCtl]
@@ -1076,7 +1122,6 @@ mikDisplayEndOfFrame:
 
 ;@----------------------------------------------------------------------------
 miRunTimer0:
-	.type	miRunTimer0 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim0Bkup]
@@ -1145,7 +1190,6 @@ tim0NoCount:
 
 ;@----------------------------------------------------------------------------
 miRunTimer2:
-	.type	miRunTimer2 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0
@@ -1205,7 +1249,6 @@ tim2NoCount:
 
 ;@----------------------------------------------------------------------------
 miRunTimer1:
-	.type	miRunTimer1 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0
@@ -1278,7 +1321,6 @@ tim1NoCount:
 
 ;@----------------------------------------------------------------------------
 miRunTimer3:
-	.type	miRunTimer3 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0
@@ -1356,7 +1398,6 @@ tim3Exit:
 
 ;@----------------------------------------------------------------------------
 miRunTimer5:
-	.type	miRunTimer5 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0
@@ -1434,7 +1475,6 @@ tim5Exit:
 
 ;@----------------------------------------------------------------------------
 miRunTimer7:
-	.type	miRunTimer7 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0
@@ -1512,7 +1552,6 @@ tim7Exit:
 
 ;@----------------------------------------------------------------------------
 miRunTimer6:
-	.type	miRunTimer6 STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr mikptr,=mikey_0

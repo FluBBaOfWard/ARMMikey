@@ -175,6 +175,7 @@ lynxAddr:			.long 0
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
+audioLastUpdateCycle:	.long 0
 iodatRestSignal:	.long 0
 systemCPUSleep:		.long 0
 
@@ -186,6 +187,11 @@ mikIrqFunction:		.long 0		;@ IRQ function
 mikGfxRAM:			.long 0		;@ 0x10000
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0
+
+audio0:				.space 8*4
+audio1:				.space 8*4
+audio2:				.space 8*4
+audio3:				.space 8*4
 
 mikeySize:
 

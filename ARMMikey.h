@@ -199,6 +199,7 @@ typedef struct {
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
 	u32 suzieDoneTime;
+	u32 audioLastUpdateCycle;
 	u32 iodatRestSignal;
 	u32 systemCPUSleep;
 
@@ -208,6 +209,11 @@ typedef struct {
 	void (*mikFrameCallback)(void);
 
 	void *mikGfxRAM;
+
+	MAUDIO audio0;
+	MAUDIO audio1;
+	MAUDIO audio2;
+	MAUDIO audio3;
 
 } MIKEY;
 
@@ -237,17 +243,7 @@ int miVideoGetStateSize(void);
 
 u32 mikUpdate(void);
 
-bool miRunTimer0(void);
-bool miRunTimer1(void);
-bool miRunTimer2(void);
-bool miRunTimer3(void);
-bool miRunTimer4(void);
-bool miRunTimer5(void);
-bool miRunTimer6(void);
-bool miRunTimer7(void);
-
 void miDoScanline(void);
-u32 mikDisplayLine(void);
 
 #ifdef __cplusplus
 } // extern "C"

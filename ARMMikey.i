@@ -24,11 +24,25 @@
 
 
 	.struct 0
-mikTimerStart:
 CURRENT:			.long 0
 LAST_COUNT:			.long 0
-mikTimerEnd:
-mikTimerSize = mikTimerEnd
+mikTimerSize:
+
+
+
+	.struct 0
+BKUP:				.long 0
+CTLA:				.long 0
+CURRENT2:			.long 0
+CTLB:				.long 0
+LAST_COUNT2:		.long 0
+VOLUME:				.byte 0
+OUTPUT:				.byte 0
+					.space 2
+INTEGRATE_ENABLE:	.long 0
+WAVESHAPER:			.long 0
+mikAudioSize:
+
 
 
 	mikptr		.req m6502ptr
@@ -173,7 +187,8 @@ mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
 systemCPUSleep:		.byte 0
-					.space 1
+memSelector:		.byte 0
+
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
 lynxAddr:			.long 0

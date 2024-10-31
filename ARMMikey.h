@@ -196,7 +196,7 @@ typedef struct {
 	u8 timerStatusFlags;
 	u8 timerInterruptMask;
 	u8 systemCPUSleep;
-	u8 sdffsdfsf[1];
+	u8 memSelector;
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;

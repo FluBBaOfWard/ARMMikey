@@ -32,13 +32,9 @@ mikTimerSize:
 
 	.struct 0
 BKUP:				.long 0
-CTLA:				.long 0
 CURRENT2:			.long 0
 CTLB:				.long 0
 LAST_COUNT2:		.long 0
-VOLUME:				.byte 0
-OUTPUT:				.byte 0
-					.space 2
 INTEGRATE_ENABLE:	.long 0
 WAVESHAPER:			.long 0
 mikAudioSize:
@@ -207,10 +203,10 @@ mikGfxRAM:			.long 0		;@ 0x10000
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0
 
-audio0:				.space 8*4
-audio1:				.space 8*4
-audio2:				.space 8*4
-audio3:				.space 8*4
+audio0:				.space mikAudioSize
+audio1:				.space mikAudioSize
+audio2:				.space mikAudioSize
+audio3:				.space mikAudioSize
 
 mikeySize:
 mikeyStateSize = mikeyStateEnd-mikeyState

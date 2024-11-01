@@ -47,12 +47,9 @@ typedef struct
 typedef struct
 {
 	u32 BKUP;
-	u32 CTLA;
 	u32 CURRENT;
 	u32 CTLB;
 	u32 LAST_COUNT;
-	s8  VOLUME;
-	s8  OUTPUT;
 	u32 INTEGRATE_ENABLE;
 	u32 WAVESHAPER;
 } MAUDIO;
@@ -110,36 +107,36 @@ typedef struct {
 	u8 tim7Cnt;				// 0x1E Timer 7 Count
 	u8 tim7CtlB;			// 0x1F Timer 7 Control B
 
-	u8 aud0Vol;				// 0x20 Audio 0 2's Complement Volume Control
+	s8 aud0Vol;				// 0x20 Audio 0 2's Complement Volume Control
 	u8 aud0ShftFb;			// 0x21 Audio 0 Shift Register Feedback Enable
-	u8 aud0OutVal;			// 0x22 Audio 0 Output Value
+	s8 aud0OutVal;			// 0x22 Audio 0 Output Value
 	u8 aud0L8Shft;			// 0x23 Audio 0 Lower 8 Bits of Shift Register
 	u8 aud0TBack;			// 0x24 Audio 0 Audio Timer Backup Value
 	u8 aud0Ctl;				// 0x25 Audio 0 Audio Control Bits
 	u8 aud0Count;			// 0x26 Audio 0 Counter
 	u8 aud0Misc;			// 0x27 Audio 0 Other Bits
 
-	u8 aud1Vol;				// 0x28 Audio 1 2's Complement Volume Control
+	s8 aud1Vol;				// 0x28 Audio 1 2's Complement Volume Control
 	u8 aud1ShftFb;			// 0x29 Audio 1 Shift Register Feedback Enable
-	u8 aud1OutVal;			// 0x2A Audio 1 Output Value
+	s8 aud1OutVal;			// 0x2A Audio 1 Output Value
 	u8 aud1L8Shft;			// 0x2B Audio 1 Lower 8 Bits of Shift Register
 	u8 aud1TBack;			// 0x2C Audio 1 Audio Timer Backup Value
 	u8 aud1Ctl;				// 0x2D Audio 1 Audio Control Bits
 	u8 aud1Count;			// 0x2E Audio 1 Counter
 	u8 aud1Misc;			// 0x2F Audio 1 Other Bits
 
-	u8 aud2Vol;				// 0x30 Audio 2 2's Complement Volume Control
+	s8 aud2Vol;				// 0x30 Audio 2 2's Complement Volume Control
 	u8 aud2ShftFb;			// 0x31 Audio 2 Shift Register Feedback Enable
-	u8 aud2OutVal;			// 0x32 Audio 2 Output Value
+	s8 aud2OutVal;			// 0x32 Audio 2 Output Value
 	u8 aud2L8Shft;			// 0x33 Audio 2 Lower 8 Bits of Shift Register
 	u8 aud2TBack;			// 0x34 Audio 2 Audio Timer Backup Value
 	u8 aud2Ctl;				// 0x35 Audio 2 Audio Control Bits
 	u8 aud2Count;			// 0x36 Audio 2 Counter
 	u8 aud2Misc;			// 0x37 Audio 2 Other Bits
 
-	u8 aud3Vol;				// 0x38 Audio 3 2's Complement Volume Control
+	s8 aud3Vol;				// 0x38 Audio 3 2's Complement Volume Control
 	u8 aud3ShftFb;			// 0x39 Audio 3 Shift Register Feedback Enable
-	u8 aud3OutVal;			// 0x3A Audio 3 Output Value
+	s8 aud3OutVal;			// 0x3A Audio 3 Output Value
 	u8 aud3L8Shft;			// 0x3B Audio 3 Lower 8 Bits of Shift Register
 	u8 aud3TBack;			// 0x3C Audio 3 Audio Timer Backup Value
 	u8 aud3Ctl;				// 0x3D Audio 3 Audio Control Bits

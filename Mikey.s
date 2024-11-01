@@ -487,7 +487,7 @@ miAud3CountR:				;@ Audio 3 Count (0xFD3E)
 miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
 	ldrb r1,[mikptr,#audio0+WAVESHAPER]
-	ldrb r0,[mikptr,#audio0+CTLB]
+	ldrb r0,[mikptr,#mikAud0Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
 	orr r0,r0,r1,lsr#4
@@ -496,7 +496,7 @@ miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
 	ldrb r1,[mikptr,#audio1+WAVESHAPER]
-	ldrb r0,[mikptr,#audio1+CTLB]
+	ldrb r0,[mikptr,#mikAud1Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
 	orr r0,r0,r1,lsr#4
@@ -505,7 +505,7 @@ miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
 	ldrb r1,[mikptr,#audio2+WAVESHAPER]
-	ldrb r0,[mikptr,#audio2+CTLB]
+	ldrb r0,[mikptr,#mikAud2Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
 	orr r0,r0,r1,lsr#4
@@ -514,7 +514,7 @@ miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
 	ldrb r1,[mikptr,#audio3+WAVESHAPER]
-	ldrb r0,[mikptr,#audio3+CTLB]
+	ldrb r0,[mikptr,#mikAud3Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
 	orr r0,r0,r1,lsr#4

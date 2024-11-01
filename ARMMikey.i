@@ -33,9 +33,7 @@ mikTimerSize:
 	.struct 0
 BKUP:				.long 0
 CURRENT2:			.long 0
-CTLB:				.long 0
 LAST_COUNT2:		.long 0
-INTEGRATE_ENABLE:	.long 0
 WAVESHAPER:			.long 0
 mikAudioSize:
 

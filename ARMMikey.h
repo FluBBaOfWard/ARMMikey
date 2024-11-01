@@ -37,6 +37,7 @@ extern "C" {
 #define LINKING (7<<0)
 #define ENABLE_COUNT (1<<3)
 #define ENABLE_RELOAD (1<<4)
+#define INTEGRATE (1<<5)
 
 typedef struct
 {
@@ -48,9 +49,7 @@ typedef struct
 {
 	u32 BKUP;
 	u32 CURRENT;
-	u32 CTLB;
 	u32 LAST_COUNT;
-	u32 INTEGRATE_ENABLE;
 	u32 WAVESHAPER;
 } MAUDIO;
 

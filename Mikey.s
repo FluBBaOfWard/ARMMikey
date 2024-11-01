@@ -182,39 +182,39 @@ io_read_tbl:
 	.long miTimXCntR			;@ 0xFD1E TIM7CNT
 	.long miRegR				;@ 0xFD1F TIM7CTLB
 
-	.long mikiePeek				;@ 0xFD20 AUD0VOL
-	.long mikiePeek				;@ 0xFD21 AUD0SHFTFB
-	.long mikiePeek				;@ 0xFD22 AUD0OUTVAL
-	.long mikiePeek				;@ 0xFD23 AUD0L8SHFT
-	.long mikiePeek				;@ 0xFD24 AUD0TBACK
+	.long miAud0VolR			;@ 0xFD20 AUD0VOL
+	.long miAud0ShftFbR			;@ 0xFD21 AUD0SHFTFB
+	.long miAud0OutValR			;@ 0xFD22 AUD0OUTVAL
+	.long miAud0L8ShftR			;@ 0xFD23 AUD0L8SHFT
+	.long miAud0TBackR			;@ 0xFD24 AUD0TBACK
 	.long mikiePeek				;@ 0xFD25 AUD0CTL
-	.long mikiePeek				;@ 0xFD26 AUD0COUNT
-	.long mikiePeek				;@ 0xFD27 AUD0MISC
-	.long mikiePeek				;@ 0xFD28 AUD1VOL
-	.long mikiePeek				;@ 0xFD29 AUD1SHFTFB
-	.long mikiePeek				;@ 0xFD2A AUD1OUTVAL
-	.long mikiePeek				;@ 0xFD2B AUD1L8SHFT
-	.long mikiePeek				;@ 0xFD2C AUD1TBACK
+	.long miAud0CountR			;@ 0xFD26 AUD0COUNT
+	.long miAud0MiscR			;@ 0xFD27 AUD0MISC
+	.long miAud1VolR			;@ 0xFD28 AUD1VOL
+	.long miAud1ShftFbR			;@ 0xFD29 AUD1SHFTFB
+	.long miAud1OutValR			;@ 0xFD2A AUD1OUTVAL
+	.long miAud1L8ShftR			;@ 0xFD2B AUD1L8SHFT
+	.long miAud1TBackR			;@ 0xFD2C AUD1TBACK
 	.long mikiePeek				;@ 0xFD2D AUD1CTL
-	.long mikiePeek				;@ 0xFD2E AUD1COUNT
-	.long mikiePeek				;@ 0xFD2F AUD1MISC
+	.long miAud1CountR			;@ 0xFD2E AUD1COUNT
+	.long miAud1MiscR			;@ 0xFD2F AUD1MISC
 
-	.long mikiePeek				;@ 0xFD30 AUD2VOL
-	.long mikiePeek				;@ 0xFD31 AUD2SHFTFB
-	.long mikiePeek				;@ 0xFD32 AUD2OUTVAL
-	.long mikiePeek				;@ 0xFD33 AUD2L8SHFT
-	.long mikiePeek				;@ 0xFD34 AUD2TBACK
+	.long miAud2VolR			;@ 0xFD30 AUD2VOL
+	.long miAud2ShftFbR			;@ 0xFD31 AUD2SHFTFB
+	.long miAud2OutValR			;@ 0xFD32 AUD2OUTVAL
+	.long miAud2L8ShftR			;@ 0xFD33 AUD2L8SHFT
+	.long miAud2TBackR			;@ 0xFD34 AUD2TBACK
 	.long mikiePeek				;@ 0xFD35 AUD2CTL
-	.long mikiePeek				;@ 0xFD36 AUD2COUNT
-	.long mikiePeek				;@ 0xFD37 AUD2MISC
-	.long mikiePeek				;@ 0xFD38 AUD3VOL
-	.long mikiePeek				;@ 0xFD39 AUD3SHFTFB
-	.long mikiePeek				;@ 0xFD3A AUD3OUTVAL
-	.long mikiePeek				;@ 0xFD3B AUD3L8SHFT
-	.long mikiePeek				;@ 0xFD3C AUD3TBACK
+	.long miAud2CountR			;@ 0xFD36 AUD2COUNT
+	.long miAud2MiscR			;@ 0xFD37 AUD2MISC
+	.long miAud3VolR			;@ 0xFD38 AUD3VOL
+	.long miAud3ShftFbR			;@ 0xFD39 AUD3SHFTFB
+	.long miAud3OutValR			;@ 0xFD3A AUD3OUTVAL
+	.long miAud3L8ShftR			;@ 0xFD3B AUD3L8SHFT
+	.long miAud3TBackR			;@ 0xFD3C AUD3TBACK
 	.long mikiePeek				;@ 0xFD3D AUD3CTL
-	.long mikiePeek				;@ 0xFD3E AUD3COUNT
-	.long mikiePeek				;@ 0xFD3F AUD3MISC
+	.long miAud3CountR			;@ 0xFD3E AUD3COUNT
+	.long miAud3MiscR			;@ 0xFD3F AUD3MISC
 
 		// Lynx2 Regs
 	.long miImportantR			;@ 0xFD40 ATTEN_A
@@ -392,6 +392,177 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 	b miRegR
 
 ;@----------------------------------------------------------------------------
+miAud0VolR:					;@ Audio 0 Volume (0xFD20)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio0+VOLUME]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1VolR:					;@ Audio 1 Volume (0xFD28)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio1+VOLUME]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2VolR:					;@ Audio 2 Volume (0xFD30)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio2+VOLUME]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3VolR:					;@ Audio 3 Volume (0xFD38)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio3+VOLUME]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0ShftFbR:				;@ Audio 0 Shift Feedback (0xFD21)
+;@----------------------------------------------------------------------------
+	ldr r0,[mikptr,#audio0+WAVESHAPER]
+	mov r0,r0,lsr#13
+	and r0,r0,#0xFF
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1ShftFbR:				;@ Audio 1 Shift Feedback (0xFD29)
+;@----------------------------------------------------------------------------
+	ldr r0,[mikptr,#audio1+WAVESHAPER]
+	mov r0,r0,lsr#13
+	and r0,r0,#0xFF
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2ShftFbR:				;@ Audio 2 Shift Feedback (0xFD31)
+;@----------------------------------------------------------------------------
+	ldr r0,[mikptr,#audio2+WAVESHAPER]
+	mov r0,r0,lsr#13
+	and r0,r0,#0xFF
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3ShftFbR:				;@ Audio 3 Shift Feedback (0xFD39)
+;@----------------------------------------------------------------------------
+	ldr r0,[mikptr,#audio3+WAVESHAPER]
+	mov r0,r0,lsr#13
+	and r0,r0,#0xFF
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0OutValR:				;@ Audio 0 Output (0xFD22)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio0+OUTPUT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1OutValR:				;@ Audio 1 Output (0xFD2A)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio1+OUTPUT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2OutValR:				;@ Audio 2 Output (0xFD32)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio2+OUTPUT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3OutValR:				;@ Audio 3 Output (0xFD3A)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio3+OUTPUT]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0L8ShftR:				;@ Audio 0 L8 Shift (0xFD23)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio0+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1L8ShftR:				;@ Audio 1 L8 Shift (0xFD2B)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio1+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2L8ShftR:				;@ Audio 2 L8 Shift (0xFD33)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio2+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3L8ShftR:				;@ Audio 3 L8 Shift (0xFD3B)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio3+WAVESHAPER]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0TBackR:				;@ Audio 0 Timer Backup (0xFD24)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio0+BKUP]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1TBackR:				;@ Audio 1 Timer Backup (0xFD2C)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio1+BKUP]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2TBackR:				;@ Audio 2 Timer Backup (0xFD34)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio2+BKUP]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3TBackR:				;@ Audio 3 Timer Backup (0xFD3C)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio3+BKUP]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0CountR:				;@ Audio 0 Count (0xFD26)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio0+CURRENT2]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1CountR:				;@ Audio 1 Count (0xFD2E)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio1+CURRENT2]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2CountR:				;@ Audio 2 Count (0xFD36)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio2+CURRENT2]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3CountR:				;@ Audio 3 Count (0xFD3E)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#audio3+CURRENT2]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
+;@----------------------------------------------------------------------------
+	ldrb r1,[mikptr,#audio0+WAVESHAPER]
+	ldrb r0,[mikptr,#audio0+CTLB]
+	and r1,r1,#0xF00
+	and r0,r0,#0x0F
+	orr r0,r0,r1,lsr#4
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
+;@----------------------------------------------------------------------------
+	ldrb r1,[mikptr,#audio1+WAVESHAPER]
+	ldrb r0,[mikptr,#audio1+CTLB]
+	and r1,r1,#0xF00
+	and r0,r0,#0x0F
+	orr r0,r0,r1,lsr#4
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
+;@----------------------------------------------------------------------------
+	ldrb r1,[mikptr,#audio2+WAVESHAPER]
+	ldrb r0,[mikptr,#audio2+CTLB]
+	and r1,r1,#0xF00
+	and r0,r0,#0x0F
+	orr r0,r0,r1,lsr#4
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
+;@----------------------------------------------------------------------------
+	ldrb r1,[mikptr,#audio3+WAVESHAPER]
+	ldrb r0,[mikptr,#audio3+CTLB]
+	and r1,r1,#0xF00
+	and r0,r0,#0x0F
+	orr r0,r0,r1,lsr#4
+	bx lr
+
+;@----------------------------------------------------------------------------
 miStereoR:					;@ 0xFD50
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikStereo]
@@ -470,7 +641,7 @@ io_write_tbl:
 	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
 	.long mikiePoke				;@ 0xFD20 AUD0VOL
-	.long miAud0ShftFBW			;@ 0xFD21 AUD0SHFTFB
+	.long miAud0ShftFbW			;@ 0xFD21 AUD0SHFTFB
 	.long miAud0OutValW			;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftW			;@ 0xFD23 AUD0L8SHFT
 	.long mikiePoke				;@ 0xFD24 AUD0TBACK
@@ -478,7 +649,7 @@ io_write_tbl:
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
 	.long mikiePoke				;@ 0xFD27 AUD0MISC
 	.long mikiePoke				;@ 0xFD28 AUD1VOL
-	.long miAud1ShftFBW			;@ 0xFD29 AUD1SHFTFB
+	.long miAud1ShftFbW			;@ 0xFD29 AUD1SHFTFB
 	.long miAud1OutValW			;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftW			;@ 0xFD2B AUD1L8SHFT
 	.long mikiePoke				;@ 0xFD2C AUD1TBACK
@@ -487,7 +658,7 @@ io_write_tbl:
 	.long mikiePoke				;@ 0xFD2F AUD1MISC
 
 	.long mikiePoke				;@ 0xFD30 AUD2VOL
-	.long miAud2ShftFBW			;@ 0xFD31 AUD2SHFTFB
+	.long miAud2ShftFbW			;@ 0xFD31 AUD2SHFTFB
 	.long miAud2OutValW			;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftW			;@ 0xFD33 AUD2L8SHFT
 	.long mikiePoke				;@ 0xFD34 AUD2TBACK
@@ -495,7 +666,7 @@ io_write_tbl:
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
 	.long mikiePoke				;@ 0xFD37 AUD2MISC
 	.long mikiePoke				;@ 0xFD38 AUD3VOL
-	.long miAud3ShftFBW			;@ 0xFD39 AUD3SHFTFB
+	.long miAud3ShftFbW			;@ 0xFD39 AUD3SHFTFB
 	.long miAud3OutValW			;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftW			;@ 0xFD3B AUD3L8SHFT
 	.long mikiePoke				;@ 0xFD3C AUD3TBACK
@@ -898,7 +1069,7 @@ miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miAud0ShftFBW:				;@ Audio 0 Shift Feedback (0xFD21)
+miAud0ShftFbW:				;@ Audio 0 Shift Feedback (0xFD21)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio0+WAVESHAPER]
 	and r1,r1,#0xFF
@@ -907,7 +1078,7 @@ miAud0ShftFBW:				;@ Audio 0 Shift Feedback (0xFD21)
 	str r0,[mikptr,#audio0+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
-miAud1ShftFBW:				;@ Audio 1 Shift Feedback (0xFD29)
+miAud1ShftFbW:				;@ Audio 1 Shift Feedback (0xFD29)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio1+WAVESHAPER]
 	and r1,r1,#0xFF
@@ -916,7 +1087,7 @@ miAud1ShftFBW:				;@ Audio 1 Shift Feedback (0xFD29)
 	str r0,[mikptr,#audio1+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
-miAud2ShftFBW:				;@ Audio 2 Shift Feedback (0xFD31)
+miAud2ShftFbW:				;@ Audio 2 Shift Feedback (0xFD31)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio2+WAVESHAPER]
 	and r1,r1,#0xFF
@@ -925,7 +1096,7 @@ miAud2ShftFBW:				;@ Audio 2 Shift Feedback (0xFD31)
 	str r0,[mikptr,#audio2+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
-miAud3ShftFBW:				;@ Audio 3 Shift Feedback (0xFD39)
+miAud3ShftFbW:				;@ Audio 3 Shift Feedback (0xFD39)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio3+WAVESHAPER]
 	and r1,r1,#0xFF

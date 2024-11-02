@@ -187,7 +187,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftR			;@ 0xFD23 AUD0L8SHFT
 	.long miAud0TBackR			;@ 0xFD24 AUD0TBACK
-	.long mikiePeek				;@ 0xFD25 AUD0CTL
+	.long miAud0CtlR			;@ 0xFD25 AUD0CTL
 	.long miAud0CountR			;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscR			;@ 0xFD27 AUD0MISC
 	.long miRegR				;@ 0xFD28 AUD1VOL
@@ -195,7 +195,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftR			;@ 0xFD2B AUD1L8SHFT
 	.long miAud1TBackR			;@ 0xFD2C AUD1TBACK
-	.long mikiePeek				;@ 0xFD2D AUD1CTL
+	.long miAud1CtlR			;@ 0xFD2D AUD1CTL
 	.long miAud1CountR			;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscR			;@ 0xFD2F AUD1MISC
 
@@ -204,7 +204,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftR			;@ 0xFD33 AUD2L8SHFT
 	.long miAud2TBackR			;@ 0xFD34 AUD2TBACK
-	.long mikiePeek				;@ 0xFD35 AUD2CTL
+	.long miAud2CtlR			;@ 0xFD35 AUD2CTL
 	.long miAud2CountR			;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscR			;@ 0xFD37 AUD2MISC
 	.long miRegR				;@ 0xFD38 AUD3VOL
@@ -212,7 +212,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftR			;@ 0xFD3B AUD3L8SHFT
 	.long miAud3TBackR			;@ 0xFD3C AUD3TBACK
-	.long mikiePeek				;@ 0xFD3D AUD3CTL
+	.long miAud3CtlR			;@ 0xFD3D AUD3CTL
 	.long miAud3CountR			;@ 0xFD3E AUD3COUNT
 	.long miAud3MiscR			;@ 0xFD3F AUD3MISC
 
@@ -463,6 +463,43 @@ miAud3TBackR:				;@ Audio 3 Timer Backup (0xFD3C)
 	bx lr
 
 ;@----------------------------------------------------------------------------
+miAud0CtlR:					;@ Audio 0 Control (0xFD25)
+;@----------------------------------------------------------------------------
+	ldr r1,[mikptr,#audio0+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud0Ctl]
+	tst r1,#0x10000
+	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	orrne r0,r0,#0x80
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1CtlR:					;@ Audio 1 Control (0xFD2D)
+;@----------------------------------------------------------------------------
+	ldr r1,[mikptr,#audio1+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud1Ctl]
+	tst r1,#0x10000
+	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	orrne r0,r0,#0x80
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2CtlR:					;@ Audio 2 Control (0xFD35)
+;@----------------------------------------------------------------------------
+	ldr r1,[mikptr,#audio2+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud2Ctl]
+	tst r1,#0x10000
+	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	orrne r0,r0,#0x80
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3CtlR:					;@ Audio 3 Control (0xFD3D)
+;@----------------------------------------------------------------------------
+	ldr r1,[mikptr,#audio3+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud3Ctl]
+	tst r1,#0x10000
+	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	orrne r0,r0,#0x80
+	bx lr
+
+;@----------------------------------------------------------------------------
 miAud0CountR:				;@ Audio 0 Count (0xFD26)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#audio0+CURRENT2]
@@ -603,7 +640,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftW			;@ 0xFD23 AUD0L8SHFT
 	.long mikiePoke				;@ 0xFD24 AUD0TBACK
-	.long mikiePoke				;@ 0xFD25 AUD0CTL
+	.long miAud0CtlW			;@ 0xFD25 AUD0CTL
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
 	.long mikiePoke				;@ 0xFD27 AUD0MISC
 	.long mikiePoke				;@ 0xFD28 AUD1VOL
@@ -611,7 +648,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftW			;@ 0xFD2B AUD1L8SHFT
 	.long mikiePoke				;@ 0xFD2C AUD1TBACK
-	.long mikiePoke				;@ 0xFD2D AUD1CTL
+	.long miAud1CtlW			;@ 0xFD2D AUD1CTL
 	.long miAud1CountW			;@ 0xFD2E AUD1COUNT
 	.long mikiePoke				;@ 0xFD2F AUD1MISC
 
@@ -620,7 +657,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftW			;@ 0xFD33 AUD2L8SHFT
 	.long mikiePoke				;@ 0xFD34 AUD2TBACK
-	.long mikiePoke				;@ 0xFD35 AUD2CTL
+	.long miAud2CtlW			;@ 0xFD35 AUD2CTL
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
 	.long mikiePoke				;@ 0xFD37 AUD2MISC
 	.long mikiePoke				;@ 0xFD38 AUD3VOL
@@ -628,7 +665,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftW			;@ 0xFD3B AUD3L8SHFT
 	.long mikiePoke				;@ 0xFD3C AUD3TBACK
-	.long mikiePoke				;@ 0xFD3D AUD3CTL
+	.long miAud3CtlW			;@ 0xFD3D AUD3CTL
 	.long miAud3CountW			;@ 0xFD3E AUD3COUNT
 	.long mikiePoke				;@ 0xFD3F AUD3MISC
 
@@ -1084,6 +1121,82 @@ miAud3L8ShftW:				;@ Audio 3 L8 Shift (0xFD3B)
 	strb r1,[mikptr,#audio3+WAVESHAPER]
 	bx lr
 
+;@----------------------------------------------------------------------------
+miAud0CtlW:					;@ Audio 0 Control (0xFD25)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikAud0Ctl]
+	ldr r0,[mikptr,#audio0+WAVESHAPER]
+	tst r1,#0x80				;@ Waveshaper bit on/off
+	biceq r0,r0,#0x1000
+	orrne r0,r0,#0x1000
+	str r0,[mikptr,#audio0+WAVESHAPER]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikAud0Misc]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikAud0Misc]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#audio0+LAST_COUNT2]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikAud1Ctl]
+	ldr r0,[mikptr,#audio1+WAVESHAPER]
+	tst r1,#0x80				;@ Waveshaper bit on/off
+	biceq r0,r0,#0x1000
+	orrne r0,r0,#0x1000
+	str r0,[mikptr,#audio1+WAVESHAPER]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikAud1Misc]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikAud1Misc]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#audio1+LAST_COUNT2]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2CtlW:					;@ Audio 2 Control (0xFD35)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikAud2Ctl]
+	ldr r0,[mikptr,#audio2+WAVESHAPER]
+	tst r1,#0x80				;@ Waveshaper bit on/off
+	biceq r0,r0,#0x1000
+	orrne r0,r0,#0x1000
+	str r0,[mikptr,#audio2+WAVESHAPER]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikAud2Misc]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikAud2Misc]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#audio2+LAST_COUNT2]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3CtlW:					;@ Audio 3 Control (0xFD3D)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	strb r0,[mikptr,#mikAud3Ctl]
+	ldr r0,[mikptr,#audio3+WAVESHAPER]
+	tst r1,#0x80				;@ Waveshaper bit on/off
+	biceq r0,r0,#0x1000
+	orrne r0,r0,#0x1000
+	str r0,[mikptr,#audio3+WAVESHAPER]
+	tst r1,#0x40				;@ Check "Reset Timer Done".
+	ldrbne r0,[mikptr,#mikAud3Misc]
+	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
+	strbne r0,[mikptr,#mikAud3Misc]
+	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
+	ldrne r0,[mikptr,#systemCycleCount]
+	strne r0,[mikptr,#audio3+LAST_COUNT2]
+	strne r0,[mikptr,#nextTimerEvent]
+	bx lr
 ;@----------------------------------------------------------------------------
 miAud0CountW:				;@ Audio 0 Count (0xFD26)
 ;@----------------------------------------------------------------------------

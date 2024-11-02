@@ -1347,7 +1347,7 @@ mikSysUpdate:
 sysLoop:
 	ldr r0,[mikptr,#nextTimerEvent]
 	cmp r4,r0
-	blcs mikUpdate
+	blpl mikUpdate
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	// systemCycleCount = nextTimerEvent;
@@ -1373,7 +1373,7 @@ sysLoop:
 sysUpdExit:
 	str r4,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
 	cmp r4,r5
-	bcc sysLoop
+	bmi sysLoop
 	ldmfd sp!,{r4-r11,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1410,6 +1410,7 @@ mikUpdate:
 	// To stop problems with cycle count wrap we will check and then correct the
 	// cycle counter.
 	ldr r0,[mikptr,#systemCycleCount]
+	b noOverFlow
 	cmp r0,#0xF0000000
 	bcc noOverFlow
 	sub r0,r0,#0x80000000
@@ -1464,17 +1465,18 @@ mikUpdate:
 noOverFlow:
 
 	//gNextTimerEvent = 0xffffffff;
-	mov r2,#-1
+	ldr r2,[mikptr,#systemCycleCount]
+	add r2,r2,#0x40000000
 	// Check if the CPU needs to be woken up from sleep mode
 	ldr r0,[mikptr,#suzieDoneTime]
 	cmp r0,#0
 	beq noSuzy
 	ldr r1,[mikptr,#systemCycleCount]
 	cmp r1,r0
-	movcs r0,#0
-	strcs r0,[mikptr,#suzieDoneTime]
-	strbcs r0,[mikptr,#systemCPUSleep]
-	movcc r2,r0
+	movpl r0,#0
+	strpl r0,[mikptr,#suzieDoneTime]
+	strbpl r0,[mikptr,#systemCPUSleep]
+	movmi r2,r0
 noSuzy:
 	str r2,[mikptr,#nextTimerEvent]
 
@@ -1640,7 +1642,7 @@ tim0NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
 
@@ -1769,7 +1771,7 @@ tim1NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
 
@@ -1844,7 +1846,7 @@ tim3NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 tim3Exit:
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
@@ -1920,7 +1922,7 @@ tim5NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 tim5Exit:
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
@@ -1996,7 +1998,7 @@ tim7NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 tim7Exit:
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
@@ -2068,7 +2070,7 @@ tim6NoCount:
 	//}
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r5,r1
-	strcc r5,[mikptr,#nextTimerEvent]
+	strmi r5,[mikptr,#nextTimerEvent]
 	ldmfd sp!,{r4-r8,lr}
 	bx lr
 

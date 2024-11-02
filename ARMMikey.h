@@ -187,8 +187,8 @@ typedef struct {
 	u32 palette[16];		// Merged palette
 	u8 mikLCDVSize;			// 0x01 LCD Y Size
 	u8 mikSOC;				// HOWARD or HOWARD2
-	u8 sdfsdfsf[2];
-
+	u8 serCablePresent;
+	u8 ioDatRestSignal;
 	u8 timerStatusFlags;
 	u8 timerInterruptMask;
 	u8 systemCPUSleep;
@@ -201,7 +201,6 @@ typedef struct {
 	u32 nextTimerEvent;
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
-	u32 iodatRestSignal;
 
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback

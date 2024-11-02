@@ -296,7 +296,7 @@ io_read_tbl:
 	.long miMikeyHRevR			;@ 0xFD88 MIKEYHREV
 	.long miWriteOnlyR			;@ 0xFD89 MIKEYSREV
 	.long miWriteOnlyR			;@ 0xFD8A IODIR
-	.long mikiePeek				;@ 0xFD8B IODAT
+	.long miIODatR				;@ 0xFD8B IODAT
 	.long mikiePeek				;@ 0xFD8C SERCTL
 	.long mikiePeek				;@ 0xFD8D SERDAT
 	.long miUnmappedR			;@ 0xFD8E
@@ -586,6 +586,23 @@ miAudInR:					;@ 0xFD86
 miMikeyHRevR:				;@ 0xFD88
 ;@----------------------------------------------------------------------------
 	mov r0,#1
+	bx lr
+;@----------------------------------------------------------------------------
+miIODatR:					;@ 0xFD8B
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikIODat]
+	ldrb r1,[mikptr,#mikIODir]
+	and r0,r0,r1				;@ Keep bits set for output.
+	ldrb r2,[mikptr,#mikSerCablePresent]
+	cmp r2,#0
+	mov r2,#0x11				;@ Default inputs audio in & power in
+	orrne r2,r2,#0x04
+	bic r2,r2,r1
+	orr r0,r0,r2
+	ldrb r2,[mikptr,#ioDatRestSignal]
+	cmp r2,#0
+	bicne r0,r0,#0x08
+
 	bx lr
 ;@----------------------------------------------------------------------------
 miHandyDetectR:				;@ 0xFD97
@@ -1527,7 +1544,7 @@ mikDisplayLine:
 	cmp r2,r4
 	movcc r4,#1
 	movcs r4,#0
-	strb r4,[mikptr,#iodatRestSignal]
+	strb r4,[mikptr,#ioDatRestSignal]
 
 	cmp r2,#3
 	bne noLatch

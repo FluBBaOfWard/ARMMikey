@@ -523,7 +523,7 @@ miAud3CountR:				;@ Audio 3 Count (0xFD3E)
 ;@----------------------------------------------------------------------------
 miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
-	ldrb r1,[mikptr,#audio0+WAVESHAPER]
+	ldr r1,[mikptr,#audio0+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud0Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
@@ -532,7 +532,7 @@ miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
 miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
-	ldrb r1,[mikptr,#audio1+WAVESHAPER]
+	ldr r1,[mikptr,#audio1+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud1Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
@@ -541,7 +541,7 @@ miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
 miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
-	ldrb r1,[mikptr,#audio2+WAVESHAPER]
+	ldr r1,[mikptr,#audio2+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud2Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
@@ -550,7 +550,7 @@ miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
 miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
-	ldrb r1,[mikptr,#audio3+WAVESHAPER]
+	ldr r1,[mikptr,#audio3+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud3Misc]
 	and r1,r1,#0xF00
 	and r0,r0,#0x0F
@@ -642,7 +642,7 @@ io_write_tbl:
 	.long mikiePoke				;@ 0xFD24 AUD0TBACK
 	.long miAud0CtlW			;@ 0xFD25 AUD0CTL
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
-	.long mikiePoke				;@ 0xFD27 AUD0MISC
+	.long miAud0MiscW			;@ 0xFD27 AUD0MISC
 	.long mikiePoke				;@ 0xFD28 AUD1VOL
 	.long miAud1ShftFbW			;@ 0xFD29 AUD1SHFTFB
 	.long miRegW				;@ 0xFD2A AUD1OUTVAL
@@ -650,7 +650,7 @@ io_write_tbl:
 	.long mikiePoke				;@ 0xFD2C AUD1TBACK
 	.long miAud1CtlW			;@ 0xFD2D AUD1CTL
 	.long miAud1CountW			;@ 0xFD2E AUD1COUNT
-	.long mikiePoke				;@ 0xFD2F AUD1MISC
+	.long miAud1MiscW			;@ 0xFD2F AUD1MISC
 
 	.long mikiePoke				;@ 0xFD30 AUD2VOL
 	.long miAud2ShftFbW			;@ 0xFD31 AUD2SHFTFB
@@ -659,7 +659,7 @@ io_write_tbl:
 	.long mikiePoke				;@ 0xFD34 AUD2TBACK
 	.long miAud2CtlW			;@ 0xFD35 AUD2CTL
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
-	.long mikiePoke				;@ 0xFD37 AUD2MISC
+	.long miAud2MiscW			;@ 0xFD37 AUD2MISC
 	.long mikiePoke				;@ 0xFD38 AUD3VOL
 	.long miAud3ShftFbW			;@ 0xFD39 AUD3SHFTFB
 	.long miRegW				;@ 0xFD3A AUD3OUTVAL
@@ -667,7 +667,7 @@ io_write_tbl:
 	.long mikiePoke				;@ 0xFD3C AUD3TBACK
 	.long miAud3CtlW			;@ 0xFD3D AUD3CTL
 	.long miAud3CountW			;@ 0xFD3E AUD3COUNT
-	.long mikiePoke				;@ 0xFD3F AUD3MISC
+	.long miAud3MiscW			;@ 0xFD3F AUD3MISC
 
 	// Lynx2 Regs
 	.long miImportantW			;@ 0xFD40 ATTEN_A
@@ -1223,6 +1223,51 @@ miAud3CountW:				;@ Audio 3 Count (0xFD2E)
 	bx lr
 
 ;@----------------------------------------------------------------------------
+miAud0MiscW:				;@ Audio 0 Misc (0xFD27)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
+	strb r0,[mikptr,#mikAud0Misc]
+	ldr r0,[mikptr,#audio0+WAVESHAPER]
+	and r1,r1,#0xF0
+	bic r0,r0,#0xF00
+	orr r0,r0,r1,lsl#4
+	str r0,[mikptr,#audio0+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1MiscW:				;@ Audio 1 Misc (0xFD2F)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
+	strb r0,[mikptr,#mikAud1Misc]
+	ldr r0,[mikptr,#audio1+WAVESHAPER]
+	and r1,r1,#0xF0
+	bic r0,r0,#0xF00
+	orr r0,r0,r1,lsl#4
+	str r0,[mikptr,#audio1+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2MiscW:				;@ Audio 2 Misc (0xFD37)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
+	strb r0,[mikptr,#mikAud2Misc]
+	ldr r0,[mikptr,#audio2+WAVESHAPER]
+	and r1,r1,#0xF0
+	bic r0,r0,#0xF00
+	orr r0,r0,r1,lsl#4
+	str r0,[mikptr,#audio2+WAVESHAPER]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3MiscW:				;@ Audio 3 Misc (0xFD3F)
+;@----------------------------------------------------------------------------
+	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
+	strb r0,[mikptr,#mikAud3Misc]
+	ldr r0,[mikptr,#audio3+WAVESHAPER]
+	and r1,r1,#0xF0
+	bic r0,r0,#0xF00
+	orr r0,r0,r1,lsl#4
+	str r0,[mikptr,#audio3+WAVESHAPER]
+	bx lr
+
+;@----------------------------------------------------------------------------
 miStereoW:					;@ 0xFD50
 ;@----------------------------------------------------------------------------
 	eor r0,r0,#0xFF				;@ Stereo is inverted
@@ -1309,7 +1354,7 @@ sysLoop:
 	ldrne r4,[mikptr,#nextTimerEvent]
 	bne sysUpdExit
 
-;@----------------------------------------------------------------------------
+;@------------------------------------
 	stmfd sp!,{r4-r5}
 	mov r0,#8
 	bl m6502RestoreAndRunXCycles
@@ -1318,7 +1363,7 @@ sysLoop:
 	add r1,m6502ptr,#m6502Regs
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
 	ldmfd sp!,{r4-r5}
-;@----------------------------------------------------------------------------
+;@------------------------------------
 
 	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));

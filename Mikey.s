@@ -52,6 +52,9 @@ miVideoReset:				;@ r10=mikptr
 	ldr r1,=mikeyStateSize/4
 	bl memclr_					;@ Clear Mikey state
 
+	mov r0,#0xFF
+	strb r0,[mikptr,#mikStereo]	;@ All channels enabled, (reg is inverted)
+
 //	ldr r2,=lineStateTable
 //	ldr r1,[r2],#4
 //	mov r0,#-1
@@ -386,9 +389,10 @@ miRegR:
 ;@----------------------------------------------------------------------------
 miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r0,lr}
+	stmfd sp!,{r0,r4,lr}
+	ldr r4,[mikptr,#systemCycleCount]
 	bl mikUpdate
-	ldmfd sp!,{r0,lr}
+	ldmfd sp!,{r0,r4,lr}
 	b miRegR
 
 ;@----------------------------------------------------------------------------
@@ -1364,7 +1368,7 @@ mikSysUpdate:
 sysLoop:
 	ldr r0,[mikptr,#nextTimerEvent]
 	cmp r4,r0
-	blpl mikUpdate
+	blpl mikUpdate				;@ This might update sysCycleCnt!!!
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	// systemCycleCount = nextTimerEvent;
@@ -1382,7 +1386,6 @@ sysLoop:
 	ldmfd sp!,{r4-r5}
 ;@------------------------------------
 
-	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	add r0,r0,#1
@@ -1420,76 +1423,17 @@ sysUpdExit:
 // (In reality T0 line counter should always be running.)
 //
 ;@----------------------------------------------------------------------------
-mikUpdate:
+mikUpdate:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r4,lr}
-
-	// To stop problems with cycle count wrap we will check and then correct the
-	// cycle counter.
-	ldr r0,[mikptr,#systemCycleCount]
-	b noOverFlow
-	cmp r0,#0xF0000000
-	bcc noOverFlow
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
-
-	ldr r0,[mikptr,#audioLastUpdateCycle]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#audioLastUpdateCycle]
-
-	ldr r0,[mikptr,#timer0+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer0+LAST_COUNT]
-	ldr r0,[mikptr,#timer1+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer1+LAST_COUNT]
-	ldr r0,[mikptr,#timer2+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer2+LAST_COUNT]
-	ldr r0,[mikptr,#timer3+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer3+LAST_COUNT]
-	ldr r0,[mikptr,#timer4+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer4+LAST_COUNT]
-	ldr r0,[mikptr,#timer5+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer5+LAST_COUNT]
-	ldr r0,[mikptr,#timer6+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer6+LAST_COUNT]
-	ldr r0,[mikptr,#timer7+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#timer7+LAST_COUNT]
-	ldr r0,[mikptr,#audio0+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#audio0+LAST_COUNT]
-	ldr r0,[mikptr,#audio1+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#audio1+LAST_COUNT]
-	ldr r0,[mikptr,#audio2+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#audio2+LAST_COUNT]
-	ldr r0,[mikptr,#audio3+LAST_COUNT]
-	sub r0,r0,#0x80000000
-	str r0,[mikptr,#audio3+LAST_COUNT]
-
-	// Only correct if sleep is active
-	ldr r0,[mikptr,#suzieDoneTime]
-	cmp r0,#0
-	subne r0,r0,#0x80000000
-	strne r0,[mikptr,#suzieDoneTime]
-noOverFlow:
+	stmfd sp!,{r5,lr}
 
 	//gNextTimerEvent = 0xffffffff;
-	ldr r2,[mikptr,#systemCycleCount]
-	add r2,r2,#0x40000000
+	add r2,r4,#0x40000000
 	// Check if the CPU needs to be woken up from sleep mode
 	ldr r0,[mikptr,#suzieDoneTime]
 	cmp r0,#0
 	beq noSuzy
-	ldr r1,[mikptr,#systemCycleCount]
-	cmp r1,r0
+	cmp r4,r0
 	movpl r0,#0
 	strpl r0,[mikptr,#suzieDoneTime]
 	strbpl r0,[mikptr,#systemCPUSleep]
@@ -1501,7 +1445,7 @@ noSuzy:
 	bl miRunTimer0
 	cmp r0,#0
 	blne mikDisplayLine
-	mov r4,r0
+	mov r5,r0
 
 	bl miRunTimer2
 
@@ -1525,10 +1469,9 @@ noSuzy:
 	strbne r1,[mikptr,#systemCPUSleep]
 	bl m6502SetIRQPin
 
-	ldr r0,[mikptr,#systemCycleCount]
-	add r0,r0,r4
-	str r0,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
-	ldmfd sp!,{r4,lr}
+	add r4,r4,r5				;@ This updates sysCycleCnt!!!
+	str r4,[mikptr,#systemCycleCount]
+	ldmfd sp!,{r5,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayLine:
@@ -1596,7 +1539,7 @@ mikDisplayEndOfFrame:
 	bx r0
 
 ;@----------------------------------------------------------------------------
-miRunTimer0:
+miRunTimer0:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim0Bkup]
@@ -1664,7 +1607,7 @@ tim0NoCount:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer2:
+miRunTimer2:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim2Bkup]
@@ -1722,7 +1665,7 @@ tim2NoCount:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer1:
+miRunTimer1:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim1Bkup]
@@ -1793,7 +1736,7 @@ tim1NoCount:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer3:
+miRunTimer3:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim3Bkup]
@@ -1869,7 +1812,7 @@ tim3Exit:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer5:
+miRunTimer5:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim5Bkup]
@@ -1945,7 +1888,7 @@ tim5Exit:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer7:
+miRunTimer7:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim7Bkup]
@@ -2021,7 +1964,7 @@ tim7Exit:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer6:
+miRunTimer6:				;@ in r4=systemCycleCount
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim6Bkup]

@@ -192,6 +192,11 @@ nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
 audioLastUpdateCycle:	.long 0
 
+audio0:				.space mikAudioSize
+audio1:				.space mikAudioSize
+audio2:				.space mikAudioSize
+audio3:				.space mikAudioSize
+
 mikeyStateEnd:
 
 mikNmiFunction:		.long 0		;@ NMI function
@@ -200,11 +205,6 @@ mikIrqFunction:		.long 0		;@ IRQ function
 mikGfxRAM:			.long 0		;@ 0x10000
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0
-
-audio0:				.space mikAudioSize
-audio1:				.space mikAudioSize
-audio2:				.space mikAudioSize
-audio3:				.space mikAudioSize
 
 mikeySize:
 mikeyStateSize = mikeyStateEnd-mikeyState

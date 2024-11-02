@@ -29,7 +29,7 @@
 #define PSG_NOISE_FEED2 0x60
 
 ;@----------------------------------------------------------------------------
-miAudioReset:				;@ mikptr=r12=pointer to struct
+miAudioReset:				;@ mikptr=r10=pointer to struct
 ;@----------------------------------------------------------------------------
 	mov r0,#0x00000800
 //	str r0,[mikptr,#mikCh1Counter]

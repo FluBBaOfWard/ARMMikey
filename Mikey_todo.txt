@@ -1,5 +1,6 @@
 ARMMikey To do
 -------------------------------
 
+	Optimize timers, use r4 for systemCycleCount always.
 	Implement Timer 4/UART.
 	Implement audio channels.

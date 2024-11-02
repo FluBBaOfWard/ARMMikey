@@ -202,17 +202,17 @@ typedef struct {
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
 
+	MAUDIO audio0;
+	MAUDIO audio1;
+	MAUDIO audio2;
+	MAUDIO audio3;
+
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback
 	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
 	void (*mikFrameCallback)(void);
 
 	void *mikGfxRAM;
-
-	MAUDIO audio0;
-	MAUDIO audio1;
-	MAUDIO audio2;
-	MAUDIO audio3;
 
 } MIKEY;
 

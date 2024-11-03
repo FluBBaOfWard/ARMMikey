@@ -1372,7 +1372,7 @@ sysLoop:
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	// systemCycleCount = nextTimerEvent;
-	ldrne r4,[mikptr,#nextTimerEvent]
+	ldrne r4,[mikptr,#nextTimerEvent]	;@ This updates sysCycleCnt!!!
 	bne sysUpdExit
 
 ;@------------------------------------
@@ -1391,7 +1391,7 @@ sysLoop:
 	add r0,r0,#1
 	add r4,r4,r0
 sysUpdExit:
-	str r4,[mikptr,#systemCycleCount]	;@ This updates sysCycleCnt!!!
+	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	cmp r4,r5
 	bmi sysLoop
 	ldmfd sp!,{r4-r11,lr}
@@ -1556,22 +1556,22 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	ldr r6,[mikptr,#timer0+CURRENT]
 	ldr r7,[mikptr,#timer0+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r4,r5,r7
-	movs r4,r4,lsr r1
+	sub r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim0NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim0NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
-	and r4,r2,#0xFF00
-	add r4,r4,#0x0100
-	add r2,r2,r4,lsl#16
-	add r6,r6,r4,lsr#8
+	and r3,r2,#0xFF00
+	add r3,r3,#0x0100
+	add r2,r2,r3,lsl#16
+	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 //	orreq r2,r2,#8				;@ CtlB Timer done
 //	moveq r6,#0
@@ -1620,29 +1620,29 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
-	ldrbeq r4,[mikptr,#mikTim0CtlB]
-	and r4,r4,#1
+	ldrbeq r3,[mikptr,#mikTim0CtlB]
+	and r3,r3,#1
 	addne r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer2+CURRENT]
 	ldr r7,[mikptr,#timer2+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r4,r5,r7
-	movs r4,r4,lsr r1
+	subne r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim2NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim2NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
-	and r4,r2,#0xFF00
-	add r4,r4,#0x0100
-	add r2,r2,r4,lsl#16
-	add r6,r6,r4,lsr#8
+	and r3,r2,#0xFF00
+	add r3,r3,#0x0100
+	add r2,r2,r3,lsl#16
+	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 //	orreq r2,r2,#8				;@ CtlB Timer done
 //	moveq r6,#0
@@ -1686,22 +1686,22 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	ldr r6,[mikptr,#timer1+CURRENT]
 	ldr r7,[mikptr,#timer1+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r4,r5,r7
-	movs r4,r4,lsr r1
+	sub r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim1NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim1NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
-	andne r4,r2,#0xFF00
-	addne r4,r4,#0x0100
-	addne r2,r2,r4,lsl#16
-	addne r6,r6,r4,lsr#8
+	andne r3,r2,#0xFF00
+	addne r3,r3,#0x0100
+	addne r2,r2,r3,lsl#16
+	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
@@ -1752,29 +1752,29 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
-	ldrbeq r4,[mikptr,#mikTim1CtlB]
-	and r4,r4,#1
+	ldrbeq r3,[mikptr,#mikTim1CtlB]
+	and r3,r3,#1
 	addne r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer3+CURRENT]
 	ldr r7,[mikptr,#timer3+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r4,r5,r7
-	movs r4,r4,lsr r1
+	subne r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim3NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim3NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
-	andne r4,r2,#0xFF00
-	addne r4,r4,#0x0100
-	addne r2,r2,r4,lsl#16
-	addne r6,r6,r4,lsr#8
+	andne r3,r2,#0xFF00
+	addne r3,r3,#0x0100
+	addne r2,r2,r3,lsl#16
+	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
@@ -1828,29 +1828,29 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
-	ldrbeq r4,[mikptr,#mikTim3CtlB]
-	and r4,r4,#1
+	ldrbeq r3,[mikptr,#mikTim3CtlB]
+	and r3,r3,#1
 	addne r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer5+CURRENT]
 	ldr r7,[mikptr,#timer5+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r4,r5,r7
-	movs r4,r4,lsr r1
+	subne r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim5NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim5NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
-	andne r4,r2,#0xFF00
-	addne r4,r4,#0x0100
-	addne r2,r2,r4,lsl#16
-	addne r6,r6,r4,lsr#8
+	andne r3,r2,#0xFF00
+	addne r3,r3,#0x0100
+	addne r2,r2,r3,lsl#16
+	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
@@ -1904,29 +1904,29 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
-	ldrbeq r4,[mikptr,#mikTim5CtlB]
-	and r4,r4,#1
+	ldrbeq r3,[mikptr,#mikTim5CtlB]
+	and r3,r3,#1
 	addne r1,r1,#4
 	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer7+CURRENT]
 	ldr r7,[mikptr,#timer7+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r4,r5,r7
-	movs r4,r4,lsr r1
+	subne r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim7NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim7NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
-	andne r4,r2,#0xFF00
-	addne r4,r4,#0x0100
-	addne r2,r2,r4,lsl#16
-	addne r6,r6,r4,lsr#8
+	andne r3,r2,#0xFF00
+	addne r3,r3,#0x0100
+	addne r2,r2,r3,lsl#16
+	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0
@@ -1985,22 +1985,22 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	ldr r6,[mikptr,#timer6+CURRENT]
 	ldr r7,[mikptr,#timer6+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r4,r5,r7
-	movs r4,r4,lsr r1
+	sub r3,r5,r7
+	movs r3,r3,lsr r1
 	beq tim6NoCount				;@ decval?
 	mov r2,r2,ror#24
 	orr r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r4,lsl r1
-	sub r2,r2,r4,lsl#24
-	subs r6,r6,r4
+	add r7,r7,r3,lsl r1
+	sub r2,r2,r3,lsl#24
+	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim6NoIrq
 	orr r2,r2,#1				;@ CtlB Borrow out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
-	andne r4,r2,#0xFF00
-	addne r4,r4,#0x0100
-	addne r2,r2,r4,lsl#16
-	addne r6,r6,r4,lsr#8
+	andne r3,r2,#0xFF00
+	addne r3,r3,#0x0100
+	addne r2,r2,r3,lsl#16
+	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 	orreq r2,r2,#8				;@ CtlB Timer done
 	moveq r6,#0

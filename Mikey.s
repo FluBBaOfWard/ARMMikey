@@ -1480,50 +1480,49 @@ mikDisplayLine:
 	ldrb r1,[mikptr,#mikDispCtl]
 	tst r1,#1					;@ Display DMA on?
 	bxeq lr
-	stmfd sp!,{r4-r5,lr}
-	ldrb r4,[mikptr,#mikTim2Bkup]
-	sub r4,r4,#GAME_HEIGHT
+	ldrb r3,[mikptr,#mikTim2Bkup]
+	sub r3,r3,#GAME_HEIGHT
 	ldr r2,[mikptr,#lynxLine]
-	cmp r2,r4
-	movcc r4,#1
-	movcs r4,#0
-	strb r4,[mikptr,#ioDatRestSignal]
+	cmp r2,r3
+	movcc r3,#1
+	movcs r3,#0
+	strb r3,[mikptr,#ioDatRestSignal]
 
 	cmp r2,#3
 	bne noLatch
-	ldrb r4,[mikptr,#mikDispAdrL]
+	ldrb r3,[mikptr,#mikDispAdrL]
 	ldrb r0,[mikptr,#mikDispAdrH]
-	orr r4,r4,r0,lsl#8
+	orr r3,r3,r0,lsl#8
 	tst r1,#2					;@ Screen flip?
-	biceq r4,r4,#3
-	orrne r4,r4,#3
-	str r4,[mikptr,#lynxAddr]
-	mov r4,#GAME_HEIGHT
-	str r4,[mikptr,#lynxLineDMACounter]
+	biceq r3,r3,#3
+	orrne r3,r3,#3
+	str r3,[mikptr,#lynxAddr]
+	mov r3,#GAME_HEIGHT
+	str r3,[mikptr,#lynxLineDMACounter]
 noLatch:
 	add r2,r2,#1
 	str r2,[mikptr,#lynxLine]
 
 	ldr r0,[mikptr,#lynxLineDMACounter]
 	cmp r0,#0
-	beq dispExit
+	bxeq lr
 	sub r0,r0,#1
 	str r0,[mikptr,#lynxLineDMACounter]
 
 	ldr r0,[mikptr,#mikGfxRAM]
-	ldr r4,[mikptr,#lynxAddr]
-	add r0,r0,r4
+	ldr r3,[mikptr,#lynxAddr]
+	add r0,r0,r3
 	ands r2,r1,#2				;@ Screen flip?
-	addeq r4,r4,#GAME_WIDTH/2
-	subne r4,r4,#GAME_WIDTH/2
-	str r4,[mikptr,#lynxAddr]
+	addeq r3,r3,#GAME_WIDTH/2
+	subne r3,r3,#GAME_WIDTH/2
+	str r3,[mikptr,#lynxAddr]
 	add r1,mikptr,#mikPalette
-	ldr r4,[mikptr,#mikLineCallback]
+	stmfd sp!,{lr}
+	ldr r3,[mikptr,#mikLineCallback]
 	mov lr,pc
-	bx r4
+	bx r3
+	ldmfd sp!,{lr}
 	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
-dispExit:
-	ldmfd sp!,{r4-r5,lr}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1552,11 +1551,10 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	add r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer0+CURRENT]
 	ldr r7,[mikptr,#timer0+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r3,r5,r7
+	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim0NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1594,9 +1592,9 @@ tim0NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
@@ -1623,11 +1621,10 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	ldrbeq r3,[mikptr,#mikTim0CtlB]
 	and r3,r3,#1
 	addne r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer2+CURRENT]
 	ldr r7,[mikptr,#timer2+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r3,r5,r7
+	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim2NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1682,11 +1679,10 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	// 16MHz clock downto 1us == cyclecount >> 4
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	add r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer1+CURRENT]
 	ldr r7,[mikptr,#timer1+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r3,r5,r7
+	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim1NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1723,9 +1719,9 @@ tim1NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
@@ -1755,11 +1751,10 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	ldrbeq r3,[mikptr,#mikTim1CtlB]
 	and r3,r3,#1
 	addne r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer3+CURRENT]
 	ldr r7,[mikptr,#timer3+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r3,r5,r7
+	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim3NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1798,9 +1793,9 @@ tim3NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
@@ -1831,11 +1826,10 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	ldrbeq r3,[mikptr,#mikTim3CtlB]
 	and r3,r3,#1
 	addne r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer5+CURRENT]
 	ldr r7,[mikptr,#timer5+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r3,r5,r7
+	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim5NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1874,9 +1868,9 @@ tim5NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
@@ -1907,11 +1901,10 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	ldrbeq r3,[mikptr,#mikTim5CtlB]
 	and r3,r3,#1
 	addne r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer7+CURRENT]
 	ldr r7,[mikptr,#timer7+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	subne r3,r5,r7
+	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim7NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -1950,9 +1943,9 @@ tim7NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
@@ -1981,11 +1974,10 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	// 16MHz clock downto 1us == cyclecount >> 4
 	//divide = (4 + (CtlA & CLOCK_SEL));
 	add r1,r1,#4
-	ldr r5,[mikptr,#systemCycleCount]
 	ldr r6,[mikptr,#timer6+CURRENT]
 	ldr r7,[mikptr,#timer6+LAST_COUNT]
 	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
-	sub r3,r5,r7
+	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim6NoCount				;@ decval?
 	mov r2,r2,ror#24
@@ -2022,9 +2014,9 @@ tim6NoCount:
 	//tmp = gSystemCycleCount;
 	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
 	tst r6,#0x80000000
-	addne r5,r5,#1
+	addne r5,r4,#1
 	addeq r6,r6,#1
-	addeq r5,r5,r6,lsl r1
+	addeq r5,r4,r6,lsl r1
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}

@@ -1386,6 +1386,7 @@ sysLoop:
 	ldmfd sp!,{r4-r5}
 ;@------------------------------------
 
+	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	add r0,r0,#1

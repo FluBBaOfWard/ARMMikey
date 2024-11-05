@@ -392,6 +392,7 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 	stmfd sp!,{r0,r4,lr}
 	ldr r4,[mikptr,#systemCycleCount]
 	bl mikUpdate
+	str r4,[mikptr,#systemCycleCount]
 	ldmfd sp!,{r0,r4,lr}
 	b miRegR
 
@@ -1312,9 +1313,9 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{mikptr,lr}
+	stmfd sp!,{lr}
 	bl paintSprites
-	ldmfd sp!,{mikptr,lr}
+	ldmfd sp!,{lr}
 	ldr r1,[mikptr,#systemCycleCount]
 	add r0,r0,r1
 	str r0,[mikptr,#suzieDoneTime]
@@ -1376,25 +1377,26 @@ sysLoop:
 	bne sysUpdExit
 
 ;@------------------------------------
-	stmfd sp!,{r4-r5}
+	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
+	stmfd sp!,{r5}
 	mov r0,#8
 	bl m6502RestoreAndRunXCycles
 	mov r0,cycles,asr#CYC_SHIFT
 	rsb r0,r0,#8
 	add r1,m6502ptr,#m6502Regs
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
-	ldmfd sp!,{r4-r5}
+	ldmfd sp!,{r5}
+	ldr r4,[mikptr,#systemCycleCount]
 ;@------------------------------------
 
-	ldr r4,[mikptr,#systemCycleCount]
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	add r0,r0,#1
 	add r4,r4,r0
 sysUpdExit:
-	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	cmp r4,r5
 	bmi sysLoop
+	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	ldmfd sp!,{r4-r11,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1453,6 +1455,7 @@ noSuzy:
 	blne mikDisplayEndOfFrame
 
 	//bl miRunTimer4
+	mov r0,r4					;@ sysCycCnt as arg.
 	bl runTimer4
 
 	bl miRunTimer1
@@ -1473,7 +1476,6 @@ noSuzy:
 	bl m6502SetIRQPin
 
 	add r4,r4,r5				;@ This updates sysCycleCnt!!!
-	str r4,[mikptr,#systemCycleCount]
 	ldmfd sp!,{r5,lr}
 	bx lr
 ;@----------------------------------------------------------------------------

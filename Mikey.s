@@ -144,7 +144,7 @@ miVideoGetStateSize:		;@ Out r0=state size.
 
 	.pool
 ;@----------------------------------------------------------------------------
-mikeyRead:					;@ I/O read
+mikeyRead:					;@ I/O read (0xFD00-0xFDC0)
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
 	cmp r2,#0xC0
@@ -615,7 +615,7 @@ miHandyDetectR:				;@ 0xFD97
 	mov r0,#42
 	bx lr
 ;@----------------------------------------------------------------------------
-mikeyWrite:					;@ I/O write
+mikeyWrite:					;@ I/O write (0xFD00-0xFDC0)
 ;@----------------------------------------------------------------------------
 	sub r2,r0,#0xFD00
 	cmp r2,#0xC0
@@ -1314,7 +1314,7 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
-	bl paintSprites
+	bl suzPaintSprites
 	ldmfd sp!,{lr}
 	ldr r1,[mikptr,#systemCycleCount]
 	add r0,r0,r1

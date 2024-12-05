@@ -48,7 +48,7 @@ scanline2:			.long 0		;@ These 3 must be first in state.
 nextLineChange2:	.long 0
 lineState2:			.long 0
 
-windowData2:		.long 0
+windowData:			.long 0
 mikeyState:					;@
 
 timer0:				.space mikTimerSize

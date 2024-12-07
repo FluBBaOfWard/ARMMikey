@@ -1314,7 +1314,7 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
-	bl suzPaintSprites
+	bl lnxSuzyPaintSprites
 	ldmfd sp!,{lr}
 	ldr r1,[mikptr,#systemCycleCount]
 	add r0,r0,r1
@@ -1549,7 +1549,7 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	ldr r2,[mikptr,#mikTim0Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4
@@ -1606,7 +1606,7 @@ tim0NoCount:
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1616,7 +1616,7 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	ldr r2,[mikptr,#mikTim2Bkup]
 	movs r1,r2,lsl#21
 	bxcc lr						;@ CtlA Count Enabled?
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	// 16MHz clock downto 1us == cyclecount >> 4
@@ -1663,7 +1663,7 @@ tim2NoCount:
 	// Prediction for next timer event cycle number
 	// We dont need to predict next timer event as its the frame timer
 	// and will always be beaten by the line timer on Timer 0
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1678,7 +1678,7 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	cmp r1,#7					;@ Link mode?
 	bxeq lr
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4
@@ -1733,7 +1733,7 @@ tim1NoCount:
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1745,7 +1745,7 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	bxcc lr						;@ CtlA Count Enabled?
 	tst r2,#0x08000000			;@ CtlB Timer done?
 	bxne lr
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	// Ordinary clocked mode as opposed to linked mode
@@ -1808,7 +1808,7 @@ tim3NoCount:
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
 tim3Exit:
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1820,7 +1820,7 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	bxcc lr						;@ CtlA Count Enabled?
 	tst r2,#0x08000000			;@ CtlB Timer done?
 	bxne lr
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	// Ordinary clocked mode as opposed to linked mode
@@ -1883,7 +1883,7 @@ tim5NoCount:
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
 tim5Exit:
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1895,7 +1895,7 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	bxcc lr						;@ CtlA Count Enabled?
 	tst r2,#0x08000000			;@ CtlB Timer done?
 	bxne lr
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	// Ordinary clocked mode as opposed to linked mode
@@ -1958,7 +1958,7 @@ tim7NoCount:
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
 tim7Exit:
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1973,7 +1973,7 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	cmp r1,#7					;@ Link mode?
 	bxeq lr
-	stmfd sp!,{r5-r7}
+	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x0B000000		;@ CtlB clear borrow in/out, last clock
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4
@@ -2028,7 +2028,7 @@ tim6NoCount:
 	ldr r1,[mikptr,#nextTimerEvent]
 	cmp r2,r1
 	strmi r2,[mikptr,#nextTimerEvent]
-	ldmfd sp!,{r5-r7}
+	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------

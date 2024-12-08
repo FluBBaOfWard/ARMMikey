@@ -16,11 +16,11 @@
 #include "ARMMikey.i"
 #include "ARM6502/M6502.i"
 
-	.global miVideoInit
-	.global miVideoReset
-	.global miVideoSaveState
-	.global miVideoLoadState
-	.global miVideoGetStateSize
+	.global mikeyInit
+	.global mikeyReset
+	.global mikeySaveState
+	.global mikeyLoadState
+	.global mikeyGetStateSize
 	.global mikSysUpdate
 	.global miDoScanline
 	.global mikeyRead
@@ -37,14 +37,14 @@
 #endif
 	.align 2
 ;@----------------------------------------------------------------------------
-miVideoInit:				;@ Only need to be called once
+mikeyInit:				;@ Only need to be called once
 ;@----------------------------------------------------------------------------
 	mov r0,mikptr
 	ldr r1,=mikeySize/4
 	b memclr_					;@ Clear Mikey state
 	bx lr
 ;@----------------------------------------------------------------------------
-miVideoReset:				;@ r10=mikptr
+mikeyReset:				;@ r10=mikptr
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0-r3,lr}
 
@@ -106,8 +106,8 @@ miRegistersReset:			;@ in r3=SOC
 	b miRefW
 
 ;@----------------------------------------------------------------------------
-miVideoSaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
-	.type	miVideoSaveState STT_FUNC
+mikeySaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
+	.type	mikeySaveState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,lr}
 	mov r4,r0					;@ Store destination
@@ -121,8 +121,8 @@ miVideoSaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
 	mov r0,#mikeyStateEnd-mikeyState
 	bx lr
 ;@----------------------------------------------------------------------------
-miVideoLoadState:			;@ In r0=mikptr, r1=source. Out r0=state size.
-	.type	miVideoLoadState STT_FUNC
+mikeyLoadState:			;@ In r0=mikptr, r1=source. Out r0=state size.
+	.type	mikeyLoadState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,r10,lr}
 	mov r5,r0					;@ Store mikptr (r0)
@@ -136,8 +136,8 @@ miVideoLoadState:			;@ In r0=mikptr, r1=source. Out r0=state size.
 
 	ldmfd sp!,{r4,r5,r10,lr}
 ;@----------------------------------------------------------------------------
-miVideoGetStateSize:		;@ Out r0=state size.
-	.type	miVideoGetStateSize STT_FUNC
+mikeyGetStateSize:		;@ Out r0=state size.
+	.type	mikeyGetStateSize STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r0,#mikeyStateEnd-mikeyState
 	bx lr

@@ -216,29 +216,29 @@ typedef struct {
 
 } MIKEY;
 
-void miVideoReset(void *irqFunction(), void *ram, int soc);
+void mikeyReset(void *irqFunction(), void *ram, int soc);
 
 /**
  * Saves the state of the chip to the destination.
  * @param  *destination: Where to save the state.
- * @param  *chip: The SUZY chip to save.
+ * @param  *chip: The MIKEY chip to save.
  * @return The size of the state.
  */
-int miVideoSaveState(void *destination, const MIKEY *chip);
+int mikeySaveState(void *destination, const MIKEY *chip);
 
 /**
  * Loads the state of the chip from the source.
- * @param  *chip: The SUZY chip to load a state into.
+ * @param  *chip: The MIKEY chip to load a state into.
  * @param  *source: Where to load the state from.
  * @return The size of the state.
  */
-int miVideoLoadState(MIKEY *chip, const void *source);
+int mikeyLoadState(MIKEY *chip, const void *source);
 
 /**
- * Gets the state size of a SUZY chip.
+ * Gets the state size of a MIKEY chip.
  * @return The size of the state.
  */
-int miVideoGetStateSize(void);
+int mikeyGetStateSize(void);
 
 void mikSysUpdate(void);
 

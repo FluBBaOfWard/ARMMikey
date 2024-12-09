@@ -185,6 +185,7 @@ typedef struct {
 
 //------------------------------
 	u32 palette[16];		// Merged palette
+	u8 paletteChanged;		// Palette updated since last render.
 	u8 mikLCDVSize;			// 0x01 LCD Y Size
 	u8 mikSOC;				// HOWARD or HOWARD2
 	u8 serCablePresent;
@@ -193,6 +194,7 @@ typedef struct {
 	u8 timerInterruptMask;
 	u8 systemCPUSleep;
 	u8 memSelector;
+	u8 padding6[3];
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
@@ -207,6 +209,7 @@ typedef struct {
 	MAUDIO audio2;
 	MAUDIO audio3;
 
+	void *mikCartPtr;		// Pointer to LynxCart object.
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback
 	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);

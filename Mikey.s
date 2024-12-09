@@ -15,6 +15,7 @@
 #endif
 #include "ARMMikey.i"
 #include "ARM6502/M6502.i"
+#include "../LynxCart/LynxCart.i"
 
 	.global mikeyInit
 	.global mikeyReset
@@ -71,6 +72,9 @@ mikeyReset:				;@ r10=mikptr
 	str r2,[mikptr,#mikGfxRAM]
 
 	strb r3,[mikptr,#mikSOC]
+
+	ldr r0,=cart_0
+	str r0,[mikptr,#mikCartPtr]
 
 //	b miRegistersReset
 
@@ -767,11 +771,11 @@ io_write_tbl:
 	.long miReadOnlyW			;@ 0xFD84 MAGRDY0
 	.long miReadOnlyW			;@ 0xFD85 MAGRDY1
 	.long miReadOnlyW			;@ 0xFD86 AUDIN
-	.long mikiePoke				;@ 0xFD87 SYSCTL1
+	.long miSysCtl1W			;@ 0xFD87 SYSCTL1
 	.long miReadOnlyW			;@ 0xFD88 MIKEYHREV
 	.long miRegW				;@ 0xFD89 MIKEYSREV
 	.long miRegW				;@ 0xFD8A IODIR
-	.long mikiePoke				;@ 0xFD8B IODAT
+	.long miIODatW				;@ 0xFD8B IODAT
 	.long mikiePoke				;@ 0xFD8C SERCTL
 	.long mikiePoke				;@ 0xFD8D SERDAT
 	.long miUnmappedW			;@ 0xFD8E
@@ -1311,6 +1315,27 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 	b m6502SetIRQPin
 
 ;@----------------------------------------------------------------------------
+miSysCtl1W:					;@ System Control 1 (0xFD87)
+;@----------------------------------------------------------------------------
+//	tst r1,#0x02
+//	beq PowerOff
+	ldr r0,[mikptr,#mikCartPtr]
+	and r1,r1,#0x01
+	b cartAddressStrobe
+;@----------------------------------------------------------------------------
+miIODatW:					;@ IO-Data (0xFD8B)
+;@----------------------------------------------------------------------------
+	ldrb r2,[mikptr,#mikIODir]
+	ldr r0,[mikptr,#mikCartPtr]
+	strb r1,[mikptr,#mikIODat]
+	;@ Enable cart writes to BANK1 on AUDIN if AUDIN is set to output
+	tst r2,#0x10
+	andne r2,r1,#0x10
+	strbne r2,[r0,#cartWriteEnable1]
+	and r1,r1,#0x02
+	b cartAddressData
+
+;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
@@ -1325,6 +1350,7 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------
+	strb r0,[mikptr,#paletteChanged]	;@ Mark palette changed
 	and r0,r0,#0xF
 	and r1,r1,#0xF
 	add r2,mikptr,#mikPaletteG
@@ -1336,6 +1362,7 @@ miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------
 miPaletteBRW:				;@ Blue & Red Palette (0xFDBX)
 ;@----------------------------------------------------------------------------
+	strb r0,[mikptr,#paletteChanged]	;@ Mark palette changed
 	and r0,r0,#0xF
 	add r2,mikptr,#mikPaletteBR
 	strb r1,[r2,r0]
@@ -1522,11 +1549,13 @@ noLatch:
 	subne r3,r3,#GAME_WIDTH/2
 	str r3,[mikptr,#lynxAddr]
 	add r1,mikptr,#mikPalette
+	ldrb r3,[mikptr,#paletteChanged]	;@ Palette changed?
 	stmfd sp!,{lr}
-	ldr r3,[mikptr,#mikLineCallback]
 	mov lr,pc
-	bx r3
+	ldr pc,[mikptr,#mikLineCallback]
 	ldmfd sp!,{lr}
+	mov r0,#0
+	strb r0,[mikptr,#paletteChanged]	;@ Palette changed?
 	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
 	bx lr
 

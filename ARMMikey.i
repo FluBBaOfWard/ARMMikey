@@ -175,6 +175,7 @@ mikPaletteBR:		.space 0x10	;@ 0xB0-0xBF Blue/Red palette
 
 ;@----------------------------------------------------------------------------
 mikPalette:			.space 16*4	;@ Merged palette
+paletteChanged:		.byte 0
 mikLCDVSize:		.byte 0		;@ 0x01 LCD Vertical Size
 mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 mikSerCablePresent:	.byte 0
@@ -183,6 +184,7 @@ timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
 systemCPUSleep:		.byte 0
 memSelector:		.byte 0
+mikPadding6:		.skip 3
 
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
@@ -199,6 +201,7 @@ audio3:				.space mikAudioSize
 
 mikeyStateEnd:
 
+mikCartPtr:			.long 0		;@ Pointer to LynxCart object.
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function
 

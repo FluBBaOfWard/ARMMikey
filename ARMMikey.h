@@ -209,6 +209,7 @@ typedef struct {
 	MAUDIO audio2;
 	MAUDIO audio3;
 
+	void *mikSuzyPtr;		// Pointer to Suzy object.
 	void *mikCartPtr;		// Pointer to LynxCart object.
 	void (*mikNmiFunction)(bool pin);	// NMI callback
 	void (*mikIrqFunction)(bool pin);	// IRQ callback

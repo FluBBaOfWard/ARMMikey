@@ -73,6 +73,8 @@ mikeyReset:				;@ r10=mikptr
 
 	strb r3,[mikptr,#mikSOC]
 
+	ldr r0,=suzy_0
+	str r0,[mikptr,#mikSuzyPtr]
 	ldr r0,=cart_0
 	str r0,[mikptr,#mikCartPtr]
 
@@ -1339,7 +1341,8 @@ miIODatW:					;@ IO-Data (0xFD8B)
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
-	bl lnxSuzyPaintSprites
+	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
+	bl suzPaintSprites
 	ldmfd sp!,{lr}
 	ldr r1,[mikptr,#systemCycleCount]
 	add r0,r0,r1

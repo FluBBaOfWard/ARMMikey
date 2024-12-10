@@ -201,6 +201,7 @@ audio3:				.space mikAudioSize
 
 mikeyStateEnd:
 
+mikSuzyPtr:			.long 0		;@ Pointer to Suzy object.
 mikCartPtr:			.long 0		;@ Pointer to LynxCart object.
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function

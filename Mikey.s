@@ -8,13 +8,7 @@
 
 #ifdef __arm__
 
-#ifdef GBA
-	#include "../Shared/gba_asm.h"
-#elif NDS
-	#include "../Shared/nds_asm.h"
-#endif
 #include "ARMMikey.i"
-#include "ARM6502/M6502.i"
 #include "../LynxCart/LynxCart.i"
 
 	.global mikeyInit
@@ -72,8 +66,6 @@ mikeyReset:				;@ r10=mikptr
 	ldr r0,=cart_0
 	str r0,[mikptr,#mikCartPtr]
 
-//	b miRegistersReset
-
 dummyFunc:
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -99,11 +91,6 @@ memCopy:
 thumbCallR3:
 ;@----------------------------------------------------------------------------
 	bx r3
-;@----------------------------------------------------------------------------
-miRegistersReset:			;@ in r3=SOC
-;@----------------------------------------------------------------------------
-	ldrb r1,[mikptr,#mikLCDVSize]
-	b miRefW
 
 ;@----------------------------------------------------------------------------
 mikeySaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
@@ -371,18 +358,17 @@ miUnmappedR:
 ;@----------------------------------------------------------------------------
 miUnknownR:
 ;@----------------------------------------------------------------------------
-	ldr r2,=0x826EBAD0
+	ldr r1,=0x826EBAD0
 ;@----------------------------------------------------------------------------
 miImportantR:
 	mov r11,r11					;@ No$GBA breakpoint
-	stmfd sp!,{r0,mikptr,lr}
+	stmfd sp!,{r2,mikptr,lr}
 	bl _debugIOUnimplR
-	ldmfd sp!,{r0,mikptr,lr}
+	ldmfd sp!,{r2,mikptr,lr}
 ;@----------------------------------------------------------------------------
 miRegR:
-	and r0,r0,#0xFF
-	add r2,mikptr,#mikRegs
-	ldrb r0,[r2,r0]
+	add r2,r2,#mikRegs
+	ldrb r0,[mikptr,r2]
 	bx lr
 	.pool
 
@@ -833,11 +819,9 @@ miUnknownW:
 ;@----------------------------------------------------------------------------
 miImportantW:
 ;@----------------------------------------------------------------------------
-	and r0,r0,#0xFF
-	add r2,mikptr,#mikRegs
-	strb r1,[r2,r0]
-	ldr r2,=debugIOUnimplW
-	bx r2
+	add r2,r2,#mikRegs
+	strb r1,[mikptr,r2]
+	b debugIOUnimplW
 ;@----------------------------------------------------------------------------
 miReadOnlyW:
 ;@----------------------------------------------------------------------------
@@ -846,9 +830,8 @@ miUnmappedW:
 	b _debugIOUnmappedW
 ;@----------------------------------------------------------------------------
 miRegW:
-	and r0,r0,#0xFF
-	add r2,mikptr,#mikRegs
-	strb r1,[r2,r0]
+	add r2,r2,#mikRegs
+	strb r1,[mikptr,r2]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1382,10 +1365,8 @@ miRefW:						;@ 0x2001, Last scan line.
 
 ;@----------------------------------------------------------------------------
 mikSysUpdate:
-	.type	mikSysUpdate STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4-r11,lr}
-	ldr mikptr,=mikey_0
 	ldr r4,[mikptr,#systemCycleCount]
 	ldr r5,=159*105*16			;@ Cycle count for 60Hz frame.
 	add r5,r5,r4

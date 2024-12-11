@@ -240,8 +240,6 @@ int mikeyLoadState(MIKEY *chip, const void *source);
  */
 int mikeyGetStateSize(void);
 
-void mikSysUpdate(void);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

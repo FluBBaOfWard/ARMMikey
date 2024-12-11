@@ -643,7 +643,7 @@ io_write_tbl:
 	.long miTim7CntW			;@ 0xFD1E TIM7CNT
 	.long miTimCtlBW			;@ 0xFD1F TIM7CTLB
 
-	.long mikiePoke				;@ 0xFD20 AUD0VOL
+	.long miAud0VolW			;@ 0xFD20 AUD0VOL
 	.long miAud0ShftFbW			;@ 0xFD21 AUD0SHFTFB
 	.long miRegW				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftW			;@ 0xFD23 AUD0L8SHFT
@@ -651,7 +651,7 @@ io_write_tbl:
 	.long miAud0CtlW			;@ 0xFD25 AUD0CTL
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscW			;@ 0xFD27 AUD0MISC
-	.long mikiePoke				;@ 0xFD28 AUD1VOL
+	.long miAud1VolW			;@ 0xFD28 AUD1VOL
 	.long miAud1ShftFbW			;@ 0xFD29 AUD1SHFTFB
 	.long miRegW				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftW			;@ 0xFD2B AUD1L8SHFT
@@ -660,7 +660,7 @@ io_write_tbl:
 	.long miAud1CountW			;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscW			;@ 0xFD2F AUD1MISC
 
-	.long mikiePoke				;@ 0xFD30 AUD2VOL
+	.long miAud2VolW			;@ 0xFD30 AUD2VOL
 	.long miAud2ShftFbW			;@ 0xFD31 AUD2SHFTFB
 	.long miRegW				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftW			;@ 0xFD33 AUD2L8SHFT
@@ -668,7 +668,7 @@ io_write_tbl:
 	.long miAud2CtlW			;@ 0xFD35 AUD2CTL
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscW			;@ 0xFD37 AUD2MISC
-	.long mikiePoke				;@ 0xFD38 AUD3VOL
+	.long miAud3VolW			;@ 0xFD38 AUD3VOL
 	.long miAud3ShftFbW			;@ 0xFD39 AUD3SHFTFB
 	.long miRegW				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftW			;@ 0xFD3B AUD3L8SHFT
@@ -1066,6 +1066,55 @@ miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 	str r1,[mikptr,#timer7+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0VolW:					;@ Audio 0 Volume (0xFD20)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud0Vol]
+	strb r1,[mikptr,#mikAud0Vol]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio0+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1VolW:					;@ Audio 1 Volume (0xFD28)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud1Vol]
+	strb r1,[mikptr,#mikAud1Vol]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio1+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2VolW:					;@ Audio 2 Volume (0xFD30)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud2Vol]
+	strb r1,[mikptr,#mikAud2Vol]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio2+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3VolW:					;@ Audio 3 Volume (0xFD38)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud3Vol]
+	strb r1,[mikptr,#mikAud3Vol]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio3+LAST_COUNT]
 	bx lr
 
 ;@----------------------------------------------------------------------------

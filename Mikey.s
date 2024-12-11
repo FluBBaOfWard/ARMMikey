@@ -647,7 +647,7 @@ io_write_tbl:
 	.long miAud0ShftFbW			;@ 0xFD21 AUD0SHFTFB
 	.long miRegW				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftW			;@ 0xFD23 AUD0L8SHFT
-	.long mikiePoke				;@ 0xFD24 AUD0TBACK
+	.long miAud0TBackW			;@ 0xFD24 AUD0TBACK
 	.long miAud0CtlW			;@ 0xFD25 AUD0CTL
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscW			;@ 0xFD27 AUD0MISC
@@ -655,7 +655,7 @@ io_write_tbl:
 	.long miAud1ShftFbW			;@ 0xFD29 AUD1SHFTFB
 	.long miRegW				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftW			;@ 0xFD2B AUD1L8SHFT
-	.long mikiePoke				;@ 0xFD2C AUD1TBACK
+	.long miAud1TBackW			;@ 0xFD2C AUD1TBACK
 	.long miAud1CtlW			;@ 0xFD2D AUD1CTL
 	.long miAud1CountW			;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscW			;@ 0xFD2F AUD1MISC
@@ -664,7 +664,7 @@ io_write_tbl:
 	.long miAud2ShftFbW			;@ 0xFD31 AUD2SHFTFB
 	.long miRegW				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftW			;@ 0xFD33 AUD2L8SHFT
-	.long mikiePoke				;@ 0xFD34 AUD2TBACK
+	.long miAud2TBackW			;@ 0xFD34 AUD2TBACK
 	.long miAud2CtlW			;@ 0xFD35 AUD2CTL
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscW			;@ 0xFD37 AUD2MISC
@@ -672,7 +672,7 @@ io_write_tbl:
 	.long miAud3ShftFbW			;@ 0xFD39 AUD3SHFTFB
 	.long miRegW				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftW			;@ 0xFD3B AUD3L8SHFT
-	.long mikiePoke				;@ 0xFD3C AUD3TBACK
+	.long miAud3TBackW			;@ 0xFD3C AUD3TBACK
 	.long miAud3CtlW			;@ 0xFD3D AUD3CTL
 	.long miAud3CountW			;@ 0xFD3E AUD3COUNT
 	.long miAud3MiscW			;@ 0xFD3F AUD3MISC
@@ -1173,6 +1173,55 @@ miAud2L8ShftW:				;@ Audio 2 L8 Shift (0xFD33)
 miAud3L8ShftW:				;@ Audio 3 L8 Shift (0xFD3B)
 ;@----------------------------------------------------------------------------
 	strb r1,[mikptr,#audio3+WAVESHAPER]
+	bx lr
+
+;@----------------------------------------------------------------------------
+miAud0TBackW:				;@ Audio 0 Timer backup (0xFD24)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud0TBack]
+	strb r1,[mikptr,#mikAud0TBack]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio0+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud1TBackW:				;@ Audio 1 Timer backup (0xFD2C)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud1TBack]
+	strb r1,[mikptr,#mikAud1TBack]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio1+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud2TBackW:				;@ Audio 2 Timer backup (0xFD34)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud2TBack]
+	strb r1,[mikptr,#mikAud2TBack]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio2+LAST_COUNT]
+	bx lr
+;@----------------------------------------------------------------------------
+miAud3TBackW:				;@ Audio 3 Timer backup (0xFD3C)
+;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikAud3TBack]
+	strb r1,[mikptr,#mikAud3TBack]
+	cmp r0,#0
+	bxne lr
+	cmp r1,#0
+	ldrne r1,[mikptr,#systemCycleCount]
+	strne r1,[mikptr,#nextTimerEvent]
+	strne r1,[mikptr,#audio3+LAST_COUNT]
 	bx lr
 
 ;@----------------------------------------------------------------------------

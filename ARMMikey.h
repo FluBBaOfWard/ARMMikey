@@ -56,21 +56,8 @@ typedef struct
 
 typedef struct {
 	M6502Core m6502;
-	// mikeyState:					;@
-	u32 scanline;
-	u32 nextLineChange;
-	u32 lineState;
 
-	u32 windowData;
 //mikState:
-	MTIMER timer0;
-	MTIMER timer1;
-	MTIMER timer2;
-	MTIMER timer3;
-	MTIMER timer4;
-	MTIMER timer5;
-	MTIMER timer6;
-	MTIMER timer7;
 
 //mikRegs:
 	u8 tim0Bkup;			// 0x00 Timer 0 Backup
@@ -204,6 +191,15 @@ typedef struct {
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
 
+	MTIMER timer0;
+	MTIMER timer1;
+	MTIMER timer2;
+	MTIMER timer3;
+	MTIMER timer4;
+	MTIMER timer5;
+	MTIMER timer6;
+	MTIMER timer7;
+
 	MAUDIO audio0;
 	MAUDIO audio1;
 	MAUDIO audio2;
@@ -216,7 +212,7 @@ typedef struct {
 	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
 	void (*mikFrameCallback)(void);
 
-	void *mikGfxRAM;
+	u8 *mikGfxRAM;
 
 } MIKEY;
 
@@ -245,8 +241,6 @@ int mikeyLoadState(MIKEY *chip, const void *source);
 int mikeyGetStateSize(void);
 
 void mikSysUpdate(void);
-
-void miDoScanline(void);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -44,21 +44,7 @@ mikAudioSize:
 	.struct 0
 m6502Chip:			.space m6502Size
 
-scanline2:			.long 0		;@ These 3 must be first in state.
-nextLineChange2:	.long 0
-lineState2:			.long 0
-
-windowData:			.long 0
 mikeyState:					;@
-
-timer0:				.space mikTimerSize
-timer1:				.space mikTimerSize
-timer2:				.space mikTimerSize
-timer3:				.space mikTimerSize
-timer4:				.space mikTimerSize
-timer5:				.space mikTimerSize
-timer6:				.space mikTimerSize
-timer7:				.space mikTimerSize
 
 mikRegs:
 
@@ -194,6 +180,15 @@ nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
 audioLastUpdateCycle:	.long 0
 
+timer0:				.space mikTimerSize
+timer1:				.space mikTimerSize
+timer2:				.space mikTimerSize
+timer3:				.space mikTimerSize
+timer4:				.space mikTimerSize
+timer5:				.space mikTimerSize
+timer6:				.space mikTimerSize
+timer7:				.space mikTimerSize
+
 audio0:				.space mikAudioSize
 audio1:				.space mikAudioSize
 audio2:				.space mikAudioSize
@@ -206,9 +201,9 @@ mikCartPtr:			.long 0		;@ Pointer to LynxCart object.
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function
 
-mikGfxRAM:			.long 0		;@ 0x10000
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0
+mikGfxRAM:			.long 0		;@ 0x10000
 
 mikeySize:
 mikeyStateSize = mikeyStateEnd-mikeyState

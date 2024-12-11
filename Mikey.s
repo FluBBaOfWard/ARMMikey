@@ -23,7 +23,6 @@
 	.global mikeyLoadState
 	.global mikeyGetStateSize
 	.global mikSysUpdate
-	.global miDoScanline
 	.global mikeyRead
 	.global mikeyWrite
 	.global miRefW
@@ -55,11 +54,6 @@ mikeyReset:				;@ r10=mikptr
 
 	mov r0,#0xFF
 	strb r0,[mikptr,#mikStereo]	;@ All channels enabled, (reg is inverted)
-
-//	ldr r2,=lineStateTable
-//	ldr r1,[r2],#4
-//	mov r0,#-1
-//	stmia mikptr,{r0-r2}		;@ Reset scanline, nextChange & lineState
 
 	ldmfd sp!,{r0-r3,lr}
 	cmp r0,#0
@@ -1382,7 +1376,6 @@ miRefW:						;@ 0x2001, Last scan line.
 	cmp r1,#0xC8
 	movpl r1,#0xC8
 	add r1,r1,#1
-	str r1,lineStateLastLine
 	mov r0,r1
 	b setScreenRefresh
 
@@ -2076,61 +2069,4 @@ endFrame:
 	ldmfd sp!,{pc}
 
 ;@----------------------------------------------------------------------------
-frameEndHook:
-	adr r2,lineStateTable
-	ldr r1,[r2],#4
-	mov r0,#-1
-	stmia mikptr,{r0-r2}		;@ Reset scanline, nextChange & lineState
-	bx lr
-
-;@----------------------------------------------------------------------------
-lineStateTable:
-	.long 0, newFrame			;@ zeroLine
-	.long 102, endFrame			;@ After last visible scanline
-lineStateLastLine:
-	.long 105, frameEndHook		;@ totalScanlines
-;@----------------------------------------------------------------------------
-#ifdef GBA
-	.section .iwram, "ax", %progbits	;@ For the GBA
-	.align 2
-#endif
-;@----------------------------------------------------------------------------
-redoScanline:
-;@----------------------------------------------------------------------------
-	ldr r2,[mikptr,#lineState2]
-	ldmia r2!,{r0,r1}
-	stmib mikptr,{r1,r2}		;@ Write nextLineChange & lineState
-	stmfd sp!,{lr}
-	mov lr,pc
-	bx r0
-	ldmfd sp!,{lr}
-;@----------------------------------------------------------------------------
-miDoScanline:
-;@----------------------------------------------------------------------------
-	ldmia mikptr,{r0,r1}		;@ Read scanLine & nextLineChange
-	add r0,r0,#1
-	cmp r0,r1
-	bpl redoScanline
-	str r0,[mikptr,#scanline2]
-;@----------------------------------------------------------------------------
-checkScanlineIRQ:
-;@----------------------------------------------------------------------------
-	stmfd sp!,{lr}
-
-
-	ldr r0,[mikptr,#scanline2]
-	subs r0,r0,#159				;@ Return from emulation loop on this scanline
-	movne r0,#1
-	ldmfd sp!,{pc}
-
-;@----------------------------------------------------------------------------
-#ifdef GBA
-	.section .sbss				;@ For the GBA
-#else
-	.section .bss
-#endif
-	.align 2
-CHR_DECODE:
-	.space 0x200
-
 #endif // #ifdef __arm__

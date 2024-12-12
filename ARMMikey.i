@@ -21,6 +21,13 @@
 /** Game screen height in pixels */
 #define GAME_HEIGHT (102)
 
+#define UART_TX_INACTIVE	0x80000000
+#define UART_RX_INACTIVE	0x80000000
+#define UART_BREAK_CODE		0x00008000
+#define UART_MAX_RX_QUEUE	32
+#define UART_TX_TIME_PERIOD	(11)
+#define UART_RX_TIME_PERIOD	(11)
+#define UART_RX_NEXT_DELAY	(44)
 
 
 	.struct 0
@@ -179,6 +186,17 @@ systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
 audioLastUpdateCycle:	.long 0
+
+uart_RX_IRQ_ENABLE:	.long 0
+uart_TX_IRQ_ENABLE:	.long 0
+uart_PARITY_ENABLE:	.long 0
+uart_PARITY_EVEN:	.long 0
+uart_SENDBREAK:		.long 0
+uart_RX_COUNTDOWN:	.long 0
+uart_TX_COUNTDOWN:	.long 0
+uart_TX_DATA:		.long 0
+uart_RX_DATA:		.long 0
+uart_RX_READY:		.long 0
 
 timer0:				.space mikTimerSize
 timer1:				.space mikTimerSize

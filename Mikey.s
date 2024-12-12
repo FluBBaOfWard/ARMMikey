@@ -49,6 +49,11 @@ mikeyReset:				;@ r10=mikptr
 	mov r0,#0xFF
 	strb r0,[mikptr,#mikStereo]	;@ All channels enabled, (reg is inverted)
 
+	mov r0,#UART_TX_INACTIVE
+	str r0,[mikptr,#uart_TX_COUNTDOWN]
+	mov r0,#UART_RX_INACTIVE
+	str r0,[mikptr,#uart_RX_COUNTDOWN]
+
 	ldmfd sp!,{r0-r3,lr}
 	cmp r0,#0
 	adreq r0,dummyFunc

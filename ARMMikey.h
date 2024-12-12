@@ -191,6 +191,17 @@ typedef struct {
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
 
+	u32 uart_RX_IRQ_ENABLE;
+	u32 uart_TX_IRQ_ENABLE;
+	u32 uart_PARITY_ENABLE;
+	u32 uart_PARITY_EVEN;
+	u32 uart_SENDBREAK;
+	u32 uart_RX_COUNTDOWN;
+	u32 uart_TX_COUNTDOWN;
+	u32 uart_TX_DATA;
+	u32 uart_RX_DATA;
+	u32 uart_RX_READY;
+
 	MTIMER timer0;
 	MTIMER timer1;
 	MTIMER timer2;

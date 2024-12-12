@@ -181,7 +181,9 @@ typedef struct {
 	u8 timerInterruptMask;
 	u8 systemCPUSleep;
 	u8 memSelector;
-	u8 padding6[3];
+	u8 uart_Rx_framing_error;
+	u8 uart_Rx_overun_error;
+	u8 padding6[1];
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;

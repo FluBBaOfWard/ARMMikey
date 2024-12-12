@@ -292,7 +292,7 @@ io_read_tbl:
 	.long miWriteOnlyR			;@ 0xFD89 MIKEYSREV
 	.long miWriteOnlyR			;@ 0xFD8A IODIR
 	.long miIODatR				;@ 0xFD8B IODAT
-	.long mikiePeek				;@ 0xFD8C SERCTL
+	.long miSerCtlR				;@ 0xFD8C SERCTL
 	.long miSerDatR				;@ 0xFD8D SERDAT
 	.long miUnmappedR			;@ 0xFD8E
 	.long miUnmappedR			;@ 0xFD8F
@@ -601,6 +601,27 @@ miIODatR:					;@ IO-Data (0xFD8B)
 
 	bx lr
 ;@----------------------------------------------------------------------------
+miSerCtlR:					;@ Serial Control (0xFD8C)
+;@----------------------------------------------------------------------------
+	ldr r0,[mikptr,#uart_TX_COUNTDOWN]
+	ands r0,r0,#UART_TX_INACTIVE
+	movne r0,#0xA0				;@ Indicate TxDone & TxAllDone
+	ldr r1,[mikptr,#uart_RX_READY]
+	cmp r1,#0
+	orrne r0,r0,#0x40			;@ Indicate Rx data ready
+	ldrb r1,[mikptr,#uart_Rx_overun_error]
+	cmp r1,#0
+	orrne r0,r0,#0x08			;@  Framing error
+	ldrb r1,[mikptr,#uart_Rx_framing_error]
+	cmp r1,#0
+	orrne r0,r0,#0x04			;@  Rx overrun
+	ldr r1,[mikptr,#uart_RX_DATA]
+	tst r1,#UART_BREAK_CODE
+	orrne r0,r0,#0x02			;@ Indicate break received
+	tst r1,#0x100
+	orrne r0,r0,#0x01			;@ Add parity bit
+	bx lr
+;@----------------------------------------------------------------------------
 miSerDatR:					;@ Serial Data (0xFD8D)
 ;@----------------------------------------------------------------------------
 	mov r1,#0
@@ -771,7 +792,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD89 MIKEYSREV
 	.long miRegW				;@ 0xFD8A IODIR
 	.long miIODatW				;@ 0xFD8B IODAT
-	.long mikiePoke				;@ 0xFD8C SERCTL
+	.long miSerCtlW				;@ 0xFD8C SERCTL
 	.long miSerDatW				;@ 0xFD8D SERDAT
 	.long miUnmappedW			;@ 0xFD8E
 	.long miUnmappedW			;@ 0xFD8F
@@ -1426,6 +1447,35 @@ miIODatW:					;@ IO-Data (0xFD8B)
 	b cartAddressData
 
 ;@----------------------------------------------------------------------------
+miSerCtlW:					;@ Serial Control (0xFD8C)
+;@----------------------------------------------------------------------------
+	ands r0,r1,#0x80
+	movne r0,#1
+	str r0,[mikptr,#uart_TX_IRQ_ENABLE]
+	ands r0,r1,#0x40
+	movne r0,#1
+	str r0,[mikptr,#uart_RX_IRQ_ENABLE]
+	ands r0,r1,#0x10
+	movne r0,#1
+	str r0,[mikptr,#uart_PARITY_ENABLE]
+	and r2,r1,#0x02
+	str r2,[mikptr,#uart_SENDBREAK]
+	and r0,r1,#0x01
+	str r0,[mikptr,#uart_PARITY_EVEN]
+	tst r1,#0x08
+	movne r0,#0
+	strbne r0,[mikptr,#uart_Rx_framing_error]
+	strbne r0,[mikptr,#uart_Rx_overun_error]
+
+	cmp r2,#0
+	bxeq lr
+	;@ Trigger send break, it will self sustain as long as sendbreak is set
+	mov r0,#UART_TX_TIME_PERIOD
+	str r0,[mikptr,#uart_TX_COUNTDOWN]
+	;@ Loop back what we transmitted
+	mov r0,#UART_BREAK_CODE
+	b mikieComLynxTxLoopback
+;@----------------------------------------------------------------------------
 miSerDatW:					;@ Serial Data (0xFD8D)
 ;@----------------------------------------------------------------------------
 	;@ Fake transmission, set counter to be decremented by Timer 4
@@ -1448,7 +1498,7 @@ noSerParity:
 serParity:
 	;@ Set countdown to transmission
 	mov r0,#UART_TX_TIME_PERIOD
-	ldr r0,[mikptr,#uart_TX_COUNTDOWN]
+	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
 	mov r0,r1
 	b mikieComLynxTxLoopback

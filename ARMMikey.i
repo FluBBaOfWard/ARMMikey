@@ -177,7 +177,9 @@ timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
 systemCPUSleep:		.byte 0
 memSelector:		.byte 0
-mikPadding6:		.skip 3
+uart_Rx_framing_error:	.byte 0
+uart_Rx_overun_error:	.byte 0
+mikPadding6:		.skip 1
 
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0

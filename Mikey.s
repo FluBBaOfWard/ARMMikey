@@ -293,7 +293,7 @@ io_read_tbl:
 	.long miWriteOnlyR			;@ 0xFD8A IODIR
 	.long miIODatR				;@ 0xFD8B IODAT
 	.long mikiePeek				;@ 0xFD8C SERCTL
-	.long mikiePeek				;@ 0xFD8D SERDAT
+	.long miSerDatR				;@ 0xFD8D SERDAT
 	.long miUnmappedR			;@ 0xFD8E
 	.long miUnmappedR			;@ 0xFD8F
 
@@ -554,37 +554,37 @@ miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miStereoR:					;@ 0xFD50
+miStereoR:					;@ Stereo (0xFD50)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikStereo]
 	eor r0,r0,#0xFF				;@ Stereo is inverted
 	bx lr
 ;@----------------------------------------------------------------------------
-miIntRstR:					;@ 0xFD80
+miIntRstR:					;@ Interrupt bits (0xFD80)
 ;@----------------------------------------------------------------------------
 ;@----------------------------------------------------------------------------
-miIntSetR:					;@ 0xFD81
+miIntSetR:					;@ Interrupt bits (0xFD81)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#timerStatusFlags]
 	bx lr
 ;@----------------------------------------------------------------------------
-miMagRdy0R:					;@ 0xFD84
-miMagRdy1R:					;@ 0xFD85
+miMagRdy0R:					;@ Magnetic Tape ready 0 (0xFD84)
+miMagRdy1R:					;@ Magnetic Tape ready 1 (0xFD85)
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	bx lr
 ;@----------------------------------------------------------------------------
-miAudInR:					;@ 0xFD86
+miAudInR:					;@ (0xFD86)
 ;@----------------------------------------------------------------------------
 	mov r0,#0x80				;@ bit 7 = audio comparator result. magnetic tape?
 	bx lr
 ;@----------------------------------------------------------------------------
-miMikeyHRevR:				;@ 0xFD88
+miMikeyHRevR:				;@ (0xFD88)
 ;@----------------------------------------------------------------------------
 	mov r0,#1
 	bx lr
 ;@----------------------------------------------------------------------------
-miIODatR:					;@ 0xFD8B
+miIODatR:					;@ IO-Data (0xFD8B)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikIODat]
 	ldrb r1,[mikptr,#mikIODir]
@@ -601,7 +601,15 @@ miIODatR:					;@ 0xFD8B
 
 	bx lr
 ;@----------------------------------------------------------------------------
-miHandyDetectR:				;@ 0xFD97
+miSerDatR:					;@ Serial Data (0xFD8D)
+;@----------------------------------------------------------------------------
+	mov r1,#0
+	ldr r0,[mikptr,#uart_RX_DATA]
+	str r1,[mikptr,#uart_RX_READY]
+	and r0,r0,#0xFF
+	bx lr
+;@----------------------------------------------------------------------------
+miHandyDetectR:				;@ Handy detection register (0xFD97)
 ;@----------------------------------------------------------------------------
 	mov r0,#42
 	bx lr
@@ -764,7 +772,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD8A IODIR
 	.long miIODatW				;@ 0xFD8B IODAT
 	.long mikiePoke				;@ 0xFD8C SERCTL
-	.long mikiePoke				;@ 0xFD8D SERDAT
+	.long miSerDatW				;@ 0xFD8D SERDAT
 	.long miUnmappedW			;@ 0xFD8E
 	.long miUnmappedW			;@ 0xFD8F
 
@@ -1417,6 +1425,33 @@ miIODatW:					;@ IO-Data (0xFD8B)
 	and r1,r1,#0x02
 	b cartAddressData
 
+;@----------------------------------------------------------------------------
+miSerDatW:					;@ Serial Data (0xFD8D)
+;@----------------------------------------------------------------------------
+	;@ Fake transmission, set counter to be decremented by Timer 4
+	;@
+	;@ ComLynx only has one output pin, hence Rx & Tx are shorted
+	;@ therefore any transmitted data will loopback
+	str r1,[mikptr,#uart_RX_DATA]
+	;@ Calculate Parity data
+	ldr r0,[mikptr,#uart_PARITY_ENABLE]
+	cmp r0,#0
+	beq noSerParity
+	;@ Calc parity value
+	;@ Leave at zero !!
+	b serParity
+noSerParity:
+	;@ If disabled then the PAREVEN bit is sent
+	ldr r2,[mikptr,#uart_PARITY_EVEN]
+	cmp r2,#0
+	orrne r1,r1,#0x100
+serParity:
+	;@ Set countdown to transmission
+	mov r0,#UART_TX_TIME_PERIOD
+	ldr r0,[mikptr,#uart_TX_COUNTDOWN]
+	;@ Loop back what we transmitted
+	mov r0,r1
+	b mikieComLynxTxLoopback
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------

@@ -28,6 +28,14 @@ extern "C" {
 /** Game screen height in pixels */
 #define GAME_HEIGHT (102)
 
+#define UART_TX_INACTIVE	0x80000000
+#define UART_RX_INACTIVE	0x80000000
+#define UART_BREAK_CODE		0x00008000
+#define	UART_MAX_RX_QUEUE	32
+#define UART_TX_TIME_PERIOD	(11)
+#define UART_RX_TIME_PERIOD	(11)
+#define UART_RX_NEXT_DELAY	(44)
+
 #define BORROW_OUT (1<<0)
 #define BORROW_IN (1<<1)
 #define LAST_CLOCK (1<<2)
@@ -203,6 +211,10 @@ typedef struct {
 	u32 uart_TX_DATA;
 	u32 uart_RX_DATA;
 	u32 uart_RX_READY;
+	u32 uart_Rx_input_ptr;
+	u32 uart_Rx_output_ptr;
+	int uart_Rx_waiting;
+	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 
 	MTIMER timer0;
 	MTIMER timer1;
@@ -220,8 +232,13 @@ typedef struct {
 
 	void *mikSuzyPtr;		// Pointer to Suzy object.
 	void *mikCartPtr;		// Pointer to LynxCart object.
-	void (*mikNmiFunction)(bool pin);	// NMI callback
-	void (*mikIrqFunction)(bool pin);	// IRQ callback
+	u32 txCallbackObj;	// TX Callback object.
+	/// TX callback
+	void (*txFunction)(int data, u32 objref);
+	/// NMI callback
+	void (*mikNmiFunction)(bool pin);
+	/// IRQ callback
+	void (*mikIrqFunction)(bool pin);
 	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
 	void (*mikFrameCallback)(void);
 
@@ -252,6 +269,12 @@ int mikeyLoadState(MIKEY *chip, const void *source);
  * @return The size of the state.
  */
 int mikeyGetStateSize(void);
+
+void ComLynxCable(MIKEY *chip, bool inserted);
+
+void ComLynxRxData(MIKEY *chip, int data);
+
+void ComLynxTxCallback(MIKEY *chip, void (*function)(int data, u32 objref), u32 objref);
 
 #ifdef __cplusplus
 } // extern "C"

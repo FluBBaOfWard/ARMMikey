@@ -199,6 +199,10 @@ uart_TX_COUNTDOWN:	.long 0
 uart_TX_DATA:		.long 0
 uart_RX_DATA:		.long 0
 uart_RX_READY:		.long 0
+uart_Rx_input_ptr:	.long 0
+uart_Rx_output_ptr:	.long 0
+uart_Rx_waiting:	.long 0
+uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 
 timer0:				.space mikTimerSize
 timer1:				.space mikTimerSize
@@ -218,6 +222,8 @@ mikeyStateEnd:
 
 mikSuzyPtr:			.long 0		;@ Pointer to Suzy object.
 mikCartPtr:			.long 0		;@ Pointer to LynxCart object.
+mikTxCallbackObj:	.long 0		;@ TX Callback object.
+mikTxFunction:		.long 0		;@ TX function
 mikNmiFunction:		.long 0		;@ NMI function
 mikIrqFunction:		.long 0		;@ IRQ function
 

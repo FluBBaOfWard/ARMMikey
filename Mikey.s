@@ -16,6 +16,9 @@
 	.global mikeySaveState
 	.global mikeyLoadState
 	.global mikeyGetStateSize
+	.global ComLynxCable
+	.global ComLynxRxData
+	.global ComLynxTxCallback
 	.global mikSysUpdate
 	.global mikeyRead
 	.global mikeyWrite
@@ -35,7 +38,7 @@ mikeyInit:				;@ Only need to be called once
 ;@----------------------------------------------------------------------------
 	mov r0,mikptr
 	ldr r1,=mikeySize/4
-	b memclr_					;@ Clear Mikey state
+	b memclr_					;@ Clear Mikey object
 	bx lr
 ;@----------------------------------------------------------------------------
 mikeyReset:				;@ r10=mikptr
@@ -1551,6 +1554,25 @@ miRefW:						;@ 0x2001, Last scan line.
 	b setScreenRefresh
 
 
+;@----------------------------------------------------------------------------
+ComLynxCable:				;@ In r0=MIKEY, r1=inserted
+;@----------------------------------------------------------------------------
+	strb r1,[r0,#mikSerCablePresent]
+	bx lr
+;@----------------------------------------------------------------------------
+ComLynxRxData:				;@ In r0=MIKEY, r1=data
+;@----------------------------------------------------------------------------
+	bx lr
+;@----------------------------------------------------------------------------
+ComLynxTxLoopback:			;@ In r0=MIKEY, r1=data
+;@----------------------------------------------------------------------------
+	bx lr
+;@----------------------------------------------------------------------------
+ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
+;@----------------------------------------------------------------------------
+	str r1,[r0,#mikTxFunction]
+	str r2,[r0,#mikTxFunction]
+	bx lr
 ;@----------------------------------------------------------------------------
 mikSysUpdate:
 ;@----------------------------------------------------------------------------

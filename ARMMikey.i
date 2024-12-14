@@ -36,14 +36,12 @@ LAST_COUNT:			.long 0
 mikTimerSize:
 
 
-
 	.struct 0
 BKUP:				.long 0
 CURRENT2:			.long 0
 LAST_COUNT2:		.long 0
 WAVESHAPER:			.long 0
 mikAudioSize:
-
 
 
 	mikptr		.req m6502ptr
@@ -199,10 +197,10 @@ uart_TX_COUNTDOWN:	.long 0
 uart_TX_DATA:		.long 0
 uart_RX_DATA:		.long 0
 uart_RX_READY:		.long 0
+uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 uart_Rx_input_ptr:	.long 0
 uart_Rx_output_ptr:	.long 0
 uart_Rx_waiting:	.long 0
-uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 
 timer0:				.space mikTimerSize
 timer1:				.space mikTimerSize

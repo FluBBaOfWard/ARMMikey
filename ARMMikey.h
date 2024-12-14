@@ -211,10 +211,10 @@ typedef struct {
 	u32 uart_TX_DATA;
 	u32 uart_RX_DATA;
 	u32 uart_RX_READY;
+	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 	u32 uart_Rx_input_ptr;
 	u32 uart_Rx_output_ptr;
 	int uart_Rx_waiting;
-	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 
 	MTIMER timer0;
 	MTIMER timer1;
@@ -274,10 +274,12 @@ void ComLynxCable(MIKEY *chip, bool inserted);
 
 void ComLynxRxData(MIKEY *chip, int data);
 
+void ComLynxTxLoopback(MIKEY *chip, int data);
+
 void ComLynxTxCallback(MIKEY *chip, void (*function)(int data, u32 objref), u32 objref);
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif // SVVIDEO_HEADER
+#endif // MIKEY_HEADER

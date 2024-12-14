@@ -18,6 +18,7 @@
 	.global mikeyGetStateSize
 	.global ComLynxCable
 	.global ComLynxRxData
+	.global ComLynxTxLoopback
 	.global ComLynxTxCallback
 	.global mikSysUpdate
 	.global mikeyRead
@@ -1476,8 +1477,9 @@ miSerCtlW:					;@ Serial Control (0xFD8C)
 	mov r0,#UART_TX_TIME_PERIOD
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
-	mov r0,#UART_BREAK_CODE
-	b mikieComLynxTxLoopback
+	mov r0,mikptr
+	mov r1,#UART_BREAK_CODE
+	b ComLynxTxLoopback
 ;@----------------------------------------------------------------------------
 miSerDatW:					;@ Serial Data (0xFD8D)
 ;@----------------------------------------------------------------------------
@@ -1503,8 +1505,8 @@ serParity:
 	mov r0,#UART_TX_TIME_PERIOD
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
-	mov r0,r1
-	b mikieComLynxTxLoopback
+	mov r0,mikptr
+	b ComLynxTxLoopback
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
@@ -1562,10 +1564,46 @@ ComLynxCable:				;@ In r0=MIKEY, r1=inserted
 ;@----------------------------------------------------------------------------
 ComLynxRxData:				;@ In r0=MIKEY, r1=data
 ;@----------------------------------------------------------------------------
+	;@ Copy over the data
+	ldr r2,[r0,#uart_Rx_waiting]
+	cmp r2,#UART_MAX_RX_QUEUE
+	bxcs lr						;@ UART RX Overun
+	;@ Trigger incoming receive IF none waiting otherwise
+	;@ we NEVER get to receive it!!!
+	cmp r2,#0
+	moveq r3,#UART_RX_TIME_PERIOD
+	streq r3,[r0,#uart_RX_COUNTDOWN]
+	add r2,r2,#1
+	str r2,[r0,#uart_Rx_waiting]
+	;@ Receive the byte
+	add r2,mikptr,#uart_Rx_input_queue
+	ldr r3,[r0,#uart_Rx_input_ptr]
+	str r1,[r2,r3]
+	add r3,r3,#1
+	and r3,r3,#UART_MAX_RX_QUEUE-1
+	str r3,[r0,#uart_Rx_input_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxTxLoopback:			;@ In r0=MIKEY, r1=data
 ;@----------------------------------------------------------------------------
+	;@ Copy over the data
+	ldr r2,[r0,#uart_Rx_waiting]
+	cmp r2,#UART_MAX_RX_QUEUE
+	bxcs lr						;@ UART RX Overun
+	;@ Trigger incoming receive IF none waiting otherwise
+	;@ we NEVER get to receive it!!!
+	cmp r2,#0
+	moveq r3,#UART_RX_TIME_PERIOD
+	streq r3,[r0,#uart_RX_COUNTDOWN]
+	add r2,r2,#1
+	str r2,[r0,#uart_Rx_waiting]
+	;@ Receive the byte
+	add r2,mikptr,#uart_Rx_input_queue
+	ldr r3,[r0,#uart_Rx_output_ptr]
+	sub r3,r3,#1
+	and r3,r3,#UART_MAX_RX_QUEUE-1
+	str r1,[r2,r3]
+	str r3,[r0,#uart_Rx_output_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref

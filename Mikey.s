@@ -1028,9 +1028,8 @@ miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
 miTimCtlBW:					;@ Timer X Control B (0xFDX3)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0x0F
-	and r0,r0,#0xFF
-	add r2,mikptr,#mikRegs
-	strb r1,[r2,r0]
+	add r2,r2,#mikRegs
+	strb r1,[mikptr,r2]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1338,6 +1337,7 @@ miAud3CtlW:					;@ Audio 3 Control (0xFD3D)
 	strne r0,[mikptr,#audio3+LAST_COUNT2]
 	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
+
 ;@----------------------------------------------------------------------------
 miAud0CountW:				;@ Audio 0 Count (0xFD26)
 ;@----------------------------------------------------------------------------

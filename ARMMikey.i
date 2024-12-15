@@ -166,18 +166,20 @@ mikPaletteBR:		.space 0x10	;@ 0xB0-0xBF Blue/Red palette
 
 ;@----------------------------------------------------------------------------
 mikPalette:			.space 16*4	;@ Merged palette
+uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 paletteChanged:		.byte 0
 mikLCDVSize:		.byte 0		;@ 0x01 LCD Vertical Size
 mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 mikSerCablePresent:	.byte 0
 ioDatRestSignal:	.byte 0
+mikFrameFinnished:	.byte 0
 timerStatusFlags:	.byte 0		;@
 timerInterruptMask:	.byte 0		;@
 systemCPUSleep:		.byte 0
 memSelector:		.byte 0
 uart_Rx_framing_error:	.byte 0
 uart_Rx_overun_error:	.byte 0
-mikPadding6:		.skip 1
+mikPadding6:		.skip 4
 
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
@@ -197,7 +199,6 @@ uart_TX_COUNTDOWN:	.long 0
 uart_TX_DATA:		.long 0
 uart_RX_DATA:		.long 0
 uart_RX_READY:		.long 0
-uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 uart_Rx_input_ptr:	.long 0
 uart_Rx_output_ptr:	.long 0
 uart_Rx_waiting:	.long 0

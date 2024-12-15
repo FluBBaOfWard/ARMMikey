@@ -1555,7 +1555,6 @@ miRefW:						;@ 0x2001, Last scan line.
 	mov r0,r1
 	b setScreenRefresh
 
-
 ;@----------------------------------------------------------------------------
 ComLynxCable:				;@ In r0=MIKEY, r1=inserted
 ;@----------------------------------------------------------------------------
@@ -1615,6 +1614,8 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 mikSysUpdate:
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4-r11,lr}
+	mov r0,#0
+	strb r0,[mikptr,#mikFrameFinnished]
 	ldr r4,[mikptr,#systemCycleCount]
 	ldr r5,=159*105*16			;@ Cycle count for 60Hz frame.
 	add r5,r5,r4
@@ -1646,7 +1647,9 @@ sysLoop:
 	add r0,r0,#1
 	add r4,r4,r0
 sysUpdExit:
-	cmp r4,r5
+	ldrb r0,[mikptr,#mikFrameFinnished]
+	cmp r0,#1
+	cmpmi r4,r5
 	bmi sysLoop
 	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	ldmfd sp!,{r4-r11,lr}
@@ -1717,7 +1720,7 @@ noSuzy:
 	bl miRunTimer6
 
 //	if (gAudioEnabled)
-//	bl UpdateSound
+//	bl updateSound
 
 	ldrb r0,[mikptr,#timerStatusFlags]
 	ldrb r1,[mikptr,#systemCPUSleep]
@@ -1780,21 +1783,22 @@ noLatch:
 	ldr pc,[mikptr,#mikLineCallback]
 	ldmfd sp!,{lr}
 	mov r0,#0
-	strb r0,[mikptr,#paletteChanged]	;@ Palette changed?
+	strb r0,[mikptr,#paletteChanged]	;@ Clear Palette changed.
 	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
 	bx lr
 
 ;@----------------------------------------------------------------------------
 mikDisplayEndOfFrame:
 ;@----------------------------------------------------------------------------
-// Stop any further line rendering
+	mov r0,#1
+	strb r0,[mikptr,#mikFrameFinnished]
+	// Stop any further line rendering
 	mov r0,#0
 	str r0,[mikptr,#lynxLineDMACounter]
 	str r0,[mikptr,#lynxLine]
-// Trigger the callback to the display sub-system to render the
-// display.
-	ldr r0,[mikptr,#mikFrameCallback]
-	bx r0
+	// Trigger the callback to the display sub-system to render the
+	// display.
+	ldr pc,[mikptr,#mikFrameCallback]
 
 ;@----------------------------------------------------------------------------
 miRunTimer0:				;@ in r4=systemCycleCount

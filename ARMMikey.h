@@ -180,18 +180,20 @@ typedef struct {
 
 //------------------------------
 	u32 palette[16];		// Merged palette
+	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 	u8 paletteChanged;		// Palette updated since last render.
 	u8 mikLCDVSize;			// 0x01 LCD Y Size
 	u8 mikSOC;				// HOWARD or HOWARD2
 	u8 serCablePresent;
 	u8 ioDatRestSignal;
+	u8 frameFinnished;
 	u8 timerStatusFlags;
 	u8 timerInterruptMask;
 	u8 systemCPUSleep;
 	u8 memSelector;
 	u8 uart_Rx_framing_error;
 	u8 uart_Rx_overun_error;
-	u8 padding6[1];
+	u8 padding6[4];
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
@@ -211,7 +213,6 @@ typedef struct {
 	u32 uart_TX_DATA;
 	u32 uart_RX_DATA;
 	u32 uart_RX_READY;
-	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 	u32 uart_Rx_input_ptr;
 	u32 uart_Rx_output_ptr;
 	int uart_Rx_waiting;
@@ -232,7 +233,7 @@ typedef struct {
 
 	void *mikSuzyPtr;		// Pointer to Suzy object.
 	void *mikCartPtr;		// Pointer to LynxCart object.
-	u32 txCallbackObj;	// TX Callback object.
+	u32 txCallbackObj;		// TX Callback object.
 	/// TX callback
 	void (*txFunction)(int data, u32 objref);
 	/// NMI callback

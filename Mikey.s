@@ -384,11 +384,11 @@ miRegR:
 ;@----------------------------------------------------------------------------
 miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r0,r4,lr}
+	stmfd sp!,{r2,r4,lr}
 	ldr r4,[mikptr,#systemCycleCount]
 	bl mikUpdate
 	str r4,[mikptr,#systemCycleCount]
-	ldmfd sp!,{r0,r4,lr}
+	ldmfd sp!,{r2,r4,lr}
 	b miRegR
 
 ;@----------------------------------------------------------------------------
@@ -1575,9 +1575,9 @@ ComLynxRxData:				;@ In r0=MIKEY, r1=data
 	add r2,r2,#1
 	str r2,[r0,#uart_Rx_waiting]
 	;@ Receive the byte
-	add r2,mikptr,#uart_Rx_input_queue
 	ldr r3,[r0,#uart_Rx_input_ptr]
-	str r1,[r2,r3]
+	add r2,r0,#uart_Rx_input_queue
+	str r1,[r2,r3,lsl#2]
 	add r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
 	str r3,[r0,#uart_Rx_input_ptr]
@@ -1597,11 +1597,11 @@ ComLynxTxLoopback:			;@ In r0=MIKEY, r1=data
 	add r2,r2,#1
 	str r2,[r0,#uart_Rx_waiting]
 	;@ Receive the byte
-	add r2,mikptr,#uart_Rx_input_queue
 	ldr r3,[r0,#uart_Rx_output_ptr]
+	add r2,r0,#uart_Rx_input_queue
 	sub r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
-	str r1,[r2,r3]
+	str r1,[r2,r3,lsl#2]
 	str r3,[r0,#uart_Rx_output_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------

@@ -110,32 +110,33 @@ mikeySaveState:			;@ In r0=destination, r1=mikptr. Out r0=state size.
 	mov r5,r1					;@ Store mikptr (r1)
 
 	add r1,r5,#mikeyState
-	mov r2,#mikeyStateEnd-mikeyState
+	mov r2,#mikeyStateSize
 	bl memCopy
 
 	ldmfd sp!,{r4,r5,lr}
-	mov r0,#mikeyStateEnd-mikeyState
+	mov r0,#mikeyStateSize
 	bx lr
 ;@----------------------------------------------------------------------------
 mikeyLoadState:			;@ In r0=mikptr, r1=source. Out r0=state size.
 	.type	mikeyLoadState STT_FUNC
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r4,r5,r10,lr}
+	stmfd sp!,{r4,r5,lr}
 	mov r5,r0					;@ Store mikptr (r0)
 	mov r4,r1					;@ Store source
 
 	add r0,r5,#mikeyState
-	mov r2,#mikeyStateEnd-mikeyState
+	mov r2,#mikeyStateSize
 	bl memCopy
 
-	bl clearDirtyTiles
+	mov r0,#1
+	strb r0,[r5,paletteChanged]
 
-	ldmfd sp!,{r4,r5,r10,lr}
+	ldmfd sp!,{r4,r5,lr}
 ;@----------------------------------------------------------------------------
 mikeyGetStateSize:		;@ Out r0=state size.
 	.type	mikeyGetStateSize STT_FUNC
 ;@----------------------------------------------------------------------------
-	mov r0,#mikeyStateEnd-mikeyState
+	mov r0,#mikeyStateSize
 	bx lr
 
 	.pool
@@ -2288,18 +2289,6 @@ tim6NoCount:
 	strmi r2,[mikptr,#nextTimerEvent]
 	ldmfd sp!,{r6-r7}
 	bx lr
-
-;@----------------------------------------------------------------------------
-newFrame:					;@ Called before line 0
-;@----------------------------------------------------------------------------
-	bx lr
-;@----------------------------------------------------------------------------
-endFrame:
-;@----------------------------------------------------------------------------
-	stmfd sp!,{lr}
-	bl gfxEndFrame
-
-	ldmfd sp!,{pc}
 
 ;@----------------------------------------------------------------------------
 #endif // #ifdef __arm__

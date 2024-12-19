@@ -1,7 +1,7 @@
 ARMMikey revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-V0.0.2 - 2024-12-11 (FluBBa)
+V0.0.3 - 2024-12-21 (FluBBa)
 	Initial release (NDS).
 
 V0.0.1 - 2024-10-14 (FluBBa)

@@ -1,1 +1,1 @@
-#define ARMMIKEYVERSION "V0.0.2"
+#define ARMMIKEYVERSION "V0.0.3"

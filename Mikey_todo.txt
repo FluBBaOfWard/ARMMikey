@@ -1,5 +1,4 @@
 ARMMikey To do
 -------------------------------
 
-	Implement Timer 4/UART.
 	Implement audio channels.

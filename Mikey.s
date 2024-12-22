@@ -18,7 +18,6 @@
 	.global mikeyGetStateSize
 	.global ComLynxCable
 	.global ComLynxRxData
-	.global ComLynxTxLoopback
 	.global ComLynxTxCallback
 	.global mikSysUpdate
 	.global mikeyRead
@@ -91,6 +90,11 @@ _debugIOUnimplR:
 _debugIOUnmappedW:
 ;@----------------------------------------------------------------------------
 	ldr r3,=debugIOUnmappedW
+	bx r3
+;@----------------------------------------------------------------------------
+_debugIOUnimplW:
+;@----------------------------------------------------------------------------
+	ldr r3,=debugIOUnimplW
 	bx r3
 ;@----------------------------------------------------------------------------
 memCopy:
@@ -611,7 +615,7 @@ miSerCtlR:					;@ Serial Control (0xFD8C)
 	ldr r0,[mikptr,#uart_TX_COUNTDOWN]
 	ands r0,r0,#UART_TX_INACTIVE
 	movne r0,#0xA0				;@ Indicate TxDone & TxAllDone
-	ldr r1,[mikptr,#uart_RX_READY]
+	ldrb r1,[mikptr,#uart_RX_READY]
 	cmp r1,#0
 	orrne r0,r0,#0x40			;@ Indicate Rx data ready
 	ldrb r1,[mikptr,#uart_Rx_overun_error]
@@ -630,9 +634,8 @@ miSerCtlR:					;@ Serial Control (0xFD8C)
 miSerDatR:					;@ Serial Data (0xFD8D)
 ;@----------------------------------------------------------------------------
 	mov r1,#0
-	ldr r0,[mikptr,#uart_RX_DATA]
-	str r1,[mikptr,#uart_RX_READY]
-	and r0,r0,#0xFF
+	ldrb r0,[mikptr,#uart_RX_DATA]
+	strb r1,[mikptr,#uart_RX_READY]
 	bx lr
 ;@----------------------------------------------------------------------------
 miHandyDetectR:				;@ Handy detection register (0xFD97)
@@ -860,7 +863,7 @@ miImportantW:
 ;@----------------------------------------------------------------------------
 	add r2,r2,#mikRegs
 	strb r1,[mikptr,r2]
-	b debugIOUnimplW
+	b _debugIOUnimplW
 ;@----------------------------------------------------------------------------
 miReadOnlyW:
 ;@----------------------------------------------------------------------------
@@ -1456,31 +1459,17 @@ miIODatW:					;@ IO-Data (0xFD8B)
 miSerCtlW:					;@ Serial Control (0xFD8C)
 ;@----------------------------------------------------------------------------
 	strb r1,[mikptr,#mikSerCtl]
-	ands r0,r1,#0x80
-	movne r0,#1
-	str r0,[mikptr,#uart_TX_IRQ_ENABLE]
-	ands r0,r1,#0x40
-	movne r0,#1
-	str r0,[mikptr,#uart_RX_IRQ_ENABLE]
-	ands r0,r1,#0x10
-	movne r0,#1
-	str r0,[mikptr,#uart_PARITY_ENABLE]
-	and r2,r1,#0x02
-	str r2,[mikptr,#uart_SENDBREAK]
-	and r0,r1,#0x01
-	str r0,[mikptr,#uart_PARITY_EVEN]
-	tst r1,#0x08
+	tst r1,#0x08				;@ Reset Errors?
 	movne r0,#0
 	strbne r0,[mikptr,#uart_Rx_framing_error]
 	strbne r0,[mikptr,#uart_Rx_overun_error]
 
-	cmp r2,#0
+	tst r1,#0x02
 	bxeq lr
 	;@ Trigger send break, it will self sustain as long as sendbreak is set
 	mov r0,#UART_TX_TIME_PERIOD
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
-	mov r0,mikptr
 	mov r1,#UART_BREAK_CODE
 	b ComLynxTxLoopback
 ;@----------------------------------------------------------------------------
@@ -1490,25 +1479,24 @@ miSerDatW:					;@ Serial Data (0xFD8D)
 	;@
 	;@ ComLynx only has one output pin, hence Rx & Tx are shorted
 	;@ therefore any transmitted data will loopback
-	str r1,[mikptr,#uart_RX_DATA]
+	str r1,[mikptr,#uart_TX_DATA]
 	;@ Calculate Parity data
-	ldr r0,[mikptr,#uart_PARITY_ENABLE]
-	cmp r0,#0
+	ldrb r0,[mikptr,#mikSerCtl]
+	tst r0,#0x10					;@ uart_PARITY_ENABLE
 	beq noSerParity
 	;@ Calc parity value
 	;@ Leave at zero !!
 	b serParity
 noSerParity:
 	;@ If disabled then the PAREVEN bit is sent
-	ldr r2,[mikptr,#uart_PARITY_EVEN]
-	cmp r2,#0
+	ldrb r2,[mikptr,#mikSerCtl]
+	tst r2,#0x01					;@ uart_PARITY_EVEN
 	orrne r1,r1,#0x100
 serParity:
 	;@ Set countdown to transmission
 	mov r0,#UART_TX_TIME_PERIOD
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
-	mov r0,mikptr
 	b ComLynxTxLoopback
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
@@ -1586,26 +1574,26 @@ ComLynxRxData:				;@ In r0=MIKEY, r1=data
 	str r3,[r0,#uart_Rx_input_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
-ComLynxTxLoopback:			;@ In r0=MIKEY, r1=data
+ComLynxTxLoopback:			;@ In r1=data
 ;@----------------------------------------------------------------------------
 	;@ Copy over the data
-	ldr r2,[r0,#uart_Rx_waiting]
+	ldr r2,[mikptr,#uart_Rx_waiting]
 	cmp r2,#UART_MAX_RX_QUEUE
 	bxcs lr						;@ UART RX Overun
 	;@ Trigger incoming receive IF none waiting otherwise
 	;@ we NEVER get to receive it!!!
 	cmp r2,#0
 	moveq r3,#UART_RX_TIME_PERIOD
-	streq r3,[r0,#uart_RX_COUNTDOWN]
+	streq r3,[mikptr,#uart_RX_COUNTDOWN]
 	add r2,r2,#1
-	str r2,[r0,#uart_Rx_waiting]
+	str r2,[mikptr,#uart_Rx_waiting]
 	;@ Receive the byte
-	ldr r3,[r0,#uart_Rx_output_ptr]
-	add r2,r0,#uart_Rx_input_queue
+	ldr r3,[mikptr,#uart_Rx_output_ptr]
+	add r2,mikptr,#uart_Rx_input_queue
 	sub r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
 	str r1,[r2,r3,lsl#2]
-	str r3,[r0,#uart_Rx_output_ptr]
+	str r3,[mikptr,#uart_Rx_output_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
@@ -1613,6 +1601,13 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 	str r1,[r0,#mikTxFunction]
 	str r2,[r0,#mikTxFunction]
 	bx lr
+
+
+#ifdef NDS
+	.section .itcm						;@ For the NDS ARM9
+#elif GBA
+	.section .iwram, "ax", %progbits	;@ For the GBA
+#endif
 ;@----------------------------------------------------------------------------
 mikSysUpdate:
 ;@----------------------------------------------------------------------------
@@ -1713,8 +1708,6 @@ noSuzy:
 	blne mikDisplayEndOfFrame
 
 	bl miRunTimer4
-//	mov r0,r4					;@ sysCycCnt as arg.
-//	bl runTimer4
 	bl miRunTimer6
 
 	bl miRunTimer1
@@ -1989,11 +1982,11 @@ noUartFetch:
 	movhi r0,#UART_RX_TIME_PERIOD + UART_RX_NEXT_DELAY
 	movle r0,#UART_RX_INACTIVE
 	str r0,[mikptr,#uart_RX_COUNTDOWN]
-	ldr r0,[mikptr,#uart_RX_READY]
+	ldrb r0,[mikptr,#uart_RX_READY]
 	cmp r0,#0
 	mov r0,#1
 	strbne r0,[mikptr,#uart_Rx_overun_error]
-	streq r0,[mikptr,#uart_RX_READY]
+	strbeq r0,[mikptr,#uart_RX_READY]
 noUartRx:
 
 // Handle UART TX here
@@ -2001,8 +1994,8 @@ noUartRx:
 	subs r0,r0,#1
 	strcs r0,[mikptr,#uart_TX_COUNTDOWN]
 	bne noUartTx
-	ldr r0,[mikptr,#uart_SENDBREAK]
-	cmp r0,#0
+	ldrb r0,[mikptr,#mikSerCtl]
+	tst r0,#0x02				;@ uart_SENDBREAK
 	moveq r3,#UART_TX_INACTIVE
 	movne r3,#UART_TX_TIME_PERIOD
 	str r3,[mikptr,#uart_TX_COUNTDOWN]
@@ -2010,7 +2003,6 @@ noUartRx:
 	stmfd sp!,{r1-r2,lr}
 	mov r1,#UART_BREAK_CODE
 	str r1,[mikptr,#uart_TX_DATA]
-	mov r0,mikptr
 	bl ComLynxTxLoopback
 	ldmfd sp!,{r1-r2,lr}
 noLoopBack:
@@ -2057,7 +2049,7 @@ miUpdateUartIrq:
 
 	// Is data waiting and the interrupt enabled
 	tst r1,#0x40				;@ RX int enabled?
-	ldrne r2,[mikptr,#uart_RX_READY]
+	ldrbne r2,[mikptr,#uart_RX_READY]
 	cmpne r2,#0
 	orrne r0,r0,#1<<4			;@
 

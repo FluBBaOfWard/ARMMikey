@@ -179,7 +179,8 @@ systemCPUSleep:		.byte 0
 memSelector:		.byte 0
 uart_Rx_framing_error:	.byte 0
 uart_Rx_overun_error:	.byte 0
-mikPadding6:		.skip 4
+uart_RX_READY:		.byte 0
+mikPadding6:		.skip 3
 
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
@@ -189,16 +190,10 @@ nextTimerEvent:		.long 0
 suzieDoneTime:		.long 0
 audioLastUpdateCycle:	.long 0
 
-uart_RX_IRQ_ENABLE:	.long 0
-uart_TX_IRQ_ENABLE:	.long 0
-uart_PARITY_ENABLE:	.long 0
-uart_PARITY_EVEN:	.long 0
-uart_SENDBREAK:		.long 0
 uart_RX_COUNTDOWN:	.long 0
 uart_TX_COUNTDOWN:	.long 0
 uart_TX_DATA:		.long 0
 uart_RX_DATA:		.long 0
-uart_RX_READY:		.long 0
 uart_Rx_input_ptr:	.long 0
 uart_Rx_output_ptr:	.long 0
 uart_Rx_waiting:	.long 0

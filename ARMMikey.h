@@ -193,7 +193,8 @@ typedef struct {
 	u8 memSelector;
 	u8 uart_Rx_framing_error;
 	u8 uart_Rx_overun_error;
-	u8 padding6[4];
+	u8 uart_RX_READY;
+	u8 padding6[3];
 
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
@@ -203,16 +204,10 @@ typedef struct {
 	u32 suzieDoneTime;
 	u32 audioLastUpdateCycle;
 
-	u32 uart_RX_IRQ_ENABLE;
-	u32 uart_TX_IRQ_ENABLE;
-	u32 uart_PARITY_ENABLE;
-	u32 uart_PARITY_EVEN;
-	u32 uart_SENDBREAK;
 	u32 uart_RX_COUNTDOWN;
 	u32 uart_TX_COUNTDOWN;
 	u32 uart_TX_DATA;
 	u32 uart_RX_DATA;
-	u32 uart_RX_READY;
 	u32 uart_Rx_input_ptr;
 	u32 uart_Rx_output_ptr;
 	int uart_Rx_waiting;
@@ -274,8 +269,6 @@ int mikeyGetStateSize(void);
 void ComLynxCable(MIKEY *chip, bool inserted);
 
 void ComLynxRxData(MIKEY *chip, int data);
-
-void ComLynxTxLoopback(MIKEY *chip, int data);
 
 void ComLynxTxCallback(MIKEY *chip, void (*function)(int data, u32 objref), u32 objref);
 

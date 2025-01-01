@@ -196,6 +196,7 @@ typedef struct {
 	u8 uart_RX_READY;
 	u8 padding6[3];
 
+	u32 cyclesPerFrame;
 	u32 lynxLineDMACounter;
 	u32 lynxLine;
 	u32 lynxAddr;

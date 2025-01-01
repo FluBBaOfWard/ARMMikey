@@ -22,7 +22,7 @@
 	.global mikSysUpdate
 	.global mikeyRead
 	.global mikeyWrite
-	.global miRefW
+	.global miPBackupW
 
 	.syntax unified
 	.arm
@@ -68,6 +68,9 @@ mikeyReset:				;@ r10=mikptr
 	str r2,[mikptr,#mikGfxRAM]
 
 	strb r3,[mikptr,#mikSOC]
+
+	ldr r0,=159*105*16			;@ Cycle count for 60Hz frame.
+	str r0,[mikptr,#mikCyclesPerFrame]
 
 	ldr r0,=suzy_0
 	str r0,[mikptr,#mikSuzyPtr]
@@ -808,7 +811,7 @@ io_write_tbl:
 	.long miRegW				;@ 0xFD90 SDONEACK
 	.long miCpuSleepW			;@ 0xFD91 CPUSLEEP
 	.long miRegW				;@ 0xFD92 DISPCTL
-	.long miImportantW			;@ 0xFD93 PBKUP
+	.long miPBackupW			;@ 0xFD93 PBKUP
 	.long miRegW				;@ 0xFD94 DISPADR/DISPADRL
 	.long miRegW				;@ 0xFD95 DISPADRH
 	.long miUnmappedW			;@ 0xFD96
@@ -1512,6 +1515,18 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 	strb r0,[mikptr,#systemCPUSleep]
 	bx lr
 ;@----------------------------------------------------------------------------
+miPBackupW:					;@ 0xFD93 PBKUP
+;@----------------------------------------------------------------------------
+	strb r1,[mikptr,#mikPBkup]
+	ldrb r0,[mikptr,#mikTim0Bkup]
+	ldrb r1,[mikptr,#mikTim2Bkup]
+	add r0,r0,#1
+	add r1,r1,#1
+	mul r0,r1,r0
+	mov r0,r0,lsl#4
+	str r0,[mikptr,#mikCyclesPerFrame]
+	b setScreenRefresh
+;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------
 	strb r0,[mikptr,#paletteChanged]	;@ Mark palette changed
@@ -1533,18 +1548,6 @@ miPaletteBRW:				;@ Blue & Red Palette (0xFDBX)
 	add r2,mikptr,#mikPalette
 	strb r1,[r2,r0,lsl#2]
 	bx lr
-
-;@----------------------------------------------------------------------------
-miRefW:						;@ 0x2001, Last scan line.
-;@----------------------------------------------------------------------------
-	strb r1,[mikptr,#mikLCDVSize]
-	cmp r1,#0x9E
-	movmi r1,#0x9E
-	cmp r1,#0xC8
-	movpl r1,#0xC8
-	add r1,r1,#1
-	mov r0,r1
-	b setScreenRefresh
 
 ;@----------------------------------------------------------------------------
 ComLynxCable:				;@ In r0=MIKEY, r1=inserted
@@ -1615,7 +1618,7 @@ mikSysUpdate:
 	mov r0,#0
 	strb r0,[mikptr,#mikFrameFinnished]
 	ldr r4,[mikptr,#systemCycleCount]
-	ldr r5,=159*105*16			;@ Cycle count for 60Hz frame.
+	ldr r5,[mikptr,#mikCyclesPerFrame]
 	add r5,r5,r4
 sysLoop:
 	ldr r0,[mikptr,#nextTimerEvent]

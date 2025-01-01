@@ -182,6 +182,7 @@ uart_Rx_overun_error:	.byte 0
 uart_RX_READY:		.byte 0
 mikPadding6:		.skip 3
 
+mikCyclesPerFrame:	.long 0
 lynxLineDMACounter:	.long 0
 lynxLine:			.long 0
 lynxAddr:			.long 0

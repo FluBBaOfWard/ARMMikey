@@ -1966,9 +1966,10 @@ miRunTimer4:				;@ in r4=systemCycleCount
 
 // Handle UART RX here
 	ldr r0,[mikptr,#uart_RX_COUNTDOWN]
-	subs r0,r0,#1
-	strcs r0,[mikptr,#uart_RX_COUNTDOWN]
-	bcs noUartRx
+	cmp r0,#0
+	subpl r0,r0,#1
+	strpl r0,[mikptr,#uart_RX_COUNTDOWN]
+	bne noUartRx
 	ldr r0,[mikptr,#uart_Rx_waiting]
 	cmp r0,#0
 	ble noUartFetch
@@ -1994,8 +1995,9 @@ noUartRx:
 
 // Handle UART TX here
 	ldr r0,[mikptr,#uart_TX_COUNTDOWN]
-	subs r0,r0,#1
-	strcs r0,[mikptr,#uart_TX_COUNTDOWN]
+	cmp r0,#0
+	subpl r0,r0,#1
+	strpl r0,[mikptr,#uart_TX_COUNTDOWN]
 	bne noUartTx
 	ldrb r0,[mikptr,#mikSerCtl]
 	tst r0,#0x02				;@ uart_SENDBREAK

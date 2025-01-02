@@ -3,7 +3,7 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
 //
 
 #include "ARM6502/M6502.i"
@@ -37,7 +37,6 @@ mikTimerSize:
 
 
 	.struct 0
-BKUP:				.long 0
 CURRENT2:			.long 0
 LAST_COUNT2:		.long 0
 WAVESHAPER:			.long 0
@@ -180,7 +179,9 @@ memSelector:		.byte 0
 uart_Rx_framing_error:	.byte 0
 uart_Rx_overun_error:	.byte 0
 uart_RX_READY:		.byte 0
-mikPadding6:		.skip 3
+uart_Rx_input_ptr:	.byte 0
+uart_Rx_output_ptr:	.byte 0
+mikPadding6:		.skip 1
 
 mikCyclesPerFrame:	.long 0
 lynxLineDMACounter:	.long 0
@@ -195,8 +196,6 @@ uart_RX_COUNTDOWN:	.long 0
 uart_TX_COUNTDOWN:	.long 0
 uart_TX_DATA:		.long 0
 uart_RX_DATA:		.long 0
-uart_Rx_input_ptr:	.long 0
-uart_Rx_output_ptr:	.long 0
 uart_Rx_waiting:	.long 0
 
 timer0:				.space mikTimerSize

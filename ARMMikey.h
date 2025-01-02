@@ -3,7 +3,7 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
 //
 
 #ifndef MIKEY_HEADER
@@ -55,7 +55,6 @@ typedef struct
 
 typedef struct
 {
-	u32 BKUP;
 	u32 CURRENT;
 	u32 LAST_COUNT;
 	u32 WAVESHAPER;
@@ -194,7 +193,9 @@ typedef struct {
 	u8 uart_Rx_framing_error;
 	u8 uart_Rx_overun_error;
 	u8 uart_RX_READY;
-	u8 padding6[3];
+	u8 uart_Rx_input_ptr;
+	u8 uart_Rx_output_ptr;
+	u8 padding6[1];
 
 	u32 cyclesPerFrame;
 	u32 lynxLineDMACounter;
@@ -209,8 +210,6 @@ typedef struct {
 	u32 uart_TX_COUNTDOWN;
 	u32 uart_TX_DATA;
 	u32 uart_RX_DATA;
-	u32 uart_Rx_input_ptr;
-	u32 uart_Rx_output_ptr;
 	int uart_Rx_waiting;
 
 	MTIMER timer0;

@@ -3,7 +3,7 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
 //
 
 #ifdef __arm__
@@ -190,37 +190,37 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD1F TIM7CTLB
 
 	.long miRegR				;@ 0xFD20 AUD0VOL
-	.long miAud0ShftFbR			;@ 0xFD21 AUD0SHFTFB
+	.long miRegR				;@ 0xFD21 AUD0SHFTFB
 	.long miRegR				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftR			;@ 0xFD23 AUD0L8SHFT
 	.long miAud0TBackR			;@ 0xFD24 AUD0TBACK
-	.long miAud0CtlR			;@ 0xFD25 AUD0CTL
-	.long miAud0CountR			;@ 0xFD26 AUD0COUNT
+	.long miRegR				;@ 0xFD25 AUD0CTL
+	.long miRegR				;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscR			;@ 0xFD27 AUD0MISC
 	.long miRegR				;@ 0xFD28 AUD1VOL
-	.long miAud1ShftFbR			;@ 0xFD29 AUD1SHFTFB
+	.long miRegR				;@ 0xFD29 AUD1SHFTFB
 	.long miRegR				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftR			;@ 0xFD2B AUD1L8SHFT
 	.long miAud1TBackR			;@ 0xFD2C AUD1TBACK
-	.long miAud1CtlR			;@ 0xFD2D AUD1CTL
-	.long miAud1CountR			;@ 0xFD2E AUD1COUNT
+	.long miRegR				;@ 0xFD2D AUD1CTL
+	.long miRegR				;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscR			;@ 0xFD2F AUD1MISC
 
 	.long miRegR				;@ 0xFD30 AUD2VOL
-	.long miAud2ShftFbR			;@ 0xFD31 AUD2SHFTFB
+	.long miRegR				;@ 0xFD31 AUD2SHFTFB
 	.long miRegR				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftR			;@ 0xFD33 AUD2L8SHFT
 	.long miAud2TBackR			;@ 0xFD34 AUD2TBACK
-	.long miAud2CtlR			;@ 0xFD35 AUD2CTL
-	.long miAud2CountR			;@ 0xFD36 AUD2COUNT
+	.long miRegR				;@ 0xFD35 AUD2CTL
+	.long miRegR				;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscR			;@ 0xFD37 AUD2MISC
 	.long miRegR				;@ 0xFD38 AUD3VOL
-	.long miAud3ShftFbR			;@ 0xFD39 AUD3SHFTFB
+	.long miRegR				;@ 0xFD39 AUD3SHFTFB
 	.long miRegR				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftR			;@ 0xFD3B AUD3L8SHFT
 	.long miAud3TBackR			;@ 0xFD3C AUD3TBACK
-	.long miAud3CtlR			;@ 0xFD3D AUD3CTL
-	.long miAud3CountR			;@ 0xFD3E AUD3COUNT
+	.long miRegR				;@ 0xFD3D AUD3CTL
+	.long miRegR				;@ 0xFD3E AUD3COUNT
 	.long miAud3MiscR			;@ 0xFD3F AUD3MISC
 
 		// Lynx2 Regs
@@ -400,35 +400,6 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 	b miRegR
 
 ;@----------------------------------------------------------------------------
-miAud0ShftFbR:				;@ Audio 0 Shift Feedback (0xFD21)
-;@----------------------------------------------------------------------------
-	ldr r0,[mikptr,#audio0+WAVESHAPER]
-	mov r0,r0,lsr#13
-	and r0,r0,#0xFF
-	bx lr
-;@----------------------------------------------------------------------------
-miAud1ShftFbR:				;@ Audio 1 Shift Feedback (0xFD29)
-;@----------------------------------------------------------------------------
-	ldr r0,[mikptr,#audio1+WAVESHAPER]
-	mov r0,r0,lsr#13
-	and r0,r0,#0xFF
-	bx lr
-;@----------------------------------------------------------------------------
-miAud2ShftFbR:				;@ Audio 2 Shift Feedback (0xFD31)
-;@----------------------------------------------------------------------------
-	ldr r0,[mikptr,#audio2+WAVESHAPER]
-	mov r0,r0,lsr#13
-	and r0,r0,#0xFF
-	bx lr
-;@----------------------------------------------------------------------------
-miAud3ShftFbR:				;@ Audio 3 Shift Feedback (0xFD39)
-;@----------------------------------------------------------------------------
-	ldr r0,[mikptr,#audio3+WAVESHAPER]
-	mov r0,r0,lsr#13
-	and r0,r0,#0xFF
-	bx lr
-
-;@----------------------------------------------------------------------------
 miAud0L8ShftR:				;@ Audio 0 L8 Shift (0xFD23)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#audio0+WAVESHAPER]
@@ -452,117 +423,59 @@ miAud3L8ShftR:				;@ Audio 3 L8 Shift (0xFD3B)
 ;@----------------------------------------------------------------------------
 miAud0TBackR:				;@ Audio 0 Timer Backup (0xFD24)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio0+BKUP]
+	ldrb r0,[mikptr,#mikAud0TBack]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1TBackR:				;@ Audio 1 Timer Backup (0xFD2C)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio1+BKUP]
+	ldrb r0,[mikptr,#mikAud1TBack]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2TBackR:				;@ Audio 2 Timer Backup (0xFD34)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio2+BKUP]
+	ldrb r0,[mikptr,#mikAud2TBack]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3TBackR:				;@ Audio 3 Timer Backup (0xFD3C)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio3+BKUP]
-	bx lr
-
-;@----------------------------------------------------------------------------
-miAud0CtlR:					;@ Audio 0 Control (0xFD25)
-;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio0+WAVESHAPER]
-	ldrb r0,[mikptr,#mikAud0Ctl]
-	tst r1,#0x10000
-	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
-	orrne r0,r0,#0x80
-	bx lr
-;@----------------------------------------------------------------------------
-miAud1CtlR:					;@ Audio 1 Control (0xFD2D)
-;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio1+WAVESHAPER]
-	ldrb r0,[mikptr,#mikAud1Ctl]
-	tst r1,#0x10000
-	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
-	orrne r0,r0,#0x80
-	bx lr
-;@----------------------------------------------------------------------------
-miAud2CtlR:					;@ Audio 2 Control (0xFD35)
-;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio2+WAVESHAPER]
-	ldrb r0,[mikptr,#mikAud2Ctl]
-	tst r1,#0x10000
-	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
-	orrne r0,r0,#0x80
-	bx lr
-;@----------------------------------------------------------------------------
-miAud3CtlR:					;@ Audio 3 Control (0xFD3D)
-;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio3+WAVESHAPER]
-	ldrb r0,[mikptr,#mikAud3Ctl]
-	tst r1,#0x10000
-	and r0,r0,#0x3F				;@ "Reset Timer Done" should not be preserved?
-	orrne r0,r0,#0x80
-	bx lr
-
-;@----------------------------------------------------------------------------
-miAud0CountR:				;@ Audio 0 Count (0xFD26)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio0+CURRENT2]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud1CountR:				;@ Audio 1 Count (0xFD2E)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio1+CURRENT2]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud2CountR:				;@ Audio 2 Count (0xFD36)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio2+CURRENT2]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud3CountR:				;@ Audio 3 Count (0xFD3E)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio3+CURRENT2]
+	ldrb r0,[mikptr,#mikAud3TBack]
 	bx lr
 
 ;@----------------------------------------------------------------------------
 miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio0+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud0Misc]
-	and r1,r1,#0xF00
+	ldrb r1,[mikptr,#audio0+WAVESHAPER+1]
 	and r0,r0,#0x0F
-	orr r0,r0,r1,lsr#4
+	and r1,r1,#0x0F
+	orr r0,r0,r1,lsl#4
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio1+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud1Misc]
-	and r1,r1,#0xF00
+	ldrb r1,[mikptr,#audio1+WAVESHAPER+1]
 	and r0,r0,#0x0F
-	orr r0,r0,r1,lsr#4
+	and r1,r1,#0x0F
+	orr r0,r0,r1,lsl#4
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio2+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud2Misc]
-	and r1,r1,#0xF00
+	ldrb r1,[mikptr,#audio2+WAVESHAPER+1]
 	and r0,r0,#0x0F
-	orr r0,r0,r1,lsr#4
+	and r1,r1,#0x0F
+	orr r0,r0,r1,lsl#4
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
-	ldr r1,[mikptr,#audio3+WAVESHAPER]
 	ldrb r0,[mikptr,#mikAud3Misc]
-	and r1,r1,#0xF00
+	ldrb r1,[mikptr,#audio3+WAVESHAPER+1]
 	and r0,r0,#0x0F
-	orr r0,r0,r1,lsr#4
+	and r1,r1,#0x0F
+	orr r0,r0,r1,lsl#4
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1165,36 +1078,48 @@ miAud3VolW:					;@ Audio 3 Volume (0xFD38)
 miAud0ShftFbW:				;@ Audio 0 Shift Feedback (0xFD21)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio0+WAVESHAPER]
-	and r1,r1,#0xFF
-	orr r0,r1,r0,lsl#19
-	mov r0,r0,ror#19
+	strb r1,[mikptr,#mikAud0ShftFb]
+	mov r1,r1,ror#6
+	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
+	bic r0,r0,#0xC000000			;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
 	str r0,[mikptr,#audio0+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1ShftFbW:				;@ Audio 1 Shift Feedback (0xFD29)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio1+WAVESHAPER]
-	and r1,r1,#0xFF
-	orr r0,r1,r0,lsl#19
-	mov r0,r0,ror#19
+	strb r1,[mikptr,#mikAud1ShftFb]
+	mov r1,r1,ror#6
+	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
+	bic r0,r0,#0xC000000			;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
 	str r0,[mikptr,#audio1+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2ShftFbW:				;@ Audio 2 Shift Feedback (0xFD31)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio2+WAVESHAPER]
-	and r1,r1,#0xFF
-	orr r0,r1,r0,lsl#19
-	mov r0,r0,ror#19
+	strb r1,[mikptr,#mikAud2ShftFb]
+	mov r1,r1,ror#6
+	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
+	bic r0,r0,#0xC000000			;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
 	str r0,[mikptr,#audio2+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3ShftFbW:				;@ Audio 3 Shift Feedback (0xFD39)
 ;@----------------------------------------------------------------------------
 	ldr r0,[mikptr,#audio3+WAVESHAPER]
-	and r1,r1,#0xFF
-	orr r0,r1,r0,lsl#19
-	mov r0,r0,ror#19
+	strb r1,[mikptr,#mikAud3ShftFb]
+	mov r1,r1,ror#6
+	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
+	bic r0,r0,#0xC000000			;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
 	str r0,[mikptr,#audio3+WAVESHAPER]
 	bx lr
 
@@ -1271,13 +1196,13 @@ miAud3TBackW:				;@ Audio 3 Timer backup (0xFD3C)
 ;@----------------------------------------------------------------------------
 miAud0CtlW:					;@ Audio 0 Control (0xFD25)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud0Ctl]
-	ldr r0,[mikptr,#audio0+WAVESHAPER]
+	ldrb r0,[mikptr,#audio0+WAVESHAPER+2]
 	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x1000
-	orrne r0,r0,#0x1000
-	str r0,[mikptr,#audio0+WAVESHAPER]
+	biceq r0,r0,#0x80
+	orrne r0,r0,#0x80
+	strb r0,[mikptr,#audio0+WAVESHAPER+2]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud0Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1290,13 +1215,13 @@ miAud0CtlW:					;@ Audio 0 Control (0xFD25)
 ;@----------------------------------------------------------------------------
 miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud1Ctl]
-	ldr r0,[mikptr,#audio1+WAVESHAPER]
+	ldrb r0,[mikptr,#audio1+WAVESHAPER+2]
 	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x1000
-	orrne r0,r0,#0x1000
-	str r0,[mikptr,#audio1+WAVESHAPER]
+	biceq r0,r0,#0x80
+	orrne r0,r0,#0x80
+	strb r0,[mikptr,#audio1+WAVESHAPER+2]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud1Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1309,13 +1234,13 @@ miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
 ;@----------------------------------------------------------------------------
 miAud2CtlW:					;@ Audio 2 Control (0xFD35)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud2Ctl]
-	ldr r0,[mikptr,#audio2+WAVESHAPER]
+	ldrb r0,[mikptr,#audio2+WAVESHAPER+2]
 	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x1000
-	orrne r0,r0,#0x1000
-	str r0,[mikptr,#audio2+WAVESHAPER]
+	biceq r0,r0,#0x80
+	orrne r0,r0,#0x80
+	strb r0,[mikptr,#audio2+WAVESHAPER+2]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud2Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1328,13 +1253,13 @@ miAud2CtlW:					;@ Audio 2 Control (0xFD35)
 ;@----------------------------------------------------------------------------
 miAud3CtlW:					;@ Audio 3 Control (0xFD3D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0x3F				;@ "Reset Timer Done" should not be preserved?
+	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud3Ctl]
-	ldr r0,[mikptr,#audio3+WAVESHAPER]
+	ldrb r0,[mikptr,#audio3+WAVESHAPER+2]
 	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x1000
-	orrne r0,r0,#0x1000
-	str r0,[mikptr,#audio3+WAVESHAPER]
+	biceq r0,r0,#0x80
+	orrne r0,r0,#0x80
+	strb r0,[mikptr,#audio3+WAVESHAPER+2]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud3Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1350,24 +1275,28 @@ miAud0CountW:				;@ Audio 0 Count (0xFD26)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	str r1,[mikptr,#audio0+CURRENT2]
+	strb r1,[mikptr,#mikAud0Count]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1CountW:				;@ Audio 1 Count (0xFD2E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	str r1,[mikptr,#audio1+CURRENT2]
+	strb r1,[mikptr,#mikAud1Count]
 	bx lr
 ;@----------------------------------------------------------------------------
-miAud2CountW:				;@ Audio 0 Count (0xFD36)
+miAud2CountW:				;@ Audio 2 Count (0xFD36)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
-	str r1,[mikptr,#audio0+CURRENT2]
+	str r1,[mikptr,#audio2+CURRENT2]
+	strb r1,[mikptr,#mikAud2Count]
 	bx lr
 ;@----------------------------------------------------------------------------
-miAud3CountW:				;@ Audio 3 Count (0xFD2E)
+miAud3CountW:				;@ Audio 3 Count (0xFD3E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	str r1,[mikptr,#audio3+CURRENT2]
+	strb r1,[mikptr,#mikAud3Count]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1375,44 +1304,32 @@ miAud0MiscW:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud0Misc]
-	ldr r0,[mikptr,#audio0+WAVESHAPER]
-	and r1,r1,#0xF0
-	bic r0,r0,#0xF00
-	orr r0,r0,r1,lsl#4
-	str r0,[mikptr,#audio0+WAVESHAPER]
+	mov r1,r1,lsr#4
+	strb r1,[mikptr,#audio0+WAVESHAPER+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1MiscW:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud1Misc]
-	ldr r0,[mikptr,#audio1+WAVESHAPER]
-	and r1,r1,#0xF0
-	bic r0,r0,#0xF00
-	orr r0,r0,r1,lsl#4
-	str r0,[mikptr,#audio1+WAVESHAPER]
+	mov r1,r1,lsr#4
+	strb r1,[mikptr,#audio1+WAVESHAPER+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2MiscW:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud2Misc]
-	ldr r0,[mikptr,#audio2+WAVESHAPER]
-	and r1,r1,#0xF0
-	bic r0,r0,#0xF00
-	orr r0,r0,r1,lsl#4
-	str r0,[mikptr,#audio2+WAVESHAPER]
+	mov r1,r1,lsr#4
+	strb r1,[mikptr,#audio2+WAVESHAPER+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3MiscW:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud3Misc]
-	ldr r0,[mikptr,#audio3+WAVESHAPER]
-	and r1,r1,#0xF0
-	bic r0,r0,#0xF00
-	orr r0,r0,r1,lsl#4
-	str r0,[mikptr,#audio3+WAVESHAPER]
+	mov r1,r1,lsr#4
+	strb r1,[mikptr,#audio3+WAVESHAPER+1]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1551,11 +1468,13 @@ miPaletteBRW:				;@ Blue & Red Palette (0xFDBX)
 
 ;@----------------------------------------------------------------------------
 ComLynxCable:				;@ In r0=MIKEY, r1=inserted
+	.type	ComLynxCable STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[r0,#mikSerCablePresent]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxRxData:				;@ In r0=MIKEY, r1=data
+	.type	ComLynxRxData STT_FUNC
 ;@----------------------------------------------------------------------------
 	;@ Copy over the data
 	ldr r2,[r0,#uart_Rx_waiting]
@@ -1569,12 +1488,12 @@ ComLynxRxData:				;@ In r0=MIKEY, r1=data
 	add r2,r2,#1
 	str r2,[r0,#uart_Rx_waiting]
 	;@ Receive the byte
-	ldr r3,[r0,#uart_Rx_input_ptr]
+	ldrb r3,[r0,#uart_Rx_input_ptr]
 	add r2,r0,#uart_Rx_input_queue
 	str r1,[r2,r3,lsl#2]
 	add r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
-	str r3,[r0,#uart_Rx_input_ptr]
+	strb r3,[r0,#uart_Rx_input_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxTxLoopback:			;@ In r1=data
@@ -1591,18 +1510,18 @@ ComLynxTxLoopback:			;@ In r1=data
 	add r2,r2,#1
 	str r2,[mikptr,#uart_Rx_waiting]
 	;@ Receive the byte
-	ldr r3,[mikptr,#uart_Rx_output_ptr]
+	ldrb r3,[mikptr,#uart_Rx_output_ptr]
 	add r2,mikptr,#uart_Rx_input_queue
 	sub r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
 	str r1,[r2,r3,lsl#2]
-	str r3,[mikptr,#uart_Rx_output_ptr]
+	strb r3,[mikptr,#uart_Rx_output_ptr]
 	bx lr
 ;@----------------------------------------------------------------------------
 ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 ;@----------------------------------------------------------------------------
 	str r1,[r0,#mikTxFunction]
-	str r2,[r0,#mikTxFunction]
+	str r2,[r0,#mikTxCallbackObj]
 	bx lr
 
 
@@ -1974,12 +1893,12 @@ miRunTimer4:				;@ in r4=systemCycleCount
 	cmp r0,#0
 	ble noUartFetch
 	add r12,mikptr,#uart_Rx_input_queue
-	ldr r3,[mikptr,#uart_Rx_output_ptr]
+	ldrb r3,[mikptr,#uart_Rx_output_ptr]
 	ldr r12,[r12,r3,lsl#2]
 	str r12,[mikptr,#uart_RX_DATA]
 	add r3,r3,#1
 	and r3,r3,#UART_MAX_RX_QUEUE-1
-	str r3,[mikptr,#uart_Rx_output_ptr]
+	strb r3,[mikptr,#uart_Rx_output_ptr]
 	subs r0,r0,#1
 	str r0,[mikptr,#uart_Rx_waiting]
 noUartFetch:

@@ -1,3 +1,3 @@
-# ARMMikey V0.0.3
+# ARMMikey V0.1.0
 
 Atari Lynx Mikey chip emulator for ARM32.

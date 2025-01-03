@@ -1525,6 +1525,19 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 	bx lr
 
 
+;@----------------------------------------------------------------------------
+mikDisplayEndOfFrame:
+;@----------------------------------------------------------------------------
+	mov r0,#1
+	strb r0,[mikptr,#mikFrameFinnished]
+	// Stop any further line rendering
+	mov r0,#0
+	str r0,[mikptr,#lynxLineDMACounter]
+	str r0,[mikptr,#lynxLine]
+	// Trigger the callback to the display sub-system to render the
+	// display.
+	ldr pc,[mikptr,#mikFrameCallback]
+
 #ifdef NDS
 	.section .itcm						;@ For the NDS ARM9
 #elif GBA
@@ -1704,19 +1717,6 @@ noLatch:
 	strb r0,[mikptr,#paletteChanged]	;@ Clear Palette changed.
 	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
 	bx lr
-
-;@----------------------------------------------------------------------------
-mikDisplayEndOfFrame:
-;@----------------------------------------------------------------------------
-	mov r0,#1
-	strb r0,[mikptr,#mikFrameFinnished]
-	// Stop any further line rendering
-	mov r0,#0
-	str r0,[mikptr,#lynxLineDMACounter]
-	str r0,[mikptr,#lynxLine]
-	// Trigger the callback to the display sub-system to render the
-	// display.
-	ldr pc,[mikptr,#mikFrameCallback]
 
 ;@----------------------------------------------------------------------------
 miRunTimer0:				;@ in r4=systemCycleCount
@@ -1936,7 +1936,12 @@ noLoopBack:
 	stmfd sp!,{r1-r2,lr}
 	ldr r0,[mikptr,#uart_RX_DATA]
 	ldr r1,[mikptr,#mikTxCallbackObj]
+#ifdef __ARM_ARCH_5TE__
 	blx r3
+#else
+	mov lr,pc
+	bx r3
+#endif
 	ldmfd sp!,{r1-r2,lr}
 noUartTx:
 ;@------------------------------------

@@ -55,8 +55,6 @@ typedef struct
 
 typedef struct
 {
-	u32 CURRENT;
-	u32 LAST_COUNT;
 	u32 WAVESHAPER;
 } MAUDIO;
 

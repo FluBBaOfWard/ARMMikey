@@ -37,8 +37,6 @@ mikTimerSize:
 
 
 	.struct 0
-CURRENT2:			.long 0
-LAST_COUNT2:		.long 0
 WAVESHAPER:			.long 0
 mikAudioSize:
 

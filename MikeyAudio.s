@@ -42,7 +42,6 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 	orr r3,r3,r4,lsl#24
 	add r3,r3,#0x01
 	ldr r4,[mikptr,#audio0+WAVESHAPER]
-	mov r4,r4,ror#16
 	mov r5,#0x01000000
 	ldrb r8,[mikptr,#mikAud0Ctl]
 	and r6,r8,#7				;@ CLOCK_SEL
@@ -56,7 +55,6 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 pcmMixReturn:
 	mov r3,r3,lsr#24
 	strb r3,[mikptr,#mikAud0Count]
-	mov r4,r4,ror#16
 	str r4,[mikptr,#audio0+WAVESHAPER]
 	strb r6,[mikptr,#mikAud0OutVal]
 

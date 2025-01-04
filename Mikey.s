@@ -193,7 +193,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD21 AUD0SHFTFB
 	.long miRegR				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftR			;@ 0xFD23 AUD0L8SHFT
-	.long miAud0TBackR			;@ 0xFD24 AUD0TBACK
+	.long miRegR				;@ 0xFD24 AUD0TBACK
 	.long miRegR				;@ 0xFD25 AUD0CTL
 	.long miRegR				;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscR			;@ 0xFD27 AUD0MISC
@@ -201,7 +201,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD29 AUD1SHFTFB
 	.long miRegR				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftR			;@ 0xFD2B AUD1L8SHFT
-	.long miAud1TBackR			;@ 0xFD2C AUD1TBACK
+	.long miRegR				;@ 0xFD2C AUD1TBACK
 	.long miRegR				;@ 0xFD2D AUD1CTL
 	.long miRegR				;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscR			;@ 0xFD2F AUD1MISC
@@ -210,7 +210,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD31 AUD2SHFTFB
 	.long miRegR				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftR			;@ 0xFD33 AUD2L8SHFT
-	.long miAud2TBackR			;@ 0xFD34 AUD2TBACK
+	.long miRegR				;@ 0xFD34 AUD2TBACK
 	.long miRegR				;@ 0xFD35 AUD2CTL
 	.long miRegR				;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscR			;@ 0xFD37 AUD2MISC
@@ -218,7 +218,7 @@ io_read_tbl:
 	.long miRegR				;@ 0xFD39 AUD3SHFTFB
 	.long miRegR				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftR			;@ 0xFD3B AUD3L8SHFT
-	.long miAud3TBackR			;@ 0xFD3C AUD3TBACK
+	.long miRegR				;@ 0xFD3C AUD3TBACK
 	.long miRegR				;@ 0xFD3D AUD3CTL
 	.long miRegR				;@ 0xFD3E AUD3COUNT
 	.long miAud3MiscR			;@ 0xFD3F AUD3MISC
@@ -402,50 +402,29 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
 miAud0L8ShftR:				;@ Audio 0 L8 Shift (0xFD23)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio0+WAVESHAPER]
+	ldrb r0,[mikptr,#audio0+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1L8ShftR:				;@ Audio 1 L8 Shift (0xFD2B)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio1+WAVESHAPER]
+	ldrb r0,[mikptr,#audio1+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2L8ShftR:				;@ Audio 2 L8 Shift (0xFD33)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio2+WAVESHAPER]
+	ldrb r0,[mikptr,#audio2+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3L8ShftR:				;@ Audio 3 L8 Shift (0xFD3B)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#audio3+WAVESHAPER]
-	bx lr
-
-;@----------------------------------------------------------------------------
-miAud0TBackR:				;@ Audio 0 Timer Backup (0xFD24)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud0TBack]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud1TBackR:				;@ Audio 1 Timer Backup (0xFD2C)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud1TBack]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud2TBackR:				;@ Audio 2 Timer Backup (0xFD34)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud2TBack]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud3TBackR:				;@ Audio 3 Timer Backup (0xFD3C)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud3TBack]
+	ldrb r0,[mikptr,#audio3+WAVESHAPER+2]
 	bx lr
 
 ;@----------------------------------------------------------------------------
 miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud0Misc]
-	ldrb r1,[mikptr,#audio0+WAVESHAPER+1]
+	ldrb r1,[mikptr,#audio0+WAVESHAPER+3]
 	and r0,r0,#0x0F
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
@@ -454,7 +433,7 @@ miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud1Misc]
-	ldrb r1,[mikptr,#audio1+WAVESHAPER+1]
+	ldrb r1,[mikptr,#audio1+WAVESHAPER+3]
 	and r0,r0,#0x0F
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
@@ -463,7 +442,7 @@ miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud2Misc]
-	ldrb r1,[mikptr,#audio2+WAVESHAPER+1]
+	ldrb r1,[mikptr,#audio2+WAVESHAPER+3]
 	and r0,r0,#0x0F
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
@@ -472,7 +451,7 @@ miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud3Misc]
-	ldrb r1,[mikptr,#audio3+WAVESHAPER+1]
+	ldrb r1,[mikptr,#audio3+WAVESHAPER+3]
 	and r0,r0,#0x0F
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
@@ -605,7 +584,7 @@ io_write_tbl:
 	.long miAud0ShftFbW			;@ 0xFD21 AUD0SHFTFB
 	.long miRegW				;@ 0xFD22 AUD0OUTVAL
 	.long miAud0L8ShftW			;@ 0xFD23 AUD0L8SHFT
-	.long miAud0TBackW			;@ 0xFD24 AUD0TBACK
+	.long miRegW				;@ 0xFD24 AUD0TBACK
 	.long miAud0CtlW			;@ 0xFD25 AUD0CTL
 	.long miAud0CountW			;@ 0xFD26 AUD0COUNT
 	.long miAud0MiscW			;@ 0xFD27 AUD0MISC
@@ -613,7 +592,7 @@ io_write_tbl:
 	.long miAud1ShftFbW			;@ 0xFD29 AUD1SHFTFB
 	.long miRegW				;@ 0xFD2A AUD1OUTVAL
 	.long miAud1L8ShftW			;@ 0xFD2B AUD1L8SHFT
-	.long miAud1TBackW			;@ 0xFD2C AUD1TBACK
+	.long miRegW				;@ 0xFD2C AUD1TBACK
 	.long miAud1CtlW			;@ 0xFD2D AUD1CTL
 	.long miAud1CountW			;@ 0xFD2E AUD1COUNT
 	.long miAud1MiscW			;@ 0xFD2F AUD1MISC
@@ -622,7 +601,7 @@ io_write_tbl:
 	.long miAud2ShftFbW			;@ 0xFD31 AUD2SHFTFB
 	.long miRegW				;@ 0xFD32 AUD2OUTVAL
 	.long miAud2L8ShftW			;@ 0xFD33 AUD2L8SHFT
-	.long miAud2TBackW			;@ 0xFD34 AUD2TBACK
+	.long miRegW				;@ 0xFD34 AUD2TBACK
 	.long miAud2CtlW			;@ 0xFD35 AUD2CTL
 	.long miAud2CountW			;@ 0xFD36 AUD2COUNT
 	.long miAud2MiscW			;@ 0xFD37 AUD2MISC
@@ -630,7 +609,7 @@ io_write_tbl:
 	.long miAud3ShftFbW			;@ 0xFD39 AUD3SHFTFB
 	.long miRegW				;@ 0xFD3A AUD3OUTVAL
 	.long miAud3L8ShftW			;@ 0xFD3B AUD3L8SHFT
-	.long miAud3TBackW			;@ 0xFD3C AUD3TBACK
+	.long miRegW				;@ 0xFD3C AUD3TBACK
 	.long miAud3CtlW			;@ 0xFD3D AUD3CTL
 	.long miAud3CountW			;@ 0xFD3E AUD3COUNT
 	.long miAud3MiscW			;@ 0xFD3F AUD3MISC
@@ -1028,50 +1007,22 @@ miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 ;@----------------------------------------------------------------------------
 miAud0VolW:					;@ Audio 0 Volume (0xFD20)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud0Vol]
 	strb r1,[mikptr,#mikAud0Vol]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio0+LAST_COUNT]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1VolW:					;@ Audio 1 Volume (0xFD28)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud1Vol]
 	strb r1,[mikptr,#mikAud1Vol]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio1+LAST_COUNT]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2VolW:					;@ Audio 2 Volume (0xFD30)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud2Vol]
 	strb r1,[mikptr,#mikAud2Vol]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio2+LAST_COUNT]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3VolW:					;@ Audio 3 Volume (0xFD38)
 ;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud3Vol]
 	strb r1,[mikptr,#mikAud3Vol]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio3+LAST_COUNT]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1080,10 +1031,10 @@ miAud0ShftFbW:				;@ Audio 0 Shift Feedback (0xFD21)
 	ldr r0,[mikptr,#audio0+WAVESHAPER]
 	strb r1,[mikptr,#mikAud0ShftFb]
 	mov r1,r1,ror#6
-	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
-	bic r0,r0,#0xC000000			;@ Clear bits 10-11
-	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
-	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
+	bic r0,r0,#0x03F				;@ Clear bits 0-5
+	bic r0,r0,#0xC00				;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#26				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#10				;@ Set bits 10-11
 	str r0,[mikptr,#audio0+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1092,10 +1043,10 @@ miAud1ShftFbW:				;@ Audio 1 Shift Feedback (0xFD29)
 	ldr r0,[mikptr,#audio1+WAVESHAPER]
 	strb r1,[mikptr,#mikAud1ShftFb]
 	mov r1,r1,ror#6
-	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
-	bic r0,r0,#0xC000000			;@ Clear bits 10-11
-	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
-	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
+	bic r0,r0,#0x03F				;@ Clear bits 0-5
+	bic r0,r0,#0xC00				;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#26				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#10				;@ Set bits 10-11
 	str r0,[mikptr,#audio1+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1104,10 +1055,10 @@ miAud2ShftFbW:				;@ Audio 2 Shift Feedback (0xFD31)
 	ldr r0,[mikptr,#audio2+WAVESHAPER]
 	strb r1,[mikptr,#mikAud2ShftFb]
 	mov r1,r1,ror#6
-	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
-	bic r0,r0,#0xC000000			;@ Clear bits 10-11
-	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
-	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
+	bic r0,r0,#0x03F				;@ Clear bits 0-5
+	bic r0,r0,#0xC00				;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#26				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#10				;@ Set bits 10-11
 	str r0,[mikptr,#audio2+WAVESHAPER]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1116,81 +1067,32 @@ miAud3ShftFbW:				;@ Audio 3 Shift Feedback (0xFD39)
 	ldr r0,[mikptr,#audio3+WAVESHAPER]
 	strb r1,[mikptr,#mikAud3ShftFb]
 	mov r1,r1,ror#6
-	bic r0,r0,#0x03F0000			;@ Clear bits 0-5
-	bic r0,r0,#0xC000000			;@ Clear bits 10-11
-	orr r0,r0,r1,lsr#10				;@ Set bits 0-5
-	orr r0,r0,r1,lsl#26				;@ Set bits 10-11
+	bic r0,r0,#0x03F				;@ Clear bits 0-5
+	bic r0,r0,#0xC00				;@ Clear bits 10-11
+	orr r0,r0,r1,lsr#26				;@ Set bits 0-5
+	orr r0,r0,r1,lsl#10				;@ Set bits 10-11
 	str r0,[mikptr,#audio3+WAVESHAPER]
 	bx lr
 
 ;@----------------------------------------------------------------------------
 miAud0L8ShftW:				;@ Audio 0 L8 Shift (0xFD23)
 ;@----------------------------------------------------------------------------
-	strb r1,[mikptr,#audio0+WAVESHAPER]
+	strb r1,[mikptr,#audio0+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1L8ShftW:				;@ Audio 1 L8 Shift (0xFD2B)
 ;@----------------------------------------------------------------------------
-	strb r1,[mikptr,#audio1+WAVESHAPER]
+	strb r1,[mikptr,#audio1+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2L8ShftW:				;@ Audio 2 L8 Shift (0xFD33)
 ;@----------------------------------------------------------------------------
-	strb r1,[mikptr,#audio2+WAVESHAPER]
+	strb r1,[mikptr,#audio2+WAVESHAPER+2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3L8ShftW:				;@ Audio 3 L8 Shift (0xFD3B)
 ;@----------------------------------------------------------------------------
-	strb r1,[mikptr,#audio3+WAVESHAPER]
-	bx lr
-
-;@----------------------------------------------------------------------------
-miAud0TBackW:				;@ Audio 0 Timer backup (0xFD24)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud0TBack]
-	strb r1,[mikptr,#mikAud0TBack]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio0+LAST_COUNT]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud1TBackW:				;@ Audio 1 Timer backup (0xFD2C)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud1TBack]
-	strb r1,[mikptr,#mikAud1TBack]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio1+LAST_COUNT]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud2TBackW:				;@ Audio 2 Timer backup (0xFD34)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud2TBack]
-	strb r1,[mikptr,#mikAud2TBack]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio2+LAST_COUNT]
-	bx lr
-;@----------------------------------------------------------------------------
-miAud3TBackW:				;@ Audio 3 Timer backup (0xFD3C)
-;@----------------------------------------------------------------------------
-	ldrb r0,[mikptr,#mikAud3TBack]
-	strb r1,[mikptr,#mikAud3TBack]
-	cmp r0,#0
-	bxne lr
-	cmp r1,#0
-	ldrne r1,[mikptr,#systemCycleCount]
-	strne r1,[mikptr,#nextTimerEvent]
-	strne r1,[mikptr,#audio3+LAST_COUNT]
+	strb r1,[mikptr,#audio3+WAVESHAPER+2]
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1198,104 +1100,80 @@ miAud0CtlW:					;@ Audio 0 Control (0xFD25)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud0Ctl]
-	ldrb r0,[mikptr,#audio0+WAVESHAPER+2]
+	ldrb r0,[mikptr,#audio0+WAVESHAPER]
 	tst r1,#0x80				;@ Waveshaper bit on/off
 	biceq r0,r0,#0x80
 	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio0+WAVESHAPER+2]
+	strb r0,[mikptr,#audio0+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud0Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikAud0Misc]
-	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#audio0+LAST_COUNT2]
-	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud1Ctl]
-	ldrb r0,[mikptr,#audio1+WAVESHAPER+2]
+	ldrb r0,[mikptr,#audio1+WAVESHAPER]
 	tst r1,#0x80				;@ Waveshaper bit on/off
 	biceq r0,r0,#0x80
 	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio1+WAVESHAPER+2]
+	strb r0,[mikptr,#audio1+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud1Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikAud1Misc]
-	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#audio1+LAST_COUNT2]
-	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2CtlW:					;@ Audio 2 Control (0xFD35)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud2Ctl]
-	ldrb r0,[mikptr,#audio2+WAVESHAPER+2]
+	ldrb r0,[mikptr,#audio2+WAVESHAPER]
 	tst r1,#0x80				;@ Waveshaper bit on/off
 	biceq r0,r0,#0x80
 	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio2+WAVESHAPER+2]
+	strb r0,[mikptr,#audio2+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud2Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikAud2Misc]
-	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#audio2+LAST_COUNT2]
-	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3CtlW:					;@ Audio 3 Control (0xFD3D)
 ;@----------------------------------------------------------------------------
 	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
 	strb r0,[mikptr,#mikAud3Ctl]
-	ldrb r0,[mikptr,#audio3+WAVESHAPER+2]
+	ldrb r0,[mikptr,#audio3+WAVESHAPER]
 	tst r1,#0x80				;@ Waveshaper bit on/off
 	biceq r0,r0,#0x80
 	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio3+WAVESHAPER+2]
+	strb r0,[mikptr,#audio3+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud3Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikAud3Misc]
-	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#audio3+LAST_COUNT2]
-	strne r0,[mikptr,#nextTimerEvent]
 	bx lr
 
 ;@----------------------------------------------------------------------------
 miAud0CountW:				;@ Audio 0 Count (0xFD26)
 ;@----------------------------------------------------------------------------
-	and r1,r1,#0xFF
-	str r1,[mikptr,#audio0+CURRENT2]
 	strb r1,[mikptr,#mikAud0Count]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1CountW:				;@ Audio 1 Count (0xFD2E)
 ;@----------------------------------------------------------------------------
-	and r1,r1,#0xFF
-	str r1,[mikptr,#audio1+CURRENT2]
 	strb r1,[mikptr,#mikAud1Count]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2CountW:				;@ Audio 2 Count (0xFD36)
 ;@----------------------------------------------------------------------------
-	and r1,r1,#0xFF
-	str r1,[mikptr,#audio2+CURRENT2]
 	strb r1,[mikptr,#mikAud2Count]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3CountW:				;@ Audio 3 Count (0xFD3E)
 ;@----------------------------------------------------------------------------
-	and r1,r1,#0xFF
-	str r1,[mikptr,#audio3+CURRENT2]
 	strb r1,[mikptr,#mikAud3Count]
 	bx lr
 
@@ -1305,7 +1183,7 @@ miAud0MiscW:				;@ Audio 0 Misc (0xFD27)
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud0Misc]
 	mov r1,r1,lsr#4
-	strb r1,[mikptr,#audio0+WAVESHAPER+1]
+	strb r1,[mikptr,#audio0+WAVESHAPER+3]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud1MiscW:				;@ Audio 1 Misc (0xFD2F)
@@ -1313,7 +1191,7 @@ miAud1MiscW:				;@ Audio 1 Misc (0xFD2F)
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud1Misc]
 	mov r1,r1,lsr#4
-	strb r1,[mikptr,#audio1+WAVESHAPER+1]
+	strb r1,[mikptr,#audio1+WAVESHAPER+3]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud2MiscW:				;@ Audio 2 Misc (0xFD37)
@@ -1321,7 +1199,7 @@ miAud2MiscW:				;@ Audio 2 Misc (0xFD37)
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud2Misc]
 	mov r1,r1,lsr#4
-	strb r1,[mikptr,#audio2+WAVESHAPER+1]
+	strb r1,[mikptr,#audio2+WAVESHAPER+3]
 	bx lr
 ;@----------------------------------------------------------------------------
 miAud3MiscW:				;@ Audio 3 Misc (0xFD3F)
@@ -1329,7 +1207,7 @@ miAud3MiscW:				;@ Audio 3 Misc (0xFD3F)
 	and r0,r1,#0x0F				;@ BORROW_OUT, BORROW_IN, LAST_CLOCK & TIMER_DONE
 	strb r0,[mikptr,#mikAud3Misc]
 	mov r1,r1,lsr#4
-	strb r1,[mikptr,#audio3+WAVESHAPER+1]
+	strb r1,[mikptr,#audio3+WAVESHAPER+3]
 	bx lr
 
 ;@----------------------------------------------------------------------------

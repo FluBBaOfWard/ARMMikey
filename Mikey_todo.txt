@@ -1,4 +1,3 @@
 ARMMikey To do
 -------------------------------
 
-	Implement audio channels.

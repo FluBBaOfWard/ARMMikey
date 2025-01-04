@@ -37,26 +37,108 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4-r11,lr}
 ;@--------------------------
+;@ Channel 0
+;@--------------------------
 	ldrb r3,[mikptr,#mikAud0TBack]
 	ldrb r4,[mikptr,#mikAud0Count]
 	orr r3,r3,r4,lsl#24
-	add r3,r3,#0x01
 	ldr r4,[mikptr,#audio0+WAVESHAPER]
-	mov r5,#0x01000000
+	mov r5,#0x01
 	ldrb r8,[mikptr,#mikAud0Ctl]
 	and r6,r8,#7				;@ CLOCK_SEL
-	mov r5,r5,lsr r6
+	mov r5,r5,lsl r6
 	ldrb r6,[mikptr,#mikAud0OutVal]
 	mov r6,r6,lsl#24
 	mov r6,r6,asr#24
 	ldrb r7,[mikptr,#mikAud0Vol]
 
-	b pcmMix
-pcmMixReturn:
+	add r12,r1,#0
+	bl pcmMix
 	mov r3,r3,lsr#24
 	strb r3,[mikptr,#mikAud0Count]
 	str r4,[mikptr,#audio0+WAVESHAPER]
 	strb r6,[mikptr,#mikAud0OutVal]
+;@--------------------------
+;@ Channel 1
+;@--------------------------
+	ldrb r3,[mikptr,#mikAud1TBack]
+	ldrb r4,[mikptr,#mikAud1Count]
+	orr r3,r3,r4,lsl#24
+	ldr r4,[mikptr,#audio1+WAVESHAPER]
+	mov r5,#0x01
+	ldrb r8,[mikptr,#mikAud1Ctl]
+	and r6,r8,#7				;@ CLOCK_SEL
+	mov r5,r5,lsl r6
+	ldrb r6,[mikptr,#mikAud1OutVal]
+	mov r6,r6,lsl#24
+	mov r6,r6,asr#24
+	ldrb r7,[mikptr,#mikAud1Vol]
+
+	add r12,r1,#1
+	bl pcmMix
+	mov r3,r3,lsr#24
+	strb r3,[mikptr,#mikAud1Count]
+	str r4,[mikptr,#audio1+WAVESHAPER]
+	strb r6,[mikptr,#mikAud1OutVal]
+;@--------------------------
+;@ Channel 2
+;@--------------------------
+	ldrb r3,[mikptr,#mikAud2TBack]
+	ldrb r4,[mikptr,#mikAud2Count]
+	orr r3,r3,r4,lsl#24
+	ldr r4,[mikptr,#audio2+WAVESHAPER]
+	mov r5,#0x01
+	ldrb r8,[mikptr,#mikAud2Ctl]
+	and r6,r8,#7				;@ CLOCK_SEL
+	mov r5,r5,lsl r6
+	ldrb r6,[mikptr,#mikAud2OutVal]
+	mov r6,r6,lsl#24
+	mov r6,r6,asr#24
+	ldrb r7,[mikptr,#mikAud2Vol]
+
+	add r12,r1,#2
+	bl pcmMix
+	mov r3,r3,lsr#24
+	strb r3,[mikptr,#mikAud2Count]
+	str r4,[mikptr,#audio2+WAVESHAPER]
+	strb r6,[mikptr,#mikAud2OutVal]
+;@--------------------------
+;@ Channel 3
+;@--------------------------
+	ldrb r3,[mikptr,#mikAud3TBack]
+	ldrb r4,[mikptr,#mikAud3Count]
+	orr r3,r3,r4,lsl#24
+	ldr r4,[mikptr,#audio3+WAVESHAPER]
+	mov r5,#0x01
+	ldrb r8,[mikptr,#mikAud3Ctl]
+	and r6,r8,#7				;@ CLOCK_SEL
+	mov r5,r5,lsl r6
+	ldrb r6,[mikptr,#mikAud3OutVal]
+	mov r6,r6,lsl#24
+	mov r6,r6,asr#24
+	ldrb r7,[mikptr,#mikAud3Vol]
+
+	add r12,r1,#3
+	bl pcmMix
+	mov r3,r3,lsr#24
+	strb r3,[mikptr,#mikAud3Count]
+	str r4,[mikptr,#audio3+WAVESHAPER]
+	strb r6,[mikptr,#mikAud3OutVal]
+;@--------------------------
+mixLoop2:
+	ldr r2,[r1]
+	mov r3,r2,asr#24			;@ Ch0
+	mov r2,r2,lsl#8
+	add r3,r3,r2,asr#24			;@ Ch1
+	mov r2,r2,lsl#8
+	add r3,r3,r2,asr#24			;@ Ch2
+	mov r2,r2,lsl#8
+	add r3,r3,r2,asr#24			;@ Ch3
+	mov r3,r3,lsl#22
+	orr r3,r3,r3,lsr#16
+	str r3,[r1],#4
+	subs r0,r0,#1
+	bne mixLoop2
 
 	ldmfd sp!,{r4-r11,pc}
 ;@----------------------------------------------------------------------------
@@ -78,13 +160,15 @@ pcmMix:				;@ r0=len, r1=dest, r10=mikptr
 // IIIVCCCCCCCCCCC000001FFFFFFFFFFF
 // I=sampleindex, V=overflow, C=counter, F=frequency
 ;@----------------------------------------------------------------------------
-	mov r0,r0,lsl#5
-mixLoop:
-	mov r2,#0x00000000
-innerMixLoop:
 	tst r8,#0x08				;@ Enabled?
-	beq noClock
-	subs r3,r3,r5				;@ Ch1
+	cmpne r7,#0					;@ Volume 0?
+	tstne r3,#0xFF				;@ Count 0?
+	beq silenceMix
+	add r3,r3,#0x01
+	mov r11,r0,lsl#6
+mixLoop:
+innerMixLoop:
+	subs r3,r3,#0x00800000
 	bcs noClock
 	add r3,r3,r3,lsl#24
 	and r9,r4,r4,lsl#16
@@ -107,18 +191,23 @@ innerMixLoop:
 	movmi r6,#-128
 noIntegrate:
 noClock:
-	sub r0,r0,#1
-	tst r0,#0x1F
+	sub r11,r11,r5
+	tst r11,#0x3F
 	bne innerMixLoop
 
-	add r2,r2,r6,lsl#24
-	eor r2,#0x00008000
-	cmp r0,#0
-	strpl r2,[r1],#4
+	cmp r11,#0
+	strbpl r6,[r12],#4
 	bhi mixLoop				;@ ?? cycles according to No$gba
 
-	b pcmMixReturn
+	bx lr
 ;@----------------------------------------------------------------------------
+silenceMix:
+	mov r11,r0
+silenceLoop:
+	subs r11,r11,#1
+	strbpl r6,[r12],#4
+	bhi silenceLoop
+	bx lr
 
 
 #endif // #ifdef __arm__

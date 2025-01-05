@@ -1,3 +1,4 @@
 ARMMikey To do
 -------------------------------
 
+	Fixed Timer Done bit handling in all timers.

@@ -1623,14 +1623,14 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim0NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
 	add r3,r3,#0x0100
 	add r2,r2,r3,lsl#16
 	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer done
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -1693,14 +1693,14 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim2NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
 	add r3,r3,#0x0100
 	add r2,r2,r3,lsl#16
 	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer done
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -1748,7 +1748,7 @@ miRunTimer4:				;@ in r4=systemCycleCount
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim4NoIrq
 ;@------------------------------------
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
@@ -1758,7 +1758,7 @@ miRunTimer4:				;@ in r4=systemCycleCount
 //	addcc r6,r6,r3,lsr#8		;@ !!! Might be needed?
 //	movcc r7,r4					;@ - || -
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer done
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
 
 // Handle UART RX here
@@ -1901,14 +1901,14 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim6NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer done
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -1971,14 +1971,14 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim1NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer done
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -2043,14 +2043,14 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim3NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer done
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -2118,14 +2118,14 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim5NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer done
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
@@ -2193,14 +2193,14 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim7NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1				;@ CtlB Borrow Out
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer done
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]

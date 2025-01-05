@@ -1623,7 +1623,7 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim0NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
 	add r3,r3,#0x0100
@@ -1693,7 +1693,7 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim2NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
 	add r3,r3,#0x0100
@@ -1748,7 +1748,7 @@ miRunTimer4:				;@ in r4=systemCycleCount
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim4NoIrq
 ;@------------------------------------
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 
 	//tst r2,#0x00100000		;@ CtlA & ENABLE_RELOAD
 	and r3,r2,#0xFF00
@@ -1901,7 +1901,7 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim6NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
@@ -1971,7 +1971,7 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim1NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
@@ -2043,7 +2043,7 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim3NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
@@ -2118,7 +2118,7 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim5NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100
@@ -2193,7 +2193,7 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
 	bpl tim7NoIrq
-	orr r2,r2,#1				;@ CtlB Borrow out
+	orr r2,r2,#1|8				;@ CtlB Borrow Out + Timer Done
 	tst r2,#0x00100000			;@ CtlA & ENABLE_RELOAD
 	andne r3,r2,#0xFF00
 	addne r3,r3,#0x0100

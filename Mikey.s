@@ -43,11 +43,20 @@ mikeyInit:				;@ Only need to be called once
 ;@----------------------------------------------------------------------------
 mikeyReset:				;@ r10=mikptr
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r0-r3,lr}
+	stmfd sp!,{r0-r4,lr}
 
 	add r0,mikptr,#mikeyState
 	ldr r1,=mikeyStateSize/4
 	bl memclr_					;@ Clear Mikey state
+
+	mov r4,#0x1F
+palClrLoop:
+	ldr r0,=0xFDA0
+	mov r1,#0xFF
+	add r0,r0,r4
+	bl mikeyWrite
+	subs r4,r4,#1
+	bpl palClrLoop
 
 	mov r0,#0xFF
 	strb r0,[mikptr,#mikStereo]	;@ All channels enabled, (reg is inverted)
@@ -57,7 +66,7 @@ mikeyReset:				;@ r10=mikptr
 	mov r0,#UART_RX_INACTIVE
 	str r0,[mikptr,#uart_RX_COUNTDOWN]
 
-	ldmfd sp!,{r0-r3,lr}
+	ldmfd sp!,{r0-r4,lr}
 	cmp r0,#0
 	adreq r0,dummyFunc
 	str r0,[mikptr,#mikLineCallback]
@@ -1304,13 +1313,16 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 	bl suzPaintSprites
 	ldmfd sp!,{lr}
 	ldr r1,[mikptr,#systemCycleCount]
+	ldr r2,[mikptr,#nextTimerEvent]
 	add r0,r0,r1
 	str r0,[mikptr,#suzieDoneTime]
+	cmp r0,r2
+	strmi r0,[mikptr,#nextTimerEvent]
 	mov r0,#1
 	strb r0,[mikptr,#systemCPUSleep]
 	bx lr
 ;@----------------------------------------------------------------------------
-miPBackupW:					;@ 0xFD93 PBKUP
+miPBackupW:					;@ PBKUP (0xFD93)
 ;@----------------------------------------------------------------------------
 	strb r1,[mikptr,#mikPBkup]
 	ldrb r0,[mikptr,#mikTim0Bkup]
@@ -1445,8 +1457,7 @@ sysLoop:
 	stmfd sp!,{r5}
 	mov r0,#8
 	bl m6502RestoreAndRunXCycles
-	mov r0,cycles,asr#CYC_SHIFT
-	rsb r0,r0,#8
+	mov r0,#8
 	add r1,m6502ptr,#m6502Regs
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
 	ldmfd sp!,{r5}
@@ -1532,9 +1543,7 @@ noSuzy:
 //	bl updateSound
 
 	ldrb r0,[mikptr,#timerStatusFlags]
-	ldrb r1,[mikptr,#systemCPUSleep]
 	cmp r0,#0
-	cmpne r1,#0
 	movne r1,#0
 	strbne r1,[mikptr,#systemCPUSleep]
 	bl m6502SetIRQPin

@@ -1,6 +1,10 @@
 ARMMikey revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
+V0.1.2 - 2025-01-12 (FluBBa)
+	Fixed initial palette values.
+	Fixed handling of cpu sleep.
+
 V0.1.0 - 2025-01-05 (FluBBa)
 	First real version.
 	Added sound emulation.

@@ -9,6 +9,7 @@
 #ifdef __arm__
 
 #include "ARMMikey.i"
+#include "ARM6502/M6502mac.h"
 #include "../LynxCart/LynxCart.i"
 
 	.global mikeyInit
@@ -795,9 +796,11 @@ miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim0CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer0+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer0+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
@@ -814,9 +817,11 @@ miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim1CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer1+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer1+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
@@ -833,9 +838,11 @@ miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim2CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer2+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer2+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
@@ -852,9 +859,11 @@ miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim3CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer3+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer3+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
@@ -871,9 +880,11 @@ miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim4CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer4+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer4+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
@@ -890,9 +901,11 @@ miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim5CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer5+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer5+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
@@ -909,9 +922,11 @@ miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim6CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer6+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer6+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
@@ -928,9 +943,11 @@ miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim7CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
-	ldrne r0,[mikptr,#systemCycleCount]
-	strne r0,[mikptr,#timer7+LAST_COUNT]
-	strne r0,[mikptr,#nextTimerEvent]
+	bxeq lr
+	ldr r0,[mikptr,#systemCycleCount]
+	str r0,[mikptr,#timer7+LAST_COUNT]
+	str r0,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTimCtlBW:					;@ Timer X Control B (0xFDX3)
@@ -948,6 +965,7 @@ miTim0CntW:					;@ Timer 0 Count (0xFD02)
 	str r1,[mikptr,#timer0+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim1CntW:					;@ Timer 1 Count (0xFD06)
@@ -957,6 +975,7 @@ miTim1CntW:					;@ Timer 1 Count (0xFD06)
 	str r1,[mikptr,#timer1+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim2CntW:					;@ Timer 2 Count (0xFD0A)
@@ -966,6 +985,7 @@ miTim2CntW:					;@ Timer 2 Count (0xFD0A)
 	str r1,[mikptr,#timer2+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim3CntW:					;@ Timer 3 Count (0xFD0E)
@@ -975,6 +995,7 @@ miTim3CntW:					;@ Timer 3 Count (0xFD0E)
 	str r1,[mikptr,#timer3+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim4CntW:					;@ Timer 4 Count (0xFD12)
@@ -984,6 +1005,7 @@ miTim4CntW:					;@ Timer 4 Count (0xFD12)
 	str r1,[mikptr,#timer4+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim5CntW:					;@ Timer 5 Count (0xFD16)
@@ -993,6 +1015,7 @@ miTim5CntW:					;@ Timer 5 Count (0xFD16)
 	str r1,[mikptr,#timer5+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim6CntW:					;@ Timer 6 Count (0xFD1A)
@@ -1002,6 +1025,7 @@ miTim6CntW:					;@ Timer 6 Count (0xFD1A)
 	str r1,[mikptr,#timer6+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miTim7CntW:					;@ Timer 7 Count (0xFD1E)
@@ -1011,6 +1035,7 @@ miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 	str r1,[mikptr,#timer7+CURRENT]
 	ldr r1,[mikptr,#systemCycleCount]
 	str r1,[mikptr,#nextTimerEvent]
+	m6502BailOut
 	bx lr
 
 ;@----------------------------------------------------------------------------
@@ -1309,6 +1334,8 @@ serParity:
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{lr}
+	mov r0,#1
+	strb r0,[mikptr,#systemCPUSleep]
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
 	ldmfd sp!,{lr}
@@ -1318,8 +1345,7 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 	str r0,[mikptr,#suzieDoneTime]
 	cmp r0,r2
 	strmi r0,[mikptr,#nextTimerEvent]
-	mov r0,#1
-	strb r0,[mikptr,#systemCPUSleep]
+	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
 miPBackupW:					;@ PBKUP (0xFD93)
@@ -1454,16 +1480,27 @@ sysLoop:
 
 ;@------------------------------------
 	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
-	stmfd sp!,{r5}
-	mov r0,#8
-	bl m6502RestoreAndRunXCycles
-	mov r0,#8
+	ldr r0,[mikptr,#nextTimerEvent]
+	sub r0,r0,r4
+	cmp r0,#8*5
+	movmi r0,#8*5
+	cmp r0,#159*16
+	movcs r0,#159*16
+	ldr r2,=(0x100000000/5)+1
+	umull r1,r0,r2,r0
+//	mov r0,#8
+	stmfd sp!,{r0,r5}
+	add r1,m6502ptr,#m6502Regs
+	ldmia r1,{m6502nz-m6502pc,m6502zpage}	;@ Restore M6502 state
+	clearCycles
+	bl m6502RunXCycles
+	m6502FixCycles
 	add r1,m6502ptr,#m6502Regs
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
-	ldmfd sp!,{r5}
+	ldmfd sp!,{r0,r5}
 	ldr r4,[mikptr,#systemCycleCount]
 ;@------------------------------------
-
+	sub r0,r0,cycles,asr#CYC_SHIFT
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	add r0,r0,#1

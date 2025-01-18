@@ -1334,18 +1334,8 @@ serParity:
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{lr}
 	mov r0,#1
 	strb r0,[mikptr,#systemCPUSleep]
-	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
-	bl suzPaintSprites
-	ldmfd sp!,{lr}
-	ldr r1,[mikptr,#systemCycleCount]
-	ldr r2,[mikptr,#nextTimerEvent]
-	add r0,r0,r1
-	str r0,[mikptr,#suzieDoneTime]
-	cmp r0,r2
-	strmi r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1509,6 +1499,20 @@ sysLoop:
 	add r0,r0,#1
 	add r4,r4,r0
 sysUpdExit:
+	ldrb r0,[mikptr,#systemCPUSleep]
+	cmp r0,#0
+	beq noSpritePaint
+	ldr r2,[mikptr,#nextTimerEvent]
+	sub r0,r2,r4
+	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
+	bl suzPaintSprites
+	add r4,r4,r0
+	ldr r2,[mikptr,#nextTimerEvent]
+	str r4,[mikptr,#suzieDoneTime]
+	cmp r4,r2
+	movpl r4,r2
+	strmi r4,[mikptr,#nextTimerEvent]
+noSpritePaint:
 	ldrb r0,[mikptr,#mikFrameFinnished]
 	cmp r0,#1
 	cmpmi r4,r5

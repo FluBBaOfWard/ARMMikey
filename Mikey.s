@@ -404,8 +404,9 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r2,r4,lr}
 	ldr r4,[mikptr,#systemCycleCount]
-	bl mikUpdate
-	str r4,[mikptr,#systemCycleCount]
+	bl mikUpdate				;@ returns consumed cycles
+	mov r0,r0,lsr#2
+	sub cycles,cycles,r0,lsl#CYC_SHIFT
 	ldmfd sp!,{r2,r4,lr}
 	b miRegR
 
@@ -1469,9 +1470,11 @@ mikSysUpdate:
 	ldr r5,[mikptr,#mikCyclesPerFrame]
 	add r5,r5,r4
 sysLoop:
-	ldr r0,[mikptr,#nextTimerEvent]
-	cmp r4,r0
-	blpl mikUpdate				;@ This might update sysCycleCnt!!!
+	mov r0,#0
+	ldr r1,[mikptr,#nextTimerEvent]
+	cmp r4,r1
+	blpl mikUpdate				;@ returns consumed cycles
+	add r4,r4,r0				;@ This updates sysCycleCnt!!!
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	// systemCycleCount = nextTimerEvent;
@@ -1540,7 +1543,7 @@ sysUpdExit:
 // (In reality T0 line counter should always be running.)
 //
 ;@----------------------------------------------------------------------------
-mikUpdate:				;@ in r4=systemCycleCount
+mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r5,lr}
 
@@ -1585,7 +1588,7 @@ noSuzy:
 	strbne r1,[mikptr,#systemCPUSleep]
 	bl m6502SetIRQPin
 
-	add r4,r4,r5				;@ This updates sysCycleCnt!!!
+	mov r0,r5
 	ldmfd sp!,{r5,lr}
 	bx lr
 ;@----------------------------------------------------------------------------

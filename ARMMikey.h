@@ -201,7 +201,7 @@ typedef struct {
 	u32 lynxAddr;
 	u32 systemCycleCount;
 	u32 nextTimerEvent;
-	u32 suzieDoneTime;
+	u32 suzyExtraTime;
 	u32 audioLastUpdateCycle;
 
 	u32 uart_RX_COUNTDOWN;

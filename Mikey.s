@@ -21,6 +21,7 @@
 	.global ComLynxRxData
 	.global ComLynxTxCallback
 	.global mikSysUpdate
+	.global mikWakeCPU
 	.global mikeyRead
 	.global mikeyWrite
 	.global miPBackupW
@@ -1431,7 +1432,12 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 	str r2,[r0,#mikTxCallbackObj]
 	bx lr
 
-
+;@----------------------------------------------------------------------------
+mikWakeCPU:
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	strb r0,[mikptr,#systemCPUSleep]
+	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayEndOfFrame:
 ;@----------------------------------------------------------------------------
@@ -1502,16 +1508,19 @@ sysUpdExit:
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	beq noSpritePaint
+	ldr r0,[mikptr,#suzyExtraTime]
+	add r4,r4,r0					;@ Use up extra time from last run.
+	mov r0,#0
+	str r0,[mikptr,#suzyExtraTime]
 	ldr r2,[mikptr,#nextTimerEvent]
 	sub r0,r2,r4
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
 	add r4,r4,r0
 	ldr r2,[mikptr,#nextTimerEvent]
-	str r4,[mikptr,#suzieDoneTime]
-	cmp r4,r2
+	subs r0,r4,r2
 	movpl r4,r2
-	strmi r4,[mikptr,#nextTimerEvent]
+	strpl r0,[mikptr,#suzyExtraTime]
 noSpritePaint:
 	ldrb r0,[mikptr,#mikFrameFinnished]
 	cmp r0,#1
@@ -1553,16 +1562,6 @@ mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 
 	//gNextTimerEvent = 0xffffffff;
 	add r2,r4,#0x40000000
-	// Check if the CPU needs to be woken up from sleep mode
-	ldr r0,[mikptr,#suzieDoneTime]
-	cmp r0,#0
-	beq noSuzy
-	cmp r4,r0
-	movpl r0,#0
-	strpl r0,[mikptr,#suzieDoneTime]
-	strbpl r0,[mikptr,#systemCPUSleep]
-	movmi r2,r0
-noSuzy:
 	str r2,[mikptr,#nextTimerEvent]
 
 

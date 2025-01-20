@@ -187,7 +187,7 @@ lynxLine:			.long 0
 lynxAddr:			.long 0
 systemCycleCount:	.long 0
 nextTimerEvent:		.long 0
-suzieDoneTime:		.long 0
+suzyExtraTime:		.long 0
 audioLastUpdateCycle:	.long 0
 
 uart_RX_COUNTDOWN:	.long 0

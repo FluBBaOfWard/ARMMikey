@@ -495,9 +495,12 @@ miAudInR:					;@ (0xFD86)
 	mov r0,#0x80				;@ bit 7 = audio comparator result. magnetic tape?
 	bx lr
 ;@----------------------------------------------------------------------------
-miMikeyHRevR:				;@ (0xFD88)
+miMikeyHRevR:				;@ Mikey HW revision (0xFD88)
 ;@----------------------------------------------------------------------------
-	mov r0,#1
+	ldrb r0,[mikptr,#mikSOC]
+	cmp r0,#SOC_HOWARD
+	moveq r0,#1
+	movne r0,#2
 	bx lr
 ;@----------------------------------------------------------------------------
 miIODatR:					;@ IO-Data (0xFD8B)

@@ -1274,8 +1274,8 @@ miIntSetW:					;@ Interrupt Set (0xFD81)
 ;@----------------------------------------------------------------------------
 miSysCtl1W:					;@ System Control 1 (0xFD87)
 ;@----------------------------------------------------------------------------
-//	tst r1,#0x02
-//	beq PowerOff
+	tst r1,#0x02
+	beq miPowerOff
 	ldr r0,[mikptr,#mikCartPtr]
 	and r1,r1,#0x01
 	b cartAddressStrobe
@@ -1435,6 +1435,40 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 	str r2,[r0,#mikTxCallbackObj]
 	bx lr
 
+;@----------------------------------------------------------------------------
+miPowerOff:
+;@----------------------------------------------------------------------------
+	stmfd sp!,{r4,lr}
+
+	ldr r0,[mikptr,#mikGfxRAM]
+	ldr r1,=0x2000/4
+	bl memclr_					;@ Clear some RAM
+
+	bl mikDisplayEndOfFrame
+
+	mov r0,#0
+	str r0,[mikptr,#lynxAddr]
+	str r0,[mikptr,#mikPalette]
+
+	mov r4,#GAME_HEIGHT
+powOffLoop:
+	ldr r0,[mikptr,#mikGfxRAM]
+	ldr r3,[mikptr,#lynxAddr]
+	mov r2,#0					;@ Screen flip?
+	add r0,r0,r3
+	add r3,r3,#GAME_WIDTH/2
+	str r3,[mikptr,#lynxAddr]
+	add r1,mikptr,#mikPalette
+	mov r3,#1					;@ Palette changed?
+	mov lr,pc
+	ldr pc,[mikptr,#mikLineCallback]
+	subs r4,r4,#1
+	bne powOffLoop
+
+	mov r0,#0
+	bl setPowerIsOn
+	m6502BailOut
+	ldmfd sp!,{r4,pc}
 ;@----------------------------------------------------------------------------
 mikWakeCPU:
 ;@----------------------------------------------------------------------------

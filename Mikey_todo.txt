@@ -1,5 +1,4 @@
 ARMMikey To do
 -------------------------------
 
-	Add support for Power Off.
 	Fix Timer Done bit handling in all timers.

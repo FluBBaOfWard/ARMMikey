@@ -789,8 +789,7 @@ miRegW:
 ;@----------------------------------------------------------------------------
 miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim0CtlA]
+	strb r1,[mikptr,#mikTim0CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<0
@@ -810,8 +809,7 @@ miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 ;@----------------------------------------------------------------------------
 miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim1CtlA]
+	strb r1,[mikptr,#mikTim1CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<1
@@ -831,8 +829,7 @@ miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 ;@----------------------------------------------------------------------------
 miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim2CtlA]
+	strb r1,[mikptr,#mikTim2CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<2
@@ -852,8 +849,7 @@ miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 ;@----------------------------------------------------------------------------
 miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim3CtlA]
+	strb r1,[mikptr,#mikTim3CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<3
@@ -873,8 +869,7 @@ miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 ;@----------------------------------------------------------------------------
 miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim4CtlA]
+	strb r1,[mikptr,#mikTim4CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<4
@@ -894,8 +889,7 @@ miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 ;@----------------------------------------------------------------------------
 miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim5CtlA]
+	strb r1,[mikptr,#mikTim5CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<5
@@ -915,8 +909,7 @@ miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 ;@----------------------------------------------------------------------------
 miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim6CtlA]
+	strb r1,[mikptr,#mikTim6CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<6
@@ -936,8 +929,7 @@ miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 ;@----------------------------------------------------------------------------
 miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikTim7CtlA]
+	strb r1,[mikptr,#mikTim7CtlA]
 	ldrb r0,[mikptr,#timerInterruptMask]
 	tst r1,#0x80				;@ Enable interrupt?
 	biceq r0,r0,#1<<7
@@ -959,6 +951,10 @@ miTimCtlBW:					;@ Timer X Control B (0xFDX3)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0x0F
 	add r2,r2,#mikRegs
+	sub r0,r2,#2
+	ldrb r0,[mikptr,r0]			;@ Read Timer X Control A
+	tst r0,#0x40				;@ Disable/Reset Timer Done?
+	bicne r1,r1,#0x08
 	strb r1,[mikptr,r2]
 	bx lr
 
@@ -1719,8 +1715,8 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	add r2,r2,r3,lsl#16
 	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<0
@@ -1789,8 +1785,8 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	add r2,r2,r3,lsl#16
 	add r6,r6,r3,lsr#8
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<2
@@ -1847,8 +1843,8 @@ miRunTimer4:				;@ in r4=systemCycleCount
 //	addcc r6,r6,r3,lsr#8		;@ !!! Might be needed?
 //	movcc r7,r4					;@ - || -
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-//	orreq r2,r2,#8				;@ CtlB Timer Done
 //	moveq r6,#0
+//	orreq r2,r2,#8				;@ CtlB Timer Done
 
 // Handle UART RX here
 	ldr r0,[mikptr,#uart_RX_COUNTDOWN]
@@ -1997,8 +1993,9 @@ miRunTimer6:				;@ in r4=systemCycleCount
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
+	tsteq r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<6
@@ -2067,8 +2064,9 @@ miRunTimer1:				;@ in r4=systemCycleCount
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
+	tsteq r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<1
@@ -2139,8 +2137,9 @@ miRunTimer3:				;@ in r4=systemCycleCount
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
+	tsteq r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<3
@@ -2214,8 +2213,9 @@ miRunTimer5:				;@ in r4=systemCycleCount
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
+	tsteq r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<5
@@ -2289,8 +2289,9 @@ miRunTimer7:				;@ in r4=systemCycleCount
 	addne r2,r2,r3,lsl#16
 	addne r6,r6,r3,lsr#8
 	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
-	orreq r2,r2,#8				;@ CtlB Timer Done
 	moveq r6,#0
+	tsteq r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
 	tst r2,#0x800000			;@ CtlA Interrupt Enable?
 	ldrbne r0,[mikptr,#timerStatusFlags]
 	orrne r0,r0,#1<<7

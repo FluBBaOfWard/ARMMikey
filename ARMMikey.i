@@ -171,7 +171,6 @@ mikSerCablePresent:	.byte 0
 ioDatRestSignal:	.byte 0
 mikFrameFinnished:	.byte 0
 timerStatusFlags:	.byte 0		;@
-timerInterruptMask:	.byte 0		;@
 systemCPUSleep:		.byte 0
 memSelector:		.byte 0
 uart_Rx_framing_error:	.byte 0
@@ -179,7 +178,7 @@ uart_Rx_overun_error:	.byte 0
 uart_RX_READY:		.byte 0
 uart_Rx_input_ptr:	.byte 0
 uart_Rx_output_ptr:	.byte 0
-mikPadding6:		.skip 1
+mikPadding6:		.skip 2
 
 mikCyclesPerFrame:	.long 0
 lynxLineDMACounter:	.long 0

@@ -60,9 +60,6 @@ palClrLoop:
 	subs r4,r4,#1
 	bpl palClrLoop
 
-	mov r0,#0xFF
-	strb r0,[mikptr,#mikStereo]	;@ All channels enabled, (reg is inverted)
-
 	mov r0,#UART_TX_INACTIVE
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	mov r0,#UART_RX_INACTIVE
@@ -405,6 +402,9 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r2,r4,lr}
 	ldr r4,[mikptr,#systemCycleCount]
+	mov r0,cycles,asr#CYC_SHIFT
+	add r0,r0,r0,lsl#2	// x5
+	sub r4,r4,r0
 	bl mikUpdate				;@ returns consumed cycles
 	mov r0,r0,lsr#2
 	sub cycles,cycles,r0,lsl#CYC_SHIFT
@@ -437,7 +437,8 @@ miAud0MiscR:				;@ Audio 0 Misc (0xFD27)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud0Misc]
 	ldrb r1,[mikptr,#audio0+WAVESHAPER+3]
-	and r0,r0,#0x0F
+	orr r2,r0,#0x08				;@ Audio done bit.
+	strb r2,[mikptr,#mikAud0Misc]
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
 	bx lr
@@ -446,7 +447,8 @@ miAud1MiscR:				;@ Audio 1 Misc (0xFD2F)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud1Misc]
 	ldrb r1,[mikptr,#audio1+WAVESHAPER+3]
-	and r0,r0,#0x0F
+	orr r2,r0,#0x08				;@ Audio done bit.
+	strb r2,[mikptr,#mikAud1Misc]
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
 	bx lr
@@ -455,7 +457,8 @@ miAud2MiscR:				;@ Audio 2 Misc (0xFD37)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud2Misc]
 	ldrb r1,[mikptr,#audio2+WAVESHAPER+3]
-	and r0,r0,#0x0F
+	orr r2,r0,#0x08				;@ Audio done bit.
+	strb r2,[mikptr,#mikAud2Misc]
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
 	bx lr
@@ -464,7 +467,8 @@ miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikAud3Misc]
 	ldrb r1,[mikptr,#audio3+WAVESHAPER+3]
-	and r0,r0,#0x0F
+	orr r2,r0,#0x08				;@ Audio done bit.
+	strb r2,[mikptr,#mikAud3Misc]
 	and r1,r1,#0x0F
 	orr r0,r0,r1,lsl#4
 	bx lr
@@ -473,7 +477,6 @@ miAud3MiscR:				;@ Audio 3 Misc (0xFD3F)
 miStereoR:					;@ Stereo (0xFD50)
 ;@----------------------------------------------------------------------------
 	ldrb r0,[mikptr,#mikStereo]
-	eor r0,r0,#0xFF				;@ Stereo is inverted
 	bx lr
 ;@----------------------------------------------------------------------------
 miIntRstR:					;@ Interrupt bits (0xFD80)
@@ -789,19 +792,21 @@ miRegW:
 ;@----------------------------------------------------------------------------
 miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim0CtlA]
 	strb r1,[mikptr,#mikTim0CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<0
-	orrne r0,r0,#1<<0
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim0CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim0CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim0Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer0+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -809,19 +814,21 @@ miTim0CtlAW:				;@ Timer 0 Control A (0xFD01)
 ;@----------------------------------------------------------------------------
 miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim1CtlA]
 	strb r1,[mikptr,#mikTim1CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<1
-	orrne r0,r0,#1<<1
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim1CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim1CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim1Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer1+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -829,19 +836,21 @@ miTim1CtlAW:				;@ Timer 1 Control A (0xFD05)
 ;@----------------------------------------------------------------------------
 miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim2CtlA]
 	strb r1,[mikptr,#mikTim2CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<2
-	orrne r0,r0,#1<<2
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim2CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim2CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim2Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer2+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -849,19 +858,21 @@ miTim2CtlAW:				;@ Timer 2 Control A (0xFD09)
 ;@----------------------------------------------------------------------------
 miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim3CtlA]
 	strb r1,[mikptr,#mikTim3CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<3
-	orrne r0,r0,#1<<3
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim3CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim3CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim3Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer3+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -869,19 +880,21 @@ miTim3CtlAW:				;@ Timer 3 Control A (0xFD0D)
 ;@----------------------------------------------------------------------------
 miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim4CtlA]
 	strb r1,[mikptr,#mikTim4CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<4
-	orrne r0,r0,#1<<4
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim4CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim4CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim4Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer4+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -889,19 +902,21 @@ miTim4CtlAW:				;@ Timer 4 Control A (0xFD11)
 ;@----------------------------------------------------------------------------
 miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim5CtlA]
 	strb r1,[mikptr,#mikTim5CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<5
-	orrne r0,r0,#1<<5
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim5CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim5CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim5Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer5+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -909,19 +924,21 @@ miTim5CtlAW:				;@ Timer 5 Control A (0xFD15)
 ;@----------------------------------------------------------------------------
 miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim6CtlA]
 	strb r1,[mikptr,#mikTim6CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<6
-	orrne r0,r0,#1<<6
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim6CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim6CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim6Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer6+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -929,19 +946,21 @@ miTim6CtlAW:				;@ Timer 6 Control A (0xFD19)
 ;@----------------------------------------------------------------------------
 miTim7CtlAW:				;@ Timer 7 Control A (0xFD1D)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikTim7CtlA]
 	strb r1,[mikptr,#mikTim7CtlA]
-	ldrb r0,[mikptr,#timerInterruptMask]
-	tst r1,#0x80				;@ Enable interrupt?
-	biceq r0,r0,#1<<7
-	orrne r0,r0,#1<<7
-	strb r0,[mikptr,#timerInterruptMask]
+	eor r0,r0,r1
+	and r1,r1,r0
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikTim7CtlB]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
 	strbne r0,[mikptr,#mikTim7CtlB]
 	tst r1,#0x48				;@ Enable Count/ Reset Timer Done?
 	bxeq lr
+miTim7Chk:
 	ldr r0,[mikptr,#systemCycleCount]
+	mov r1,cycles,asr#CYC_SHIFT
+	add r1,r1,r1,lsl#2	// x5
+	sub r0,r0,r1
 	str r0,[mikptr,#timer7+LAST_COUNT]
 	str r0,[mikptr,#nextTimerEvent]
 	m6502BailOut
@@ -955,6 +974,9 @@ miTimCtlBW:					;@ Timer X Control B (0xFDX3)
 	ldrb r0,[mikptr,r0]			;@ Read Timer X Control A
 	tst r0,#0x40				;@ Disable/Reset Timer Done?
 	bicne r1,r1,#0x08
+	tst r1,#0x02				;@ Borrow In?
+	;@ Clock the timer!
+	bic r1,r1,#0x02				;@ Clear Borrow In.
 	strb r1,[mikptr,r2]
 	bx lr
 
@@ -964,80 +986,56 @@ miTim0CntW:					;@ Timer 0 Count (0xFD02)
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim0Cnt]
 	str r1,[mikptr,#timer0+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim0Chk
 ;@----------------------------------------------------------------------------
 miTim1CntW:					;@ Timer 1 Count (0xFD06)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim1Cnt]
 	str r1,[mikptr,#timer1+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim1Chk
 ;@----------------------------------------------------------------------------
 miTim2CntW:					;@ Timer 2 Count (0xFD0A)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim2Cnt]
 	str r1,[mikptr,#timer2+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim2Chk
 ;@----------------------------------------------------------------------------
 miTim3CntW:					;@ Timer 3 Count (0xFD0E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim3Cnt]
 	str r1,[mikptr,#timer3+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim3Chk
 ;@----------------------------------------------------------------------------
 miTim4CntW:					;@ Timer 4 Count (0xFD12)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim4Cnt]
 	str r1,[mikptr,#timer4+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim4Chk
 ;@----------------------------------------------------------------------------
 miTim5CntW:					;@ Timer 5 Count (0xFD16)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim5Cnt]
 	str r1,[mikptr,#timer5+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim5Chk
 ;@----------------------------------------------------------------------------
 miTim6CntW:					;@ Timer 6 Count (0xFD1A)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim6Cnt]
 	str r1,[mikptr,#timer6+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim6Chk
 ;@----------------------------------------------------------------------------
 miTim7CntW:					;@ Timer 7 Count (0xFD1E)
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xFF
 	strb r1,[mikptr,#mikTim7Cnt]
 	str r1,[mikptr,#timer7+CURRENT]
-	ldr r1,[mikptr,#systemCycleCount]
-	str r1,[mikptr,#nextTimerEvent]
-	m6502BailOut
-	bx lr
+	b miTim7Chk
 
 ;@----------------------------------------------------------------------------
 miAud0VolW:					;@ Audio 0 Volume (0xFD20)
@@ -1133,13 +1131,13 @@ miAud3L8ShftW:				;@ Audio 3 L8 Shift (0xFD3B)
 ;@----------------------------------------------------------------------------
 miAud0CtlW:					;@ Audio 0 Control (0xFD25)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikAud0Ctl]
-	ldrb r0,[mikptr,#audio0+WAVESHAPER]
-	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x80
-	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio0+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud0Ctl]
+	strb r1,[mikptr,#mikAud0Ctl]
+	eor r0,r0,r1
+	tst r0,#0x80				;@ Waveshaper bit#7 changed?
+	ldrbne r2,[mikptr,#audio0+WAVESHAPER]
+	eorne r2,r2,#0x80
+	strbne r2,[mikptr,#audio0+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud0Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1148,13 +1146,13 @@ miAud0CtlW:					;@ Audio 0 Control (0xFD25)
 ;@----------------------------------------------------------------------------
 miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikAud1Ctl]
-	ldrb r0,[mikptr,#audio1+WAVESHAPER]
-	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x80
-	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio1+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud1Ctl]
+	strb r1,[mikptr,#mikAud1Ctl]
+	eor r0,r0,r1
+	tst r0,#0x80				;@ Waveshaper bit#7 changed?
+	ldrbne r2,[mikptr,#audio1+WAVESHAPER]
+	eorne r2,r2,#0x80
+	strbne r2,[mikptr,#audio1+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud1Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1163,13 +1161,13 @@ miAud1CtlW:					;@ Audio 1 Control (0xFD2D)
 ;@----------------------------------------------------------------------------
 miAud2CtlW:					;@ Audio 2 Control (0xFD35)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikAud2Ctl]
-	ldrb r0,[mikptr,#audio2+WAVESHAPER]
-	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x80
-	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio2+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud2Ctl]
+	strb r1,[mikptr,#mikAud2Ctl]
+	eor r0,r0,r1
+	tst r0,#0x80				;@ Waveshaper bit#7 changed?
+	ldrbne r2,[mikptr,#audio2+WAVESHAPER]
+	eorne r2,r2,#0x80
+	strbne r2,[mikptr,#audio2+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud2Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1178,13 +1176,13 @@ miAud2CtlW:					;@ Audio 2 Control (0xFD35)
 ;@----------------------------------------------------------------------------
 miAud3CtlW:					;@ Audio 3 Control (0xFD3D)
 ;@----------------------------------------------------------------------------
-	and r0,r1,#0xBF				;@ "Reset Timer Done" should not be preserved?
-	strb r0,[mikptr,#mikAud3Ctl]
-	ldrb r0,[mikptr,#audio3+WAVESHAPER]
-	tst r1,#0x80				;@ Waveshaper bit on/off
-	biceq r0,r0,#0x80
-	orrne r0,r0,#0x80
-	strb r0,[mikptr,#audio3+WAVESHAPER]
+	ldrb r0,[mikptr,#mikAud3Ctl]
+	strb r1,[mikptr,#mikAud3Ctl]
+	eor r0,r0,r1
+	tst r0,#0x80				;@ Waveshaper bit#7 changed?
+	ldrbne r2,[mikptr,#audio3+WAVESHAPER]
+	eorne r2,r2,#0x80
+	strbne r2,[mikptr,#audio3+WAVESHAPER]
 	tst r1,#0x40				;@ Check "Reset Timer Done".
 	ldrbne r0,[mikptr,#mikAud3Misc]
 	bicne r0,r0,#0x08			;@ Timer done, in CtlB.
@@ -1248,7 +1246,6 @@ miAud3MiscW:				;@ Audio 3 Misc (0xFD3F)
 ;@----------------------------------------------------------------------------
 miStereoW:					;@ 0xFD50
 ;@----------------------------------------------------------------------------
-	eor r0,r0,#0xFF				;@ Stereo is inverted
 	strb r0,[mikptr,#mikStereo]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -1496,68 +1493,61 @@ mikSysUpdate:
 	mov r0,#0
 	strb r0,[mikptr,#mikFrameFinnished]
 	ldr r4,[mikptr,#systemCycleCount]
-	ldr r5,[mikptr,#mikCyclesPerFrame]
-	add r5,r5,r4
+	ldr r5,[mikptr,#nextTimerEvent]
+	ldr r6,[mikptr,#mikCyclesPerFrame]
+	add r6,r6,r4
 sysLoop:
 	mov r0,#0
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r4,r1
-	blpl mikUpdate				;@ returns consumed cycles
+	cmp r4,r5
+	blpl mikUpdate				;@ returns consumed cycles from display DMA
+	ldr r5,[mikptr,#nextTimerEvent]
 	add r4,r4,r0				;@ This updates sysCycleCnt!!!
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
-	// systemCycleCount = nextTimerEvent;
-	ldrne r4,[mikptr,#nextTimerEvent]	;@ This updates sysCycleCnt!!!
 	bne sysUpdExit
 
 ;@------------------------------------
-	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
-	ldr r0,[mikptr,#nextTimerEvent]
-	sub r0,r0,r4
-	cmp r0,#8*5
-	movmi r0,#8*5
-	cmp r0,#159*16
-	movcs r0,#159*16
+	subs r1,r5,r4
+	movmi r1,#5
+	cmp r1,#190*16
+	movcs r1,#190*16
 	ldr r2,=(0x100000000/5)+1
-	umull r1,r0,r2,r0
-//	mov r0,#8
-	stmfd sp!,{r0,r5}
+	umull r3,r0,r2,r1
+	add r4,r4,r1
+	stmfd sp!,{r4,r6}
+	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	add r1,m6502ptr,#m6502Regs
 	ldmia r1,{m6502nz-m6502pc,m6502zpage}	;@ Restore M6502 state
-	clearCycles
+	zeroCycles
 	bl m6502RunXCycles
 	m6502FixCycles
 	add r1,m6502ptr,#m6502Regs
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
-	ldmfd sp!,{r0,r5}
-	ldr r4,[mikptr,#systemCycleCount]
+	ldmfd sp!,{r4,r6}
+	ldr r5,[mikptr,#nextTimerEvent]
 ;@------------------------------------
-	sub r0,r0,cycles,asr#CYC_SHIFT
+	mov r0,cycles,asr#CYC_SHIFT
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
-	add r0,r0,#1
-	add r4,r4,r0
-sysUpdExit:
+	sub r4,r4,r0
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	beq noSpritePaint
+sysUpdExit:
 	ldr r0,[mikptr,#suzyExtraTime]
 	add r4,r4,r0					;@ Use up extra time from last run.
-	mov r0,#0
-	str r0,[mikptr,#suzyExtraTime]
-	ldr r2,[mikptr,#nextTimerEvent]
-	sub r0,r2,r4
+	sub r0,r5,r4
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
 	add r4,r4,r0
-	ldr r2,[mikptr,#nextTimerEvent]
-	subs r0,r4,r2
-	movpl r4,r2
-	strpl r0,[mikptr,#suzyExtraTime]
+	subs r0,r4,r5
+	movmi r0,#0
+	movpl r4,r5
+	str r0,[mikptr,#suzyExtraTime]
 noSpritePaint:
 	ldrb r0,[mikptr,#mikFrameFinnished]
 	cmp r0,#1
-	cmpmi r4,r5
+	cmpmi r4,r6
 	bmi sysLoop
 	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
 	ldmfd sp!,{r4-r11,lr}
@@ -1591,17 +1581,15 @@ noSpritePaint:
 ;@----------------------------------------------------------------------------
 mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r5,lr}
+	stmfd sp!,{r5,r6,lr}
 
 	//gNextTimerEvent = 0xffffffff;
-	add r2,r4,#0x40000000
-	str r2,[mikptr,#nextTimerEvent]
-
+	add r5,r4,#0x40000000
 
 	bl miRunTimer0
 	cmp r0,#0
 	blne mikDisplayLine
-	mov r5,r0
+	mov r6,r0
 
 	bl miRunTimer2
 	cmp r0,#0
@@ -1617,22 +1605,22 @@ mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 
 //	if (gAudioEnabled)
 //	bl updateSound
+	str r5,[mikptr,#nextTimerEvent]
 
 	ldrb r0,[mikptr,#timerStatusFlags]
 	cmp r0,#0
 	movne r1,#0
 	strbne r1,[mikptr,#systemCPUSleep]
-	bl m6502SetIRQPin
+	blne m6502SetIRQPin
 
-	mov r0,r5
-	ldmfd sp!,{r5,lr}
+	mov r0,r6
+	ldmfd sp!,{r5,r6,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayLine:
 ;@----------------------------------------------------------------------------
-	mov r0,#0
 	ldrb r1,[mikptr,#mikDispCtl]
-	tst r1,#1					;@ Display DMA on?
+	ands r0,r1,#1					;@ Display DMA on?
 	bxeq lr
 	ldrb r3,[mikptr,#mikTim2Bkup]
 	sub r3,r3,#GAME_HEIGHT
@@ -1682,7 +1670,7 @@ noLatch:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer0:				;@ in r4=systemCycleCount
+miRunTimer0:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim0Bkup]
@@ -1701,9 +1689,10 @@ miRunTimer0:				;@ in r4=systemCycleCount
 	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim0NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer0+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -1726,7 +1715,6 @@ miRunTimer0:				;@ in r4=systemCycleCount
 tim0NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer0+CURRENT]
-	str r7,[mikptr,#timer0+LAST_COUNT]
 tim0NoCount:
 	str r2,[mikptr,#mikTim0Bkup]
 	// Prediction for next timer event cycle number
@@ -1742,14 +1730,13 @@ tim0NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer2:				;@ in r4=systemCycleCount
+miRunTimer2:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim2Bkup]
@@ -1763,7 +1750,7 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
 	ldrbeq r3,[mikptr,#mikTim0CtlB]
-	and r3,r3,#1
+	and r3,r3,#1				;@ Timer0 Borrow Out
 	addne r1,r1,#4
 	ldr r6,[mikptr,#timer2+CURRENT]
 	ldr r7,[mikptr,#timer2+LAST_COUNT]
@@ -1771,9 +1758,10 @@ miRunTimer2:				;@ in r4=systemCycleCount
 	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim2NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer2+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -1796,7 +1784,6 @@ miRunTimer2:				;@ in r4=systemCycleCount
 tim2NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer2+CURRENT]
-	str r7,[mikptr,#timer2+LAST_COUNT]
 tim2NoCount:
 	str r2,[mikptr,#mikTim2Bkup]
 	// Prediction for next timer event cycle number
@@ -1806,7 +1793,7 @@ tim2NoCount:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer4:				;@ in r4=systemCycleCount
+miRunTimer4:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim4Bkup]
@@ -1825,9 +1812,10 @@ miRunTimer4:				;@ in r4=systemCycleCount
 	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim4NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer4+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -1841,7 +1829,6 @@ miRunTimer4:				;@ in r4=systemCycleCount
 	add r2,r2,r3,lsl#16
 	add r6,r6,r3,lsr#8			;@ !!! adds
 //	addcc r6,r6,r3,lsr#8		;@ !!! Might be needed?
-//	movcc r7,r4					;@ - || -
 //	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
 //	moveq r6,#0
 //	orreq r2,r2,#8				;@ CtlB Timer Done
@@ -1911,7 +1898,6 @@ noUartTx:
 tim4NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer4+CURRENT]
-	str r7,[mikptr,#timer4+LAST_COUNT]
 tim4NoCount:
 	str r2,[mikptr,#mikTim4Bkup]
 	// Prediction for next timer event cycle number
@@ -1927,9 +1913,8 @@ tim4NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 
 	ldmfd sp!,{r6-r7}
 
@@ -1956,7 +1941,7 @@ miUpdateUartIrq:
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer6:				;@ in r4=systemCycleCount
+miRunTimer6:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim6Bkup]
@@ -1982,9 +1967,10 @@ t6DoRel:
 	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim6NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer6+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -2007,7 +1993,6 @@ t6DoRel:
 tim6NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer6+CURRENT]
-	str r7,[mikptr,#timer6+LAST_COUNT]
 tim6NoCount:
 	str r2,[mikptr,#mikTim6Bkup]
 	// Prediction for next timer event cycle number
@@ -2023,14 +2008,13 @@ tim6NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer1:				;@ in r4=systemCycleCount
+miRunTimer1:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim1Bkup]
@@ -2056,9 +2040,10 @@ t1DoRel:
 	sub r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim1NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer1+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -2081,7 +2066,6 @@ t1DoRel:
 tim1NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer1+CURRENT]
-	str r7,[mikptr,#timer1+LAST_COUNT]
 tim1NoCount:
 	str r2,[mikptr,#mikTim1Bkup]
 	// Prediction for next timer event cycle number
@@ -2097,14 +2081,13 @@ tim1NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer3:				;@ in r4=systemCycleCount
+miRunTimer3:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim3Bkup]
@@ -2124,7 +2107,7 @@ t3DoRel:
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
 	ldrbeq r3,[mikptr,#mikTim1CtlB]
-	and r3,r3,#1
+	and r3,r3,#1				;@ Timer1 Borrow Out
 	addne r1,r1,#4
 	ldr r6,[mikptr,#timer3+CURRENT]
 	ldr r7,[mikptr,#timer3+LAST_COUNT]
@@ -2132,9 +2115,10 @@ t3DoRel:
 	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim3NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer3+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -2157,7 +2141,6 @@ t3DoRel:
 tim3NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer3+CURRENT]
-	str r7,[mikptr,#timer3+LAST_COUNT]
 tim3NoCount:
 	str r2,[mikptr,#mikTim3Bkup]
 	cmp r1,#0
@@ -2175,15 +2158,14 @@ tim3NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 tim3Exit:
 	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer5:				;@ in r4=systemCycleCount
+miRunTimer5:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim5Bkup]
@@ -2203,7 +2185,7 @@ t5DoRel:
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
 	ldrbeq r3,[mikptr,#mikTim3CtlB]
-	and r3,r3,#1
+	and r3,r3,#1				;@ Timer3 Borrow Out
 	addne r1,r1,#4
 	ldr r6,[mikptr,#timer5+CURRENT]
 	ldr r7,[mikptr,#timer5+LAST_COUNT]
@@ -2211,9 +2193,10 @@ t5DoRel:
 	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim5NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer5+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -2236,7 +2219,6 @@ t5DoRel:
 tim5NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer5+CURRENT]
-	str r7,[mikptr,#timer5+LAST_COUNT]
 tim5NoCount:
 	str r2,[mikptr,#mikTim5Bkup]
 	cmp r1,#0
@@ -2254,15 +2236,14 @@ tim5NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 tim5Exit:
 	ldmfd sp!,{r6-r7}
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miRunTimer7:				;@ in r4=systemCycleCount
+miRunTimer7:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 ;@----------------------------------------------------------------------------
 	mov r0,#0
 	ldr r2,[mikptr,#mikTim7Bkup]
@@ -2281,7 +2262,7 @@ t7DoRel:
 	cmp r1,#7					;@ Link mode?
 	moveq r1,#0
 	ldrbeq r3,[mikptr,#mikTim5CtlB]
-	and r3,r3,#1
+	and r3,r3,#1				;@ Timer5 Borrow Out
 	addne r1,r1,#4
 	ldr r6,[mikptr,#timer7+CURRENT]
 	ldr r7,[mikptr,#timer7+LAST_COUNT]
@@ -2289,9 +2270,10 @@ t7DoRel:
 	subne r3,r4,r7
 	movs r3,r3,lsr r1
 	beq tim7NoCount				;@ decval?
+	add r7,r7,r3,lsl r1
+	str r7,[mikptr,#timer7+LAST_COUNT]
 	mov r2,r2,ror#24
 	bic r2,r2,#2				;@ CtlB Borrow in, because we count
-	add r7,r7,r3,lsl r1
 	sub r2,r2,r3,lsl#24
 	subs r6,r6,r3
 	orreq r2,r2,#4				;@ CtlB Last clock
@@ -2314,7 +2296,6 @@ t7DoRel:
 tim7NoIrq:
 	mov r2,r2,ror#8
 	str r6,[mikptr,#timer7+CURRENT]
-	str r7,[mikptr,#timer7+LAST_COUNT]
 tim7NoCount:
 	str r2,[mikptr,#mikTim7Bkup]
 	cmp r1,#0
@@ -2332,9 +2313,8 @@ tim7NoCount:
 	//if (tmp < gNextTimerEvent) {
 	//	gNextTimerEvent = tmp;
 	//}
-	ldr r1,[mikptr,#nextTimerEvent]
-	cmp r2,r1
-	strmi r2,[mikptr,#nextTimerEvent]
+	cmp r2,r5
+	movmi r5,r2
 tim7Exit:
 	ldmfd sp!,{r6-r7}
 	bx lr

@@ -185,7 +185,6 @@ typedef struct {
 	u8 ioDatRestSignal;
 	u8 frameFinnished;
 	u8 timerStatusFlags;
-	u8 timerInterruptMask;
 	u8 systemCPUSleep;
 	u8 memSelector;
 	u8 uart_Rx_framing_error;
@@ -193,7 +192,7 @@ typedef struct {
 	u8 uart_RX_READY;
 	u8 uart_Rx_input_ptr;
 	u8 uart_Rx_output_ptr;
-	u8 padding6[1];
+	u8 padding6[2];
 
 	u32 cyclesPerFrame;
 	u32 lynxLineDMACounter;

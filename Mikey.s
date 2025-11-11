@@ -11,6 +11,7 @@
 #include "ARMMikey.i"
 #include "ARM6502/M6502mac.h"
 #include "../LynxCart/LynxCart.i"
+#include "../ARMSuzy/ARMSuzy.i"
 
 	.global mikeyInit
 	.global mikeyReset
@@ -1331,6 +1332,10 @@ serParity:
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------
+	ldrb r0,[mikptr,#mikSDoneAck]
+	ldrb r1,[mikptr,#mikIntSet]
+	orrs r0,r0,r1
+	bxne lr
 	mov r0,#1
 	strb r0,[mikptr,#systemCPUSleep]
 	m6502BailOut
@@ -1502,13 +1507,13 @@ sysLoop:
 	blpl mikUpdate				;@ returns consumed cycles from display DMA
 	ldr r5,[mikptr,#nextTimerEvent]
 	add r4,r4,r0				;@ This updates sysCycleCnt!!!
+	subs r1,r5,r4
+	bmi sysLoop
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	bne sysUpdExit
 
 ;@------------------------------------
-	subs r1,r5,r4
-	movmi r1,#5
 	cmp r1,#190*16
 	movcs r1,#190*16
 	ldr r2,=(0x100000000/5)+1
@@ -1536,10 +1541,13 @@ sysLoop:
 sysUpdExit:
 	ldr r0,[mikptr,#suzyExtraTime]
 	add r4,r4,r0					;@ Use up extra time from last run.
-	sub r0,r5,r4
+	subs r0,r5,r4
+//	bmi skipPaint
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
+//	sub r0,r0,r0,lsr#2
 	add r4,r4,r0
+skipPaint:
 	subs r0,r4,r5
 	movmi r0,#0
 	movpl r4,r5
@@ -2255,6 +2263,7 @@ miRunTimer7:				;@ in r4=systemCycleCount, r5=nextTimerEvent
 t7DoRel:
 	stmfd sp!,{r6-r7}
 	bic r2,r2,#0x05000000		;@ CtlB clear borrow out, last clock
+	mov r1,r1,lsl#1
 	mov r1,r1,lsr#29			;@ CtlA Clock Select
 	// Ordinary clocked mode as opposed to linked mode
 	// 16MHz clock downto 1us == cyclecount >> 4

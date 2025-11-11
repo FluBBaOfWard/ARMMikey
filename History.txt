@@ -1,12 +1,14 @@
 ARMMikey revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-V0.1.4 - 2025-11-06 (FluBBa)
+V0.1.4 - 2025-11-11 (FluBBa)
 	Added different revisions.
 	Added power off from code.
 	Fixed "Timer Done" bit handling.
+	Fixed Timer7.
 	Fixed WAI & STP opcodes.
 	Fixed cycle counting abit.
+	Fixed Sprites Done Acknowledge.
 
 V0.1.2 - 2025-01-20 (FluBBa)
 	Fixed initial palette values.

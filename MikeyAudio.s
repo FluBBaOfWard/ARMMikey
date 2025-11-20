@@ -152,20 +152,22 @@ mixLoop2:
 ;@----------------------------------------------------------------------------
 ;@ r0  = Length
 ;@ r1  = Destination
-;@ r2  = Mixer register
-;@ r3  = Channel 1 Wave R
-;@ r11 = Ch3 Volume
+;@ r2  = Scrap
+;@ r3  = Timer Counter plus backup
+;@ r4  = LFSR
+;@ r6  = Output
+;@ r7  = Volume
+;@ r8  = Settings
 ;@----------------------------------------------------------------------------
 pcmMix:				;@ r0=len, r1=dest, r10=mikptr
 // IIIVCCCCCCCCCCC000001FFFFFFFFFFF
 // I=sampleindex, V=overflow, C=counter, F=frequency
 ;@----------------------------------------------------------------------------
+	mov r11,r0
 	tst r8,#0x08				;@ Enabled?
 	cmpne r7,#0					;@ Volume 0?
-	tstne r3,#0xFF				;@ Count 0?
 	beq silenceMix
 	add r3,r3,#0x01
-	mov r11,r0,lsl#6
 mixLoop:
 innerMixLoop:
 	subs r3,r3,#0x00800000
@@ -191,18 +193,17 @@ innerMixLoop:
 	movmi r6,#-128
 noIntegrate:
 noClock:
-	sub r11,r11,r5
-	tst r11,#0x3F
+	sub r11,r11,r5,lsl#26
+	tst r11,#0xFC000000
 	bne innerMixLoop
 
-	cmp r11,#0
+	subs r11,r11,#1
 	strbpl r6,[r12],#4
 	bhi mixLoop				;@ ?? cycles according to No$gba
 
 	bx lr
 ;@----------------------------------------------------------------------------
 silenceMix:
-	mov r11,r0
 silenceLoop:
 	subs r11,r11,#1
 	strbpl r6,[r12],#4

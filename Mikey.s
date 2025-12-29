@@ -37,16 +37,28 @@
 #endif
 	.align 2
 ;@----------------------------------------------------------------------------
-mikeyInit:				;@ Only need to be called once
+mikeyInit:				;@ r0=RAM ptr, r10=mikptr
 ;@----------------------------------------------------------------------------
-	mov r0,mikptr
-	ldr r1,=mikeySize/4
+	cmp r0,#0
+	adreq r0,dummyFunc
+	str r0,[mikptr,#mikLineCallback]
+	cmp r1,#0
+	adreq r1,dummyFunc
+	str r1,[mikptr,#mikFrameCallback]
+	str r2,[mikptr,#mikGfxRAM]
+
+	ldr r0,=suzy_0
+	str r0,[mikptr,#mikSuzyPtr]
+	ldr r0,=cart_0
+	str r0,[mikptr,#mikCartPtr]
+
+	add r0,mikptr,#mikeyState
+	ldr r1,=mikeyStateSize/4
 	b memclr_					;@ Clear Mikey object
-	bx lr
 ;@----------------------------------------------------------------------------
 mikeyReset:				;@ r10=mikptr
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r0-r4,lr}
+	stmfd sp!,{r0,r4,lr}
 
 	add r0,mikptr,#mikeyState
 	ldr r1,=mikeyStateSize/4
@@ -66,25 +78,12 @@ palClrLoop:
 	mov r0,#UART_RX_INACTIVE
 	str r0,[mikptr,#uart_RX_COUNTDOWN]
 
-	ldmfd sp!,{r0-r4,lr}
-	cmp r0,#0
-	adreq r0,dummyFunc
-	str r0,[mikptr,#mikLineCallback]
-	cmp r1,#0
-	adreq r1,dummyFunc
-	str r1,[mikptr,#mikFrameCallback]
+	ldmfd sp!,{r0,r4,lr}
 
-	str r2,[mikptr,#mikGfxRAM]
-
-	strb r3,[mikptr,#mikSOC]
+	strb r0,[mikptr,#mikSOC]
 
 	ldr r0,=159*105*16			;@ Cycle count for 60Hz frame.
 	str r0,[mikptr,#mikCyclesPerFrame]
-
-	ldr r0,=suzy_0
-	str r0,[mikptr,#mikSuzyPtr]
-	ldr r0,=cart_0
-	str r0,[mikptr,#mikCartPtr]
 
 dummyFunc:
 	bx lr
@@ -1355,14 +1354,14 @@ miPBackupW:					;@ PBKUP (0xFD93)
 ;@----------------------------------------------------------------------------
 miPaletteGW:				;@ Green Palette (0xFDAX)
 ;@----------------------------------------------------------------------------
+	and r1,r1,#0xF
 	strb r0,[mikptr,#paletteChanged]	;@ Mark palette changed
 	and r0,r0,#0xF
-	and r1,r1,#0xF
 	add r2,mikptr,#mikPaletteG
 	strb r1,[r2,r0]
 	add r2,mikptr,#mikPalette
-	add r2,r2,r0,lsl#2
-	strb r1,[r2,#1]
+	add r2,r2,#1
+	strb r1,[r2,r0,lsl#2]
 	bx lr
 ;@----------------------------------------------------------------------------
 miPaletteBRW:				;@ Blue & Red Palette (0xFDBX)
@@ -1638,6 +1637,7 @@ mikDisplayLine:
 	movcs r3,#0
 	strb r3,[mikptr,#ioDatRestSignal]
 
+	ldr r0,[mikptr,#lynxLineDMACounter]
 	cmp r2,#3
 	bne noLatch
 	ldrb r3,[mikptr,#mikDispAdrL]
@@ -1647,16 +1647,13 @@ mikDisplayLine:
 	biceq r3,r3,#3
 	orrne r3,r3,#3
 	str r3,[mikptr,#lynxAddr]
-	mov r3,#GAME_HEIGHT
-	str r3,[mikptr,#lynxLineDMACounter]
+	mov r0,#GAME_HEIGHT
 noLatch:
 	add r2,r2,#1
 	str r2,[mikptr,#lynxLine]
 
-	ldr r0,[mikptr,#lynxLineDMACounter]
-	cmp r0,#0
-	bxeq lr
-	sub r0,r0,#1
+	subs r0,r0,#1
+	bxmi lr
 	str r0,[mikptr,#lynxLineDMACounter]
 
 	ldr r0,[mikptr,#mikGfxRAM]
@@ -1674,7 +1671,7 @@ noLatch:
 	ldmfd sp!,{lr}
 	mov r0,#0
 	strb r0,[mikptr,#paletteChanged]	;@ Clear Palette changed.
-	mov r0,#80 * 4				;@ 80 * DMA_RDWR_CYC
+	mov r0,#(GAME_WIDTH/2) * 4			;@ 80 * DMA_RDWR_CYC
 	bx lr
 
 ;@----------------------------------------------------------------------------

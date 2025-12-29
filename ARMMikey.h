@@ -47,14 +47,12 @@ extern "C" {
 #define ENABLE_RELOAD (1<<4)
 #define INTEGRATE (1<<5)
 
-typedef struct
-{
+typedef struct {
 	u32 CURRENT;
 	u32 LAST_COUNT;
 } MTIMER;
 
-typedef struct
-{
+typedef struct {
 	u32 WAVESHAPER;
 } MAUDIO;
 
@@ -179,7 +177,6 @@ typedef struct {
 	u32 palette[16];		// Merged palette
 	int uart_Rx_input_queue[UART_MAX_RX_QUEUE];
 	u8 paletteChanged;		// Palette updated since last render.
-	u8 mikLCDVSize;			// 0x01 LCD Y Size
 	u8 mikSOC;				// HOWARD or HOWARD2
 	u8 serCablePresent;
 	u8 ioDatRestSignal;
@@ -192,7 +189,7 @@ typedef struct {
 	u8 uart_RX_READY;
 	u8 uart_Rx_input_ptr;
 	u8 uart_Rx_output_ptr;
-	u8 padding6[2];
+	u8 padding6[3];
 
 	u32 cyclesPerFrame;
 	u32 lynxLineDMACounter;
@@ -228,15 +225,10 @@ typedef struct {
 	u32 txCallbackObj;		// TX Callback object.
 	/// TX callback
 	void (*txFunction)(int data, u32 objref);
-	/// NMI callback
-	void (*mikNmiFunction)(bool pin);
-	/// IRQ callback
-	void (*mikIrqFunction)(bool pin);
 	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
 	void (*mikFrameCallback)(void);
 
 	u8 *mikGfxRAM;
-
 } MIKEY;
 
 void mikeyReset(void *irqFunction(), void *ram, int soc);

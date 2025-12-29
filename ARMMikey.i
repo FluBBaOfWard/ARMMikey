@@ -5,6 +5,9 @@
 //  Created by Fredrik Ahlström on 2024-10-14.
 //  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
 //
+#if !__ASSEMBLER__
+	#error This header file is only for use in assembly files!
+#endif
 
 #include "ARM6502/M6502.i"
 
@@ -16,9 +19,9 @@
 #define SOC_HOWARD    (0)
 #define SOC_HOWARD2   (1)
 
-/** Game screen width in pixels */
+/// Game screen width in pixels
 #define GAME_WIDTH  (160)
-/** Game screen height in pixels */
+/// Game screen height in pixels
 #define GAME_HEIGHT (102)
 
 #define UART_TX_INACTIVE	0x80000000
@@ -165,7 +168,6 @@ mikPaletteBR:		.space 0x10	;@ 0xB0-0xBF Blue/Red palette
 mikPalette:			.space 16*4	;@ Merged palette
 uart_Rx_input_queue:	.space UART_MAX_RX_QUEUE*4
 paletteChanged:		.byte 0
-mikLCDVSize:		.byte 0		;@ 0x01 LCD Vertical Size
 mikSOC:				.byte 0		;@ HOWARD or HOWARD2
 mikSerCablePresent:	.byte 0
 ioDatRestSignal:	.byte 0
@@ -178,7 +180,7 @@ uart_Rx_overun_error:	.byte 0
 uart_RX_READY:		.byte 0
 uart_Rx_input_ptr:	.byte 0
 uart_Rx_output_ptr:	.byte 0
-mikPadding6:		.skip 2
+mikPadding6:		.skip 3
 
 mikCyclesPerFrame:	.long 0
 lynxLineDMACounter:	.long 0
@@ -215,8 +217,6 @@ mikSuzyPtr:			.long 0		;@ Pointer to Suzy object.
 mikCartPtr:			.long 0		;@ Pointer to LynxCart object.
 mikTxCallbackObj:	.long 0		;@ TX Callback object.
 mikTxFunction:		.long 0		;@ TX function
-mikNmiFunction:		.long 0		;@ NMI function
-mikIrqFunction:		.long 0		;@ IRQ function
 
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0

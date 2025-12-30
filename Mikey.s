@@ -1606,6 +1606,47 @@ mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles, r5=new 
 	bl miRunTimer4
 	bl miRunTimer6
 
+//	stmfd sp!,{r6-r8}
+//	mov r1,#0
+//	ldr r2,[mikptr,#mikTim1Bkup]
+//	ldr r6,[mikptr,#timer1+CURRENT]
+//	ldr r7,[mikptr,#timer1+LAST_COUNT]
+//	mov r8,#1<<1
+//	bl miRunTimer
+//	str r2,[mikptr,#mikTim1Bkup]
+//	str r6,[mikptr,#timer1+CURRENT]
+//	str r7,[mikptr,#timer1+LAST_COUNT]
+
+//	mov r1,r2,lsr#24
+//	ldr r2,[mikptr,#mikTim3Bkup]
+//	ldr r6,[mikptr,#timer3+CURRENT]
+//	ldr r7,[mikptr,#timer3+LAST_COUNT]
+//	mov r8,#1<<3
+//	bl miRunTimer
+//	str r2,[mikptr,#mikTim3Bkup]
+//	str r6,[mikptr,#timer3+CURRENT]
+//	str r7,[mikptr,#timer3+LAST_COUNT]
+
+//	mov r1,r2,lsr#24
+//	ldr r2,[mikptr,#mikTim5Bkup]
+//	ldr r6,[mikptr,#timer5+CURRENT]
+//	ldr r7,[mikptr,#timer5+LAST_COUNT]
+//	mov r8,#1<<5
+//	bl miRunTimer
+//	str r2,[mikptr,#mikTim5Bkup]
+//	str r6,[mikptr,#timer5+CURRENT]
+//	str r7,[mikptr,#timer5+LAST_COUNT]
+
+//	mov r1,r2,lsr#24
+//	ldr r2,[mikptr,#mikTim7Bkup]
+//	ldr r6,[mikptr,#timer7+CURRENT]
+//	ldr r7,[mikptr,#timer7+LAST_COUNT]
+//	mov r8,#1<<7
+//	bl miRunTimer
+//	str r2,[mikptr,#mikTim7Bkup]
+//	str r6,[mikptr,#timer7+CURRENT]
+//	str r7,[mikptr,#timer7+LAST_COUNT]
+//	ldmfd sp!,{r6-r8}
 	bl miRunTimer1
 	bl miRunTimer3
 	bl miRunTimer5
@@ -1672,6 +1713,81 @@ noLatch:
 	mov r0,#0
 	strb r0,[mikptr,#paletteChanged]	;@ Clear Palette changed.
 	mov r0,#(GAME_WIDTH/2) * 4			;@ 80 * DMA_RDWR_CYC
+	bx lr
+
+;@----------------------------------------------------------------------------
+;@ r1 = previous Timer Ctl B
+;@ r2 = Timer backup
+;@ r4 = systemCycleCount
+;@ r5 = nextTimerEvent
+;@ r6 = timer CURRENT
+;@ r7 = timer LAST_COUNT
+;@ r8 = interrupt flag
+miRunTimer:
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	movs r3,r2,lsl#20
+	bxpl lr						;@ CtlA Count Enabled?
+	bcs timrDoRel				;@ CtlA Reload Enabled?
+	tst r2,#0x08000000			;@ CtlB Timer done?
+	bxne lr
+timrDoRel:
+	bic r2,r2,#0x05000000		;@ CtlB clear borrow out, last clock
+	mov r3,r3,lsl#1
+	mov r3,r3,lsr#29			;@ CtlA Clock Select
+	// Ordinary clocked mode as opposed to linked mode
+	// 16MHz clock downto 1us == cyclecount >> 4
+	//divide = 4 + (CtlA & CLOCK_SEL);
+	cmp r3,#7					;@ Link mode?
+	moveq r3,#0
+	andeq r1,r1,#1				;@ Previous Timer Borrow Out
+	addne r3,r3,#4
+	//decval = (gSystemCycleCount - LAST_COUNT) >> divide;
+	subne r1,r4,r7
+	movs r1,r1,lsr r3
+	beq timrNoCount				;@ decval?
+	add r7,r7,r1,lsl r3
+	mov r2,r2,ror#24
+	bic r2,r2,#2				;@ CtlB Borrow in, because we count
+	sub r2,r2,r1,lsl#24
+	subs r6,r6,r1
+	orreq r2,r2,#4				;@ CtlB Last clock
+	bpl timrNoIrq
+	orr r2,r2,#1				;@ CtlB Borrow Out
+	tst r2,#0x00100000			;@ CtlA ENABLE_RELOAD?
+	andne r1,r2,#0xFF00
+	addne r1,r1,#0x0100
+	addne r2,r2,r1,lsl#16
+	addne r6,r6,r1,lsr#8
+	biceq r2,r2,#0xFF000000		;@ No reload, clear count.
+	moveq r6,#0
+	tst r2,#0x400000			;@ CtlA Disable/Reset Timer Done?
+	orreq r2,r2,#8				;@ CtlB Timer Done
+	tst r2,#0x800000			;@ CtlA Interrupt Enable?
+	ldrbne r0,[mikptr,#timerStatusFlags]
+	orrne r0,r0,r8
+	strbne r0,[mikptr,#timerStatusFlags]
+	mov r0,#1
+timrNoIrq:
+	mov r2,r2,ror#8
+timrNoCount:
+	cmp r3,#0
+	bxeq lr
+	// Prediction for next timer event cycle number
+	// Sometimes timeupdates can be >2x rollover in which case
+	// then CURRENT may still be negative and we can use it to
+	// calc the next timer value, we just want another update ASAP
+	//tmp = gSystemCycleCount;
+	//tmp += (CURRENT & 0x80000000) ? 1 : ((CURRENT + 1) << divide);
+	tst r6,#0x80000000
+	addne r1,r4,#1
+	addeq r1,r6,#1
+	addeq r1,r4,r1,lsl r3
+	//if (gNextTimerEvent > tmp) {
+	//	gNextTimerEvent = tmp;
+	//}
+	cmp r5,r1
+	movpl r5,r1
 	bx lr
 
 ;@----------------------------------------------------------------------------

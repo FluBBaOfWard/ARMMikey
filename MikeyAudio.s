@@ -166,6 +166,7 @@ pcmMix:				;@ r0=len, r1=dest, r10=mikptr
 	mov r11,r0
 	tst r8,#0x08				;@ Enabled?
 	cmpne r7,#0					;@ Volume 0?
+	tstne r3,#0xFF				;@ Count 0?
 	beq silenceMix
 	add r3,r3,#0x01
 mixLoop:

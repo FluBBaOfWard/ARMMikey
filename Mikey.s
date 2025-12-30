@@ -400,7 +400,7 @@ miRegR:
 ;@----------------------------------------------------------------------------
 miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r2,r4,lr}
+	stmfd sp!,{r2,r4,r5,lr}
 	ldr r4,[mikptr,#systemCycleCount]
 	mov r0,cycles,asr#CYC_SHIFT
 	add r0,r0,r0,lsl#2	// x5
@@ -408,7 +408,8 @@ miTimXCntR:					;@ Timer X Count (0xFDX2/6/A/E)
 	bl mikUpdate				;@ returns consumed cycles
 	mov r0,r0,lsr#2
 	sub cycles,cycles,r0,lsl#CYC_SHIFT
-	ldmfd sp!,{r2,r4,lr}
+	str r5,[mikptr,#nextTimerEvent]
+	ldmfd sp!,{r2,r4,r5,lr}
 	b miRegR
 
 ;@----------------------------------------------------------------------------
@@ -1504,7 +1505,6 @@ sysLoop:
 	mov r0,#0
 	cmp r4,r5
 	blpl mikUpdate				;@ returns consumed cycles from display DMA
-	ldr r5,[mikptr,#nextTimerEvent]
 	add r4,r4,r0				;@ This updates sysCycleCnt!!!
 	subs r1,r5,r4
 	bmi sysLoop
@@ -1514,12 +1514,13 @@ sysLoop:
 
 ;@------------------------------------
 	cmp r1,#190*16
-	movcs r1,#190*16
+	movcs r1,#190*16					;@ Max cycles per row
 	ldr r2,=(0x100000000/5)+1
 	umull r3,r0,r2,r1
 	add r4,r4,r1
 	stmfd sp!,{r4,r6}
 	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
+	str r5,[mikptr,#nextTimerEvent]
 	add r1,m6502ptr,#m6502Regs
 	ldmia r1,{m6502nz-m6502pc,m6502zpage}	;@ Restore M6502 state
 	zeroCycles
@@ -1529,11 +1530,11 @@ sysLoop:
 	stmia r1,{m6502nz-m6502pc}	;@ Save M6502 state
 	ldmfd sp!,{r4,r6}
 	ldr r5,[mikptr,#nextTimerEvent]
-;@------------------------------------
 	mov r0,cycles,asr#CYC_SHIFT
 	// systemCycleCount += (1+(cyc*CPU_RDWR_CYC));
 	add r0,r0,r0,lsl#2	// x5
 	sub r4,r4,r0
+;@------------------------------------
 	ldrb r0,[mikptr,#systemCPUSleep]
 	cmp r0,#0
 	beq noSpritePaint
@@ -1586,9 +1587,9 @@ noSpritePaint:
 // (In reality T0 line counter should always be running.)
 //
 ;@----------------------------------------------------------------------------
-mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
+mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles, r5=new nextTimerEvent.
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r5,r6,lr}
+	stmfd sp!,{r6,lr}
 
 	//gNextTimerEvent = 0xffffffff;
 	add r5,r4,#0x40000000
@@ -1612,7 +1613,6 @@ mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 
 //	if (gAudioEnabled)
 //	bl updateSound
-	str r5,[mikptr,#nextTimerEvent]
 
 	ldrb r0,[mikptr,#timerStatusFlags]
 	cmp r0,#0
@@ -1621,7 +1621,7 @@ mikUpdate:				;@ in r4=systemCycleCount, out r0=consumed (16MHz) cycles.
 	blne m6502SetIRQPin
 
 	mov r0,r6
-	ldmfd sp!,{r5,r6,lr}
+	ldmfd sp!,{r6,lr}
 	bx lr
 ;@----------------------------------------------------------------------------
 mikDisplayLine:

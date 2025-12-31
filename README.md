@@ -2,7 +2,7 @@
 
 Atari Lynx Mikey chip emulator for ARM32.
 
-## Projects That use this Mikey core
+## Projects that use this Mikey core
 
 * https://github.com/FluBBaOfWard/LodjurDS
 * https://github.com/FluBBaOfWard/LodjurGBA

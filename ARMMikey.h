@@ -225,7 +225,7 @@ typedef struct {
 	u32 txCallbackObj;		// TX Callback object.
 	/// TX callback
 	void (*txFunction)(int data, u32 objref);
-	void (*mikLineCallback)(u8 *ram, u32 *palette, bool flip);
+	void (*mikLineCallback)(const u8 *ram, const u32 *palette, bool flip, bool palChg);
 	void (*mikFrameCallback)(void);
 
 	u8 *mikGfxRAM;

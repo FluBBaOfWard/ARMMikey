@@ -5,7 +5,6 @@
 //  Created by Fredrik Ahlström on 2024-10-14.
 //  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
 //
-
 #ifdef __arm__
 
 #include "ARMMikey.i"
@@ -37,7 +36,7 @@
 #endif
 	.align 2
 ;@----------------------------------------------------------------------------
-mikeyInit:				;@ r0=RAM ptr, r10=mikptr
+mikeyInit:				;@ r0=LineCallback,r1=FrameCallback,r2=RAM ptr,r10=mikptr
 ;@----------------------------------------------------------------------------
 	cmp r0,#0
 	adreq r0,dummyFunc
@@ -1487,7 +1486,7 @@ mikDisplayEndOfFrame:
 	ldr pc,[mikptr,#mikFrameCallback]
 
 #ifdef NDS
-	.section .itcm						;@ For the NDS ARM9
+	.section .itcm, "ax", %progbits		;@ For the NDS ARM9
 #elif GBA
 	.section .iwram, "ax", %progbits	;@ For the GBA
 #endif

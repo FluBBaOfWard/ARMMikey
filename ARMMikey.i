@@ -3,7 +3,7 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2026 Fredrik Ahlström. All rights reserved.
 //
 #if !__ASSEMBLER__
 	#error This header file is only for use in assembly files!
@@ -224,6 +224,7 @@ mikGfxRAM:			.long 0		;@ 0x10000
 
 mikeySize:
 mikeyStateSize = mikeyStateEnd-mikeyState
+	.previous
 
 ;@----------------------------------------------------------------------------
 

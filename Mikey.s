@@ -3,7 +3,7 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2026 Fredrik Ahlström. All rights reserved.
 //
 #ifdef __arm__
 
@@ -1534,14 +1534,16 @@ sysLoop:
 	add r0,r0,r0,lsl#2	// x5
 	sub r4,r4,r0
 ;@------------------------------------
-	ldrb r0,[mikptr,#systemCPUSleep]
-	cmp r0,#0
+	ldrb r1,[mikptr,#systemCPUSleep]
+	cmp r1,#0
 	beq noSpritePaint
 sysUpdExit:
 	ldr r0,[mikptr,#suzyExtraTime]
 	add r4,r4,r0					;@ Use up extra time from last run.
 	subs r0,r5,r4
-//	bmi skipPaint
+//	ldrb r1,[mikptr,#systemCPUSleep]
+//	cmp r1,#1
+	bmi skipPaint
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
 //	sub r0,r0,r0,lsr#2

@@ -3,9 +3,8 @@
 //  Atari Lynx Mikey emulation for ARM32.
 //
 //  Created by Fredrik Ahlström on 2024-10-14.
-//  Copyright © 2024-2025 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2024-2026 Fredrik Ahlström. All rights reserved.
 //
-
 #ifndef MIKEY_HEADER
 #define MIKEY_HEADER
 

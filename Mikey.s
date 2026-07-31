@@ -1958,4 +1958,4 @@ miUpdateUartIrq:
 	strb r0,[mikptr,#timerStatusFlags]
 	bx lr
 ;@----------------------------------------------------------------------------
-#endif // #ifdef __arm__
+#endif // __arm__

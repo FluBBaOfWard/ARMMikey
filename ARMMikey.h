@@ -264,4 +264,4 @@ void ComLynxTxCallback(MIKEY *chip, void (*function)(int data, u32 objref), u32 
 } // extern "C"
 #endif
 
-#endif // MIKEY_HEADER
+#endif // !MIKEY_HEADER

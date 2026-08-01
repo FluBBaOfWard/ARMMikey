@@ -42,10 +42,7 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 	ldrb r4,[mikptr,#mikAud0Count]
 	orr r3,r3,r4,lsl#24
 	ldr r4,[mikptr,#audio0+WAVESHAPER]
-	mov r5,#0x01
 	ldrb r8,[mikptr,#mikAud0Ctl]
-	and r6,r8,#7				;@ CLOCK_SEL
-	mov r5,r5,lsl r6
 	ldrb r6,[mikptr,#mikAud0OutVal]
 	mov r6,r6,lsl#24
 	mov r6,r6,asr#24
@@ -64,10 +61,7 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 	ldrb r4,[mikptr,#mikAud1Count]
 	orr r3,r3,r4,lsl#24
 	ldr r4,[mikptr,#audio1+WAVESHAPER]
-	mov r5,#0x01
 	ldrb r8,[mikptr,#mikAud1Ctl]
-	and r6,r8,#7				;@ CLOCK_SEL
-	mov r5,r5,lsl r6
 	ldrb r6,[mikptr,#mikAud1OutVal]
 	mov r6,r6,lsl#24
 	mov r6,r6,asr#24
@@ -86,10 +80,7 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 	ldrb r4,[mikptr,#mikAud2Count]
 	orr r3,r3,r4,lsl#24
 	ldr r4,[mikptr,#audio2+WAVESHAPER]
-	mov r5,#0x01
 	ldrb r8,[mikptr,#mikAud2Ctl]
-	and r6,r8,#7				;@ CLOCK_SEL
-	mov r5,r5,lsl r6
 	ldrb r6,[mikptr,#mikAud2OutVal]
 	mov r6,r6,lsl#24
 	mov r6,r6,asr#24
@@ -108,10 +99,7 @@ miAudioMixer:				;@ r0=len, r1=dest, r10=mikptr
 	ldrb r4,[mikptr,#mikAud3Count]
 	orr r3,r3,r4,lsl#24
 	ldr r4,[mikptr,#audio3+WAVESHAPER]
-	mov r5,#0x01
 	ldrb r8,[mikptr,#mikAud3Ctl]
-	and r6,r8,#7				;@ CLOCK_SEL
-	mov r5,r5,lsl r6
 	ldrb r6,[mikptr,#mikAud3OutVal]
 	mov r6,r6,lsl#24
 	mov r6,r6,asr#24
@@ -168,6 +156,9 @@ pcmMix:				;@ r0=len, r1=dest, r10=mikptr
 	tstne r3,#0xFF				;@ Count 0?
 	beq silenceMix
 	add r3,r3,#0x01
+	mov r5,#0x01
+	and r9,r8,#7				;@ CLOCK_SEL
+	mov r5,r5,lsl r9
 mixLoop:
 innerMixLoop:
 	subs r3,r3,#0x00800000

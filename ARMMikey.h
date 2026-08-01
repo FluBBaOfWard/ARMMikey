@@ -219,13 +219,14 @@ typedef struct {
 	MAUDIO audio2;
 	MAUDIO audio3;
 
-	void *mikSuzyPtr;		// Pointer to Suzy object.
-	void *mikCartPtr;		// Pointer to LynxCart object.
-	u32 txCallbackObj;		// TX Callback object.
+	void *suzyPtr;		// Pointer to Suzy object.
+	void *cartPtr;		// Pointer to LynxCart object.
+	u32 txCallbackObj;	// TX Callback object.
 	/// TX callback
 	void (*txFunction)(int data, u32 objref);
-	void (*mikLineCallback)(const u8 *ram, const u32 *palette, bool flip, bool palChg);
-	void (*mikFrameCallback)(void);
+	void (*lineCallback)(const u8 *ram, const u32 *palette, bool flip, bool palChg);
+	void (*frameCallback)(void);
+	void (*powerCallback)(void);
 
 	u8 *mikGfxRAM;
 } MIKEY;
@@ -253,6 +254,8 @@ int mikeyLoadState(MIKEY *chip, const void *source);
  * @return The size of the state.
  */
 int mikeyGetStateSize(void);
+
+void mikeyDisplayOff(void);
 
 void ComLynxCable(MIKEY *chip, bool inserted);
 

@@ -128,14 +128,14 @@ mikAttenB:			.byte 0		;@ 0x41
 mikAttenC:			.byte 0		;@ 0x42
 mikAttenD:			.byte 0		;@ 0x43
 mikMPAN:			.byte 0		;@ 0x44
-mikPadding0:		.space 0x0B	;@ 0x45-0x4F
+mikPadding0:		.skip 0x0B	;@ 0x45-0x4F
 
 mikStereo:			.byte 0		;@ 0x50 STEREO
-mikPadding1:		.space 0x2F	;@ 0x51-0x7F
+mikPadding1:		.skip 0x2F	;@ 0x51-0x7F
 
 mikIntRst:			.byte 0		;@ 0x80 Interrupt Reset
 mikIntSet:			.byte 0		;@ 0x81 Interrupt Set
-mikPadding2:		.space 0x02	;@ 0x82-0x83
+mikPadding2:		.skip 0x02	;@ 0x82-0x83
 mikMagRdy0:			.byte 0		;@ 0x84 Mag Tape Channel 0 Ready bit
 mikMagRdy1:			.byte 0		;@ 0x85 Mag Tape Channel 1 Ready bit
 mikAudIn:			.byte 0		;@ 0x86 Audio In
@@ -146,7 +146,7 @@ mikIODir:			.byte 0		;@ 0x8A IO Direction
 mikIODat:			.byte 0		;@ 0x8B IO Data
 mikSerCtl:			.byte 0		;@ 0x8C Serial Control
 mikSerDat:			.byte 0		;@ 0x8D Serial Data
-mikPadding3:		.space 0x02	;@ 0x8E-0x8F
+mikPadding3:		.skip 0x02	;@ 0x8E-0x8F
 
 mikSDoneAck:		.byte 0		;@ 0x90 Suzy Done Acknowledge
 mikCpuSleep:		.byte 0		;@ 0x91 CPU Sleep, Bus Request Disable
@@ -155,11 +155,11 @@ mikPBkup:			.byte 0		;@ 0x93 P Backup, Magic 'P' count
 mikDispAdr:
 mikDispAdrL:		.byte 0		;@ 0x94 Display Address Low
 mikDispAdrH:		.byte 0		;@ 0x95 Display Address High
-mikPadding4:		.space 0x06	;@ 0x96-0x9B
+mikPadding4:		.skip 0x06	;@ 0x96-0x9B
 mikMtest0:			.byte 0		;@ 0x9C Mtest0
 mikMtest1:			.byte 0		;@ 0x9D Mtest1
 mikMtest2:			.byte 0		;@ 0x9E Mtest2
-mikPadding5:		.space 0x01	;@ 0x9F
+mikPadding5:		.skip 0x01	;@ 0x9F
 
 mikPaletteG:		.space 0x10	;@ 0xA0-0xAF Green palette
 mikPaletteBR:		.space 0x10	;@ 0xB0-0xBF Blue/Red palette
@@ -220,6 +220,8 @@ mikTxFunction:		.long 0		;@ TX function
 
 mikLineCallback:	.long 0
 mikFrameCallback:	.long 0
+mikPowerCallback:	.long 0
+
 mikGfxRAM:			.long 0		;@ 0x10000
 
 mikeySize:

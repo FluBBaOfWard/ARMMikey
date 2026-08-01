@@ -17,6 +17,7 @@
 	.global mikeySaveState
 	.global mikeyLoadState
 	.global mikeyGetStateSize
+	.global mikeyDisplayOff
 	.global ComLynxCable
 	.global ComLynxRxData
 	.global ComLynxTxCallback
@@ -45,6 +46,8 @@ mikeyInit:				;@ r0=LineCallback,r1=FrameCallback,r2=RAM ptr,r10=mikptr
 	adreq r1,dummyFunc
 	str r1,[mikptr,#mikFrameCallback]
 	str r2,[mikptr,#mikGfxRAM]
+	adr r0,dummyFunc
+	str r0,[mikptr,#mikPowerCallback]
 
 	ldr r0,=suzy_0
 	str r0,[mikptr,#mikSuzyPtr]
@@ -55,7 +58,7 @@ mikeyInit:				;@ r0=LineCallback,r1=FrameCallback,r2=RAM ptr,r10=mikptr
 	ldr r1,=mikeyStateSize/4
 	b memclr_					;@ Clear Mikey object
 ;@----------------------------------------------------------------------------
-mikeyReset:				;@ r10=mikptr
+mikeyReset:				;@ r0=SOC, r10=mikptr
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0,r4,lr}
 
@@ -1433,39 +1436,39 @@ ComLynxTxCallback:			;@ In r0=MIKEY, r1=function, r2=objref
 	bx lr
 
 ;@----------------------------------------------------------------------------
-miPowerOff:
+mikeyDisplayOff:
+	.type	mikeyDisplayOff STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,lr}
 
 	ldr r0,[mikptr,#mikGfxRAM]
-	ldr r1,=0x2000/4
+	ldr r1,=0x50/4
 	bl memclr_					;@ Clear some RAM
 
 	bl mikDisplayEndOfFrame
 
-	mov r0,#0
-	str r0,[mikptr,#lynxAddr]
+	mov r0,#0x1000
 	str r0,[mikptr,#mikPalette]
 
 	mov r4,#GAME_HEIGHT
-powOffLoop:
+dispOffLoop:
 	ldr r0,[mikptr,#mikGfxRAM]
-	ldr r3,[mikptr,#lynxAddr]
-	mov r2,#0					;@ Screen flip?
-	add r0,r0,r3
-	add r3,r3,#GAME_WIDTH/2
-	str r3,[mikptr,#lynxAddr]
 	add r1,mikptr,#mikPalette
+	mov r2,#0					;@ Screen flip?
 	mov r3,#1					;@ Palette changed?
 	mov lr,pc
 	ldr pc,[mikptr,#mikLineCallback]
 	subs r4,r4,#1
-	bne powOffLoop
+	bne dispOffLoop
 
-	mov r0,#0
-	bl setPowerIsOn
-	m6502BailOut
 	ldmfd sp!,{r4,pc}
+;@----------------------------------------------------------------------------
+miPowerOff:
+;@----------------------------------------------------------------------------
+	m6502BailOut
+	mov r0,#0
+	ldr r1,[mikptr,#mikPowerCallback]
+	bx r1
 ;@----------------------------------------------------------------------------
 mikWakeCPU:
 ;@----------------------------------------------------------------------------

@@ -1344,7 +1344,10 @@ miCpuSleepW:				;@ CPU Sleep (0xFD91)
 	ldrb r1,[mikptr,#mikIntSet]
 	orrs r0,r0,r1
 	bxne lr
-	mov r0,#1
+	ldr r1,[mikptr,#mikSuzyPtr]
+	ldrb r0,[r1,#suzSuzyBusEn]
+	tst r0,#1
+	bxeq lr
 	strb r0,[mikptr,#systemCPUSleep]
 	m6502BailOut
 	bx lr

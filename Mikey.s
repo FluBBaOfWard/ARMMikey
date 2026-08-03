@@ -721,7 +721,7 @@ io_write_tbl:
 	.long miUnmappedW			;@ 0xFD8E
 	.long miUnmappedW			;@ 0xFD8F
 
-	.long miRegW				;@ 0xFD90 SDONEACK
+	.long miSDoneAckW			;@ 0xFD90 SDONEACK
 	.long miCpuSleepW			;@ 0xFD91 CPUSLEEP
 	.long miRegW				;@ 0xFD92 DISPCTL
 	.long miPBackupW			;@ 0xFD93 PBKUP
@@ -1331,6 +1331,12 @@ serParity:
 	str r0,[mikptr,#uart_TX_COUNTDOWN]
 	;@ Loop back what we transmitted
 	b ComLynxTxLoopback
+;@----------------------------------------------------------------------------
+miSDoneAckW:				;@ S Done Ack (0xFD90)
+;@----------------------------------------------------------------------------
+	mov r0,#0
+	strb r0,[mikptr,#mikSDoneAck]
+	bx lr
 ;@----------------------------------------------------------------------------
 miCpuSleepW:				;@ CPU Sleep (0xFD91)
 ;@----------------------------------------------------------------------------

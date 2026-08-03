@@ -1,8 +1,9 @@
 ARMMikey revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-V0.1.5 - 2026-08-01 (FluBBa)
+V0.1.5 - 2026-08-03 (FluBBa)
 	Fixed power on/off.
+	Fixed Sprite Done acknowledge.
 
 V0.1.4 - 2026-01-18 (FluBBa)
 	Added different revisions.

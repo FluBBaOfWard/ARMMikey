@@ -1,7 +1,7 @@
 ARMMikey revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-V0.1.5 - 2026-08-03 (FluBBa)
+V0.1.5 - 2026-08-09 (FluBBa)
 	Fixed power on/off.
 	Fixed Sprite Done acknowledge.
 	Fixed CPU sleep when Suzy bus not enabled.

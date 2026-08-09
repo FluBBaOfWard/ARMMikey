@@ -1527,7 +1527,7 @@ sysLoop:
 	cmp r1,#190*16
 	movcs r1,#190*16					;@ Max cycles per row
 	ldr r2,=(0x100000000/5)+1
-	umull r3,r0,r2,r1
+	umull r3,r0,r2,r1					;@ r0 = cpu cycles
 	add r4,r4,r1
 	stmfd sp!,{r4,r6}
 	str r4,[mikptr,#systemCycleCount]	;@ This stores sysCycleCnt!!!
@@ -1558,7 +1558,6 @@ sysUpdExit:
 	bmi skipPaint
 	ldr r12,[mikptr,#mikSuzyPtr]	;@ r12=suzptr
 	bl suzPaintSprites
-//	sub r0,r0,r0,lsr#2
 	add r4,r4,r0
 skipPaint:
 	subs r0,r4,r5
